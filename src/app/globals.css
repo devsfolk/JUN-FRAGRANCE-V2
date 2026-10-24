@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+body {
+  min-width: 360px;
+  min-height: 100dvh;
+  overflow-x: clip;
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  font-family: Arial, Helvetica, sans-serif;
+}
