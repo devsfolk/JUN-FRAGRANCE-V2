@@ -1,7 +1,9 @@
+import { connection } from "next/server";
 import { ProductManager } from "./product-manager";
 import { requireAdmin } from "@/lib/auth/require-admin";
 
 export default async function ProductsPage() {
+  await connection();
   const { supabase } = await requireAdmin();
   const [{ data: rows, error }, { data: categoryRows, error: categoryError }] = await Promise.all([
     supabase.from("jf_products").select("id,title,slug,category_id,short_description,description,inspired_by,size_ml,price,compare_at_price,gender,accent_color,notes_top,notes_heart,notes_base,images,is_featured,is_active,sort_order,seo_title,seo_description,jf_categories(name)").order("sort_order", { ascending: true }),

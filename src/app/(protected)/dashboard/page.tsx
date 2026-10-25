@@ -1,6 +1,8 @@
+import { connection } from "next/server";
 import { requireAdmin } from "@/lib/auth/require-admin";
 
 export default async function DashboardOverviewPage() {
+  await connection();
   const { supabase } = await requireAdmin();
   const [categories, products, activeProducts, draftPosts, publishedPosts] = await Promise.all([
     supabase.from("jf_categories").select("id", { count: "exact", head: true }),

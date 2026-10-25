@@ -1,7 +1,9 @@
+import { connection } from "next/server";
 import { CategoryManager } from "./category-manager";
 import { requireAdmin } from "@/lib/auth/require-admin";
 
 export default async function CategoriesPage() {
+  await connection();
   const { supabase } = await requireAdmin();
   const { data, error } = await supabase.from("jf_categories").select("id,name,slug,description,image_url,sort_order,is_active,seo_title,seo_description,jf_products(count)").order("sort_order", { ascending: true });
   if (error) throw new Error("Unable to load categories.");

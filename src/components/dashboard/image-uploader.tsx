@@ -66,6 +66,7 @@ export function ImageUploader({ value, onChange, kind, multiple }: ImageUploader
         const { error: uploadError } = await supabase.storage.from(bucket).upload(path, blob, { contentType: "image/webp", upsert: false });
         if (uploadError) throw new Error(uploadError.message || "Image upload failed.");
         uploaded.push(supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl);
+        onChange(multiple ? [...value, ...uploaded] : uploaded);
         if (!multiple) break;
       }
       if (uploaded.length) {
@@ -97,13 +98,15 @@ export function ImageUploader({ value, onChange, kind, multiple }: ImageUploader
     }
     setBusy(true);
     setError("");
-    const { error: deleteError } = await supabase.storage.from(bucket).remove([path]);
-    setBusy(false);
-    if (deleteError) {
-      setError(deleteError.message || "Image removal failed.");
-      return;
+    try {
+      const { error: deleteError } = await supabase.storage.from(bucket).remove([path]);
+      if (deleteError) throw new Error(deleteError.message || "Image removal failed.");
+      onChange(value.filter((item) => item !== url));
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Image removal failed.");
+    } finally {
+      setBusy(false);
     }
-    onChange(value.filter((item) => item !== url));
   }
 
   function moveImage(index: number, offset: -1 | 1) {
