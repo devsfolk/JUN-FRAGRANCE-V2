@@ -99,6 +99,14 @@ function productStoragePath(url: string) {
   return storagePath(url, "products");
 }
 
+export async function getProductForEdit(input: unknown) {
+  const { supabase } = await requireAdmin();
+  const parsed = idSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, message: "Invalid product." };
+  const { data, error } = await supabase.from("jf_products").select("id,title,slug,category_id,short_description,description,inspired_by,size_ml,price,compare_at_price,gender,accent_color,notes_top,notes_heart,notes_base,images,is_featured,is_active,sort_order,seo_title,seo_description").eq("id", parsed.data).maybeSingle();
+  if (error || !data) return { ok: false, message: error?.message ?? "Product not found." };
+  return { ok: true, product: data };
+}
 export async function deleteProduct(input: unknown) {
   const { supabase } = await requireAdmin();
   const parsed = idSchema.safeParse(input);

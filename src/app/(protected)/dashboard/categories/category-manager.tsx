@@ -10,9 +10,9 @@ import { Textarea } from "@/components/dashboard/ui/textarea";
 import { Toggle } from "@/components/dashboard/ui/toggle";
 import { Toast } from "@/components/dashboard/ui/toast";
 import { ImageUploader } from "@/components/dashboard/image-uploader";
-import { deleteCategory, saveCategory } from "./actions";
+import { deleteCategory, getCategoryForEdit, saveCategory } from "./actions";
 
-type Category = { id: string; name: string; slug: string; description: string | null; image_url: string | null; sort_order: number | null; is_active: boolean; seo_title: string | null; seo_description: string | null; product_count: number };
+type Category = { id: string; name: string; slug: string; image_url: string | null; is_active: boolean; product_count: number };
 type Form = { id?: string; name: string; slug: string; description: string; image_url: string; sort_order: number; is_active: boolean; seo_title: string; seo_description: string };
 const blank: Form = { name: "", slug: "", description: "", image_url: "", sort_order: 0, is_active: true, seo_title: "", seo_description: "" };
 const slugify = (value: string) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -29,9 +29,14 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
   const update = (key: keyof Form, value: string | boolean | number) => setForm((current) => current ? { ...current, [key]: value } : current);
   const edit = (category?: Category) => {
     setError(""); setSlugEdited(Boolean(category));
-    setForm(category ? { id: category.id, name: category.name, slug: category.slug, description: category.description ?? "", image_url: category.image_url ?? "", sort_order: category.sort_order ?? 0, is_active: category.is_active, seo_title: category.seo_title ?? "", seo_description: category.seo_description ?? "" } : { ...blank });
-  };
-  const submit = () => {
+    if (!category) { setForm({ ...blank }); return; }
+    startTransition(async () => {
+      const result = await getCategoryForEdit(category.id);
+      if (!("category" in result) || !result.category) { notify(result.message, false); return; }
+      const details = result.category;
+      setForm({ id: details.id, name: details.name, slug: details.slug, description: details.description ?? "", image_url: details.image_url ?? "", sort_order: details.sort_order ?? 0, is_active: details.is_active, seo_title: details.seo_title ?? "", seo_description: details.seo_description ?? "" });
+    });
+  };  const submit = () => {
     if (!form) return;
     startTransition(async () => {
       const result = await saveCategory(form);

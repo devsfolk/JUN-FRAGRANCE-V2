@@ -11,12 +11,11 @@ import { Textarea } from "@/components/dashboard/ui/textarea";
 import { Toggle } from "@/components/dashboard/ui/toggle";
 import { Toast } from "@/components/dashboard/ui/toast";
 import { ImageUploader } from "@/components/dashboard/image-uploader";
-import { deleteProduct, saveProduct } from "./actions";
+import { deleteProduct, getProductForEdit, saveProduct } from "./actions";
 
 type Category = { id: string; name: string };
-type Product = { id: string; title: string; slug: string; category_id: string | null; short_description: string | null; description: string | null; inspired_by: string | null; size_ml: number; price: number; compare_at_price: number | null; gender: "men" | "women" | "unisex" | null; accent_color: string | null; notes_top: string[]; notes_heart: string[]; notes_base: string[]; images: string[]; is_featured: boolean; is_active: boolean; sort_order: number | null; seo_title: string | null; seo_description: string | null; category_name: string };
-type Form = Omit<Product, "category_name" | "id" | "short_description" | "description" | "inspired_by" | "category_id" | "compare_at_price" | "gender" | "accent_color" | "sort_order" | "seo_title" | "seo_description"> & { id?: string; short_description: string; description: string; inspired_by: string; category_id: string | null; compare_at_price: number | null; gender: "men" | "women" | "unisex" | null; accent_color: string; sort_order: number; seo_title: string; seo_description: string };
-const blank: Form = { title: "", slug: "", category_id: null, short_description: "", description: "", inspired_by: "", size_ml: 50, price: 0, compare_at_price: null, gender: "unisex", accent_color: "#1e293b", notes_top: [], notes_heart: [], notes_base: [], images: [], is_featured: false, is_active: true, sort_order: 0, seo_title: "", seo_description: "" };
+type Product = { id: string; title: string; slug: string; category_id: string | null; price: number; images: string[]; is_featured: boolean; is_active: boolean; category_name: string };
+type Form = { id?: string; title: string; slug: string; category_id: string | null; short_description: string; description: string; inspired_by: string; size_ml: number; price: number; compare_at_price: number | null; gender: "men" | "women" | "unisex" | null; accent_color: string; notes_top: string[]; notes_heart: string[]; notes_base: string[]; images: string[]; is_featured: boolean; is_active: boolean; sort_order: number; seo_title: string; seo_description: string };const blank: Form = { title: "", slug: "", category_id: null, short_description: "", description: "", inspired_by: "", size_ml: 50, price: 0, compare_at_price: null, gender: "unisex", accent_color: "#1e293b", notes_top: [], notes_heart: [], notes_base: [], images: [], is_featured: false, is_active: true, sort_order: 0, seo_title: "", seo_description: "" };
 const slugify = (value: string) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const money = (value: number) => new Intl.NumberFormat("en-PK", { style: "currency", currency: "PKR", maximumFractionDigits: 0 }).format(value);
 
@@ -40,8 +39,23 @@ export function ProductManager({ products, categories }: { products: Product[]; 
   const listed = useMemo(() => products.filter((product) => product.title.toLowerCase().includes(query.toLowerCase()) && (!categoryFilter || product.category_id === categoryFilter) && (!statusFilter || (statusFilter === "active" ? product.is_active : !product.is_active))), [products, query, categoryFilter, statusFilter]);
   const notify = (message: string, ok: boolean) => setToast({ message, tone: ok ? "success" : "error" });
   const update = (key: keyof Form, value: unknown) => setForm((current) => current ? { ...current, [key]: value } as Form : current);
-  const edit = (product?: Product) => { setError(""); setSlugEdited(Boolean(product)); setForm(product ? { ...product, category_name: undefined, short_description: product.short_description ?? "", description: product.description ?? "", inspired_by: product.inspired_by ?? "", category_id: product.category_id, compare_at_price: product.compare_at_price, gender: product.gender, accent_color: product.accent_color, sort_order: product.sort_order ?? 0, seo_title: product.seo_title ?? "", seo_description: product.seo_description ?? "" } as Form : { ...blank }); };
-  const submit = () => { if (!form) return; startTransition(async () => { const result = await saveProduct(form); if (!result.ok) { setError(result.message); return; } setForm(null); notify(result.message, true); router.refresh(); }); };
+  const edit = (product?: Product) => {
+    setError(""); setSlugEdited(Boolean(product));
+    if (!product) { setForm({ ...blank }); return; }
+    startTransition(async () => {
+      const result = await getProductForEdit(product.id);
+      if (!("product" in result) || !result.product) { notify(result.message, false); return; }
+      const details = result.product;
+      setForm({
+        id: details.id, title: details.title, slug: details.slug, category_id: details.category_id,
+        short_description: details.short_description ?? "", description: details.description ?? "", inspired_by: details.inspired_by ?? "",
+        size_ml: details.size_ml, price: Number(details.price), compare_at_price: details.compare_at_price === null ? null : Number(details.compare_at_price),
+        gender: details.gender, accent_color: details.accent_color ?? "#1e293b", notes_top: details.notes_top, notes_heart: details.notes_heart,
+        notes_base: details.notes_base, images: details.images, is_featured: details.is_featured, is_active: details.is_active,
+        sort_order: details.sort_order ?? 0, seo_title: details.seo_title ?? "", seo_description: details.seo_description ?? "",
+      });
+    });
+  };  const submit = () => { if (!form) return; startTransition(async () => { const result = await saveProduct(form); if (!result.ok) { setError(result.message); return; } setForm(null); notify(result.message, true); router.refresh(); }); };
   const remove = () => { if (!deleting) return; startTransition(async () => { const result = await deleteProduct(deleting.id); setDeleting(null); notify(result.message, result.ok); if (result.ok) router.refresh(); }); };
 
   return <>

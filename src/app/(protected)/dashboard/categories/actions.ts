@@ -82,6 +82,14 @@ export async function saveCategory(input: unknown) {
   return { ok: true, message };
 }
 
+export async function getCategoryForEdit(input: unknown) {
+  const { supabase } = await requireAdmin();
+  const parsed = idSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, message: "Invalid category." };
+  const { data, error } = await supabase.from("jf_categories").select("id,name,slug,description,image_url,sort_order,is_active,seo_title,seo_description").eq("id", parsed.data).maybeSingle();
+  if (error || !data) return { ok: false, message: error?.message ?? "Category not found." };
+  return { ok: true, category: data };
+}
 export async function deleteCategory(input: unknown) {
   const { supabase } = await requireAdmin();
   const parsed = idSchema.safeParse(input);
