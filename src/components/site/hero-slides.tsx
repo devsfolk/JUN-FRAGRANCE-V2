@@ -12,13 +12,12 @@ interface HeroSlidesProps {
 
 export function HeroSlides({ products }: HeroSlidesProps) {
   const [index, setIndex] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
 
   const count = products.length;
   const current = products[index] ?? products[0];
-  const accentColor = current?.accent_color?.trim() || "var(--color-gold)";
+  const accentColor = current?.accent_color?.trim() || "#C9A66B";
 
   const nextSlide = useCallback(() => {
     if (count <= 1) return;
@@ -39,30 +38,47 @@ export function HeroSlides({ products }: HeroSlidesProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [nextSlide, prevSlide]);
 
+  // Scroll listener attached ONLY when hero is visible via IntersectionObserver.
+  // Updates CSS custom property --p on container directly without React state re-renders.
   useEffect(() => {
     const section = containerRef.current;
     if (!section) return;
 
     let rafId: number;
-    const handleScroll = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        const rect = section.getBoundingClientRect();
-        const totalScrollable = section.offsetHeight - window.innerHeight;
-        if (totalScrollable <= 0) {
-          setScrollProgress(0);
-          return;
-        }
-        const scrolled = -rect.top;
-        const progress = Math.max(0, Math.min(1, scrolled / totalScrollable));
-        setScrollProgress(progress);
-      });
+    const updateProgress = () => {
+      const rect = section.getBoundingClientRect();
+      const totalScrollable = section.offsetHeight - window.innerHeight;
+      if (totalScrollable <= 0) {
+        section.style.setProperty("--p", "0");
+        return;
+      }
+      const scrolled = -rect.top;
+      const progress = Math.max(0, Math.min(1, scrolled / totalScrollable));
+      section.style.setProperty("--p", progress.toFixed(4));
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    const handleScroll = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(updateProgress);
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          window.addEventListener("scroll", handleScroll, { passive: true });
+          handleScroll();
+        } else {
+          window.removeEventListener("scroll", handleScroll);
+          cancelAnimationFrame(rafId);
+        }
+      },
+      { threshold: 0 }
+    );
+
+    observer.observe(section);
 
     return () => {
+      observer.disconnect();
       window.removeEventListener("scroll", handleScroll);
       cancelAnimationFrame(rafId);
     };
@@ -86,157 +102,189 @@ export function HeroSlides({ products }: HeroSlidesProps) {
     touchStartX.current = null;
   };
 
-  // Scroll story note reveal calculation
-  // progress 0.15 - 0.40 -> Top notes fade in
-  // progress 0.40 - 0.65 -> Heart notes fade in
-  // progress 0.65 - 0.90 -> Base notes fade in
-  const topOpacity = Math.max(0, Math.min(1, (scrollProgress - 0.15) / 0.2));
-  const heartOpacity = Math.max(0, Math.min(1, (scrollProgress - 0.4) / 0.2));
-  const baseOpacity = Math.max(0, Math.min(1, (scrollProgress - 0.65) / 0.2));
-
   return (
     <div
       ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      style={{ "--mist-accent": accentColor } as React.CSSProperties}
+      style={
+        {
+          "--mist-accent": accentColor,
+          "--p": "0",
+        } as React.CSSProperties
+      }
       className="relative h-[180dvh] w-full"
     >
-      <div className="sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden transition-colors duration-700">
-        {/* Layer 1 & 2: Mist Fallback Layer */}
+      {/* Sticky Screen with contain: layout paint for smooth compositor-only updates */}
+      <div
+        style={{ contain: "layout paint" }}
+        className="sticky top-0 flex h-dvh w-full items-center overflow-hidden transition-colors duration-700"
+      >
+        {/* Layer 1: Mist Fallback Layer tinted by accent color, animated via --p without React state */}
         <div
-          className="mist-fallback pointer-events-none absolute inset-0 transition-all duration-700 ease-out"
           style={{
-            opacity: Math.max(0.4, 1 - scrollProgress * 0.45),
+            willChange: "opacity",
+            opacity: "calc(0.45 + (1 - var(--p)) * 0.55)",
+          }}
+          className="mist-fallback pointer-events-none absolute inset-0"
+        />
+
+        {/* Ambient radial gradient glow (fast, no heavy blur filters) */}
+        <div
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors duration-700"
+          style={{
+            width: "min(85vw, 600px)",
+            height: "min(85vw, 600px)",
+            background: `radial-gradient(circle, color-mix(in srgb, ${accentColor} 26%, transparent) 0%, transparent 70%)`,
           }}
         />
 
-        {/* Ambient Radial Accent Glow behind bottle */}
-        <div
-          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[90px] transition-colors duration-700"
-          style={{
-            width: "min(70vw, 420px)",
-            height: "min(70vw, 420px)",
-            backgroundColor: accentColor,
-            opacity: 0.18,
-          }}
-        />
+        {/* Main Content Layout */}
+        <div className="container-site relative z-10 flex h-full w-full flex-col justify-between pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(4.5rem,env(safe-area-inset-top))]">
+          {/* Responsive Layout Grid:
+              Mobile (<lg): Vertical stack where first screen shows bottle large (~50dvh) overlapping the H1.
+              Desktop (lg+): Two columns. Left: Text, CTA, tagline, controls. Right: Large bottle (~70dvh) with notes.
+          */}
+          <div className="my-auto grid h-full w-full items-center gap-4 lg:grid-cols-12 lg:gap-8">
+            {/* Left / Top Text Column */}
+            <div className="flex flex-col items-start text-left lg:col-span-5 lg:py-6">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-[.32em] text-gold md:text-xs">
+                JUN.FRAGRANCE
+              </p>
 
-        {/* Main Content Container */}
-        <div className="container-site relative z-10 flex h-full w-full flex-col justify-between pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(5.5rem,env(safe-area-inset-top))]">
-          {/* Top text block: Eyebrow + H1 + Subline + CTA */}
-          <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-            <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[.32em] text-gold md:text-xs">
-              JUN.FRAGRANCE
-            </p>
+              <h1 className="font-serif text-[2.2rem] font-normal leading-[1.05] tracking-tight text-bone sm:text-4xl md:text-5xl lg:text-[4.25rem]">
+                <span className="block">Scents that</span>
+                <span className="italic block">tell your story</span>
+              </h1>
 
-            <h1 className="font-serif text-[2.6rem] font-normal leading-[1.08] tracking-tight text-bone sm:text-5xl md:text-7xl lg:text-7xl">
-              <span>Scents that</span>{" "}
-              <span className="italic block sm:inline">tell your story</span>
-            </h1>
+              <p className="mt-2 line-clamp-2 max-w-sm text-xs leading-relaxed text-mute sm:max-w-md sm:text-sm lg:line-clamp-none lg:text-base">
+                Premium fragrances crafted for the modern you. Bold. Elegant. Unforgettable.
+              </p>
 
-            <p className="mt-3.5 max-w-xl px-2 text-xs leading-relaxed text-mute sm:text-sm md:text-base">
-              Premium fragrances crafted for the modern you. Bold. Elegant. Unforgettable.
-            </p>
+              {/* Desktop-only placement of CTA and tagline for clean desktop column flow */}
+              <div className="hidden lg:mt-8 lg:flex lg:flex-col lg:items-start lg:gap-4">
+                <Button href="/shop">Explore collection</Button>
+                <p className="font-script text-2xl text-gold/90">
+                  More than just a fragrance. It&apos;s a vibe.
+                </p>
+              </div>
+            </div>
 
-            <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row">
+            {/* Center / Right Bottle Centerpiece & Notes Column */}
+            <div className="relative flex h-[48dvh] min-h-[260px] max-h-[460px] w-full items-center justify-center lg:col-span-7 lg:h-[70dvh] lg:max-h-[640px]">
+              {/* Bottle Shadow (cheap radial gradient ellipse under bottle, no box-shadow/filter) */}
+              <div
+                className="pointer-events-none absolute bottom-4 left-1/2 h-8 w-44 -translate-x-1/2 rounded-[50%] blur-sm"
+                style={{
+                  background: "radial-gradient(ellipse at center, rgba(0,0,0,0.85) 0%, transparent 72%)",
+                }}
+              />
+
+              {/* Bottle Images Crossfade Container */}
+              <div className="relative h-full w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[420px]">
+                {products.map((p, idx) => {
+                  const isActive = idx === index;
+                  const imgUrl = p.images?.[0];
+                  return (
+                    <div
+                      key={p.slug || idx}
+                      className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out ${
+                        isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
+                      }`}
+                    >
+                      {imgUrl ? (
+                        <div className="hero-bottle bottle-mask relative h-full w-full">
+                          <Image
+                            src={imgUrl}
+                            alt={p.title}
+                            fill
+                            priority={idx === 0}
+                            sizes="(max-width: 640px) 280px, (max-width: 1024px) 340px, 420px"
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-56 w-40 items-center justify-center rounded-2xl border border-white/10 bg-ink-2/60 text-center text-xs text-mute backdrop-blur-sm">
+                          {p.title}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Scroll Story Notes: Top, Heart, Base groups reading --p via CSS clamp */}
+              {current && (
+                <>
+                  {/* Top Notes (Left / Top-Left) */}
+                  {current.notes_top?.length > 0 && (
+                    <div
+                      style={{
+                        willChange: "opacity",
+                        opacity: "clamp(0, calc((var(--p) - 0.15) / 0.2), 1)",
+                      }}
+                      className="pointer-events-none absolute left-0 top-[18%] max-w-[110px] sm:max-w-[145px] text-left sm:left-2"
+                    >
+                      <span className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-[.22em] text-gold">
+                        Top Notes
+                      </span>
+                      <p className="mt-0.5 text-[11px] sm:text-xs leading-tight text-bone/85">
+                        {current.notes_top.join(", ")}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Heart Notes (Right / Middle-Right) */}
+                  {current.notes_heart?.length > 0 && (
+                    <div
+                      style={{
+                        willChange: "opacity",
+                        opacity: "clamp(0, calc((var(--p) - 0.40) / 0.2), 1)",
+                      }}
+                      className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 max-w-[110px] sm:max-w-[145px] text-right sm:right-2"
+                    >
+                      <span className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-[.22em] text-gold">
+                        Heart Notes
+                      </span>
+                      <p className="mt-0.5 text-[11px] sm:text-xs leading-tight text-bone/85">
+                        {current.notes_heart.join(", ")}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Base Notes (Left / Bottom-Left) */}
+                  {current.notes_base?.length > 0 && (
+                    <div
+                      style={{
+                        willChange: "opacity",
+                        opacity: "clamp(0, calc((var(--p) - 0.65) / 0.2), 1)",
+                      }}
+                      className="pointer-events-none absolute bottom-[18%] left-0 max-w-[110px] sm:max-w-[145px] text-left sm:left-2"
+                    >
+                      <span className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-[.22em] text-gold">
+                        Base Notes
+                      </span>
+                      <p className="mt-0.5 text-[11px] sm:text-xs leading-tight text-bone/85">
+                        {current.notes_base.join(", ")}
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Mobile-only CTA and tagline placed below the bottle */}
+            <div className="flex flex-col items-start gap-2 pt-1 lg:hidden">
               <Button href="/shop">Explore collection</Button>
+              <p className="font-script text-lg text-gold/90">
+                More than just a fragrance. It&apos;s a vibe.
+              </p>
             </div>
-
-            <p className="mt-3 font-script text-xl text-gold/90 sm:text-2xl md:text-3xl">
-              More than just a fragrance. It&apos;s a vibe.
-            </p>
           </div>
 
-          {/* Centerpiece: Bottle & Scroll Story Notes */}
-          <div className="relative mx-auto my-auto flex h-[38dvh] min-h-[220px] max-h-[380px] w-full max-w-lg items-center justify-center">
-            {/* Bottle Image with reserved space */}
-            <div className="relative h-full w-full max-w-[260px] sm:max-w-[300px]">
-              {products.map((p, idx) => {
-                const isActive = idx === index;
-                const imgUrl = p.images?.[0];
-                return (
-                  <div
-                    key={p.slug || idx}
-                    className={`absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out ${
-                      isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
-                    }`}
-                  >
-                    {imgUrl ? (
-                      <div className="hero-bottle relative h-full w-full">
-                        <Image
-                          src={imgUrl}
-                          alt={p.title}
-                          fill
-                          priority={idx === 0}
-                          sizes="(max-width: 640px) 240px, (max-width: 1024px) 280px, 320px"
-                          className="object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.85)]"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-48 w-36 items-center justify-center rounded-2xl border border-white/10 bg-ink-2/60 text-center text-xs text-mute backdrop-blur-sm">
-                        {p.title}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Scroll Story Notes: Top, Heart, Base groups */}
-            {current && (
-              <>
-                {/* Top Notes (Left / Top-Left) */}
-                {current.notes_top?.length > 0 && (
-                  <div
-                    style={{ opacity: topOpacity }}
-                    className="pointer-events-none absolute left-1 sm:left-4 top-1/4 max-w-[120px] sm:max-w-[150px] transition-opacity duration-300 text-left"
-                  >
-                    <span className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-[.22em] text-gold">
-                      Top Notes
-                    </span>
-                    <p className="mt-0.5 text-[11px] sm:text-xs text-bone/85 leading-tight">
-                      {current.notes_top.join(", ")}
-                    </p>
-                  </div>
-                )}
-
-                {/* Heart Notes (Right / Middle-Right) */}
-                {current.notes_heart?.length > 0 && (
-                  <div
-                    style={{ opacity: heartOpacity }}
-                    className="pointer-events-none absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 max-w-[120px] sm:max-w-[150px] transition-opacity duration-300 text-right"
-                  >
-                    <span className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-[.22em] text-gold">
-                      Heart Notes
-                    </span>
-                    <p className="mt-0.5 text-[11px] sm:text-xs text-bone/85 leading-tight">
-                      {current.notes_heart.join(", ")}
-                    </p>
-                  </div>
-                )}
-
-                {/* Base Notes (Left / Bottom-Left) */}
-                {current.notes_base?.length > 0 && (
-                  <div
-                    style={{ opacity: baseOpacity }}
-                    className="pointer-events-none absolute left-1 sm:left-4 bottom-1/4 max-w-[120px] sm:max-w-[150px] transition-opacity duration-300 text-left"
-                  >
-                    <span className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-[.22em] text-gold">
-                      Base Notes
-                    </span>
-                    <p className="mt-0.5 text-[11px] sm:text-xs text-bone/85 leading-tight">
-                      {current.notes_base.join(", ")}
-                    </p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Bottom Bar: Product Title / Inspired By + Slide Navigation */}
-          <div className="flex items-end justify-between gap-4 pt-2">
-            {/* Active product caption */}
+          {/* Bottom Bar: Active Product Caption + Controls */}
+          <div className="flex items-end justify-between gap-4 border-t border-white/5 pt-2">
+            {/* Active fragrance caption */}
             <div className="min-w-0 max-w-[65%]">
               {current ? (
                 <div>
@@ -244,7 +292,7 @@ export function HeroSlides({ products }: HeroSlidesProps) {
                     href={`/shop/${current.slug}`}
                     className="group inline-flex items-baseline gap-2 truncate"
                   >
-                    <h2 className="truncate font-serif text-lg sm:text-xl text-bone group-hover:text-gold transition-colors">
+                    <h2 className="truncate font-serif text-base sm:text-xl text-bone transition-colors group-hover:text-gold">
                       {current.title}
                     </h2>
                     <span className="text-[10px] text-gold opacity-0 transition-opacity group-hover:opacity-100">
@@ -273,7 +321,7 @@ export function HeroSlides({ products }: HeroSlidesProps) {
                     type="button"
                     onClick={prevSlide}
                     aria-label="Previous fragrance"
-                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/15 text-bone hover:border-gold hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold transition-colors"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/15 text-bone transition-colors hover:border-gold hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
                   >
                     <span aria-hidden="true" className="text-sm">←</span>
                   </button>
@@ -282,7 +330,7 @@ export function HeroSlides({ products }: HeroSlidesProps) {
                     type="button"
                     onClick={nextSlide}
                     aria-label="Next fragrance"
-                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/15 text-bone hover:border-gold hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold transition-colors"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/15 text-bone transition-colors hover:border-gold hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
                   >
                     <span aria-hidden="true" className="text-sm">→</span>
                   </button>
