@@ -5,6 +5,7 @@ import { Renderer, Program, Mesh, Triangle } from "ogl";
 
 interface HeroMistProps {
   onFirstFrame?: () => void;
+  onContextLost?: () => void;
   accentColor: string;
 }
 
@@ -111,21 +112,28 @@ const fragmentShader = /* glsl */ `
     // Mist opacity
     float alpha = smoothstep(0.25, 0.75, density) * vignette * 0.62 * clearMult;
 
-    // Dark base with accent color blending
-    vec3 baseDark = vec3(0.039, 0.035, 0.031); // #0A0908
+    // Accent color blending with premultiplied alpha output
     vec3 mistTint = mix(uColor, vec3(1.0, 0.92, 0.80), density * 0.35);
-    vec3 finalColor = mix(baseDark, mistTint, alpha);
 
-    gl_FragColor = vec4(finalColor, alpha);
+    gl_FragColor = vec4(mistTint * alpha, alpha);
   }
 `;
 
-export default function HeroMist({ onFirstFrame, accentColor }: HeroMistProps) {
+export default function HeroMist({ onFirstFrame, onContextLost, accentColor }: HeroMistProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const targetColorRef = useRef<[number, number, number]>(parseHexToRgb(accentColor));
   const currentColorRef = useRef<[number, number, number]>(parseHexToRgb(accentColor));
 
-  // Update target color on accentColor change
+  // Store callbacks in refs to keep main useEffect strictly mounted once
+  const onFirstFrameRef = useRef(onFirstFrame);
+  const onContextLostRef = useRef(onContextLost);
+
+  useEffect(() => {
+    onFirstFrameRef.current = onFirstFrame;
+    onContextLostRef.current = onContextLost;
+  });
+
+  // Update target color on accentColor change without recreating renderer
   useEffect(() => {
     targetColorRef.current = parseHexToRgb(accentColor);
   }, [accentColor]);
@@ -175,11 +183,12 @@ export default function HeroMist({ onFirstFrame, accentColor }: HeroMistProps) {
     const gl = renderer.gl;
 
     let isLost = false;
-    const onContextLost = (e: Event) => {
+    const handleContextLost = (e: Event) => {
       e.preventDefault();
       isLost = true;
+      onContextLostRef.current?.();
     };
-    canvas.addEventListener("webglcontextlost", onContextLost, false);
+    canvas.addEventListener("webglcontextlost", handleContextLost, false);
 
     const geometry = new Triangle(gl);
 
@@ -307,7 +316,7 @@ export default function HeroMist({ onFirstFrame, accentColor }: HeroMistProps) {
 
       if (!hasNotifiedFirstFrame) {
         hasNotifiedFirstFrame = true;
-        onFirstFrame?.();
+        onFirstFrameRef.current?.();
       }
     };
 
@@ -318,14 +327,14 @@ export default function HeroMist({ onFirstFrame, accentColor }: HeroMistProps) {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       observer.disconnect();
       window.removeEventListener("resize", resize);
-      canvas.removeEventListener("webglcontextlost", onContextLost);
+      canvas.removeEventListener("webglcontextlost", handleContextLost);
       targetEl.removeEventListener("pointermove", onPointerMove as EventListener);
       targetEl.removeEventListener("touchmove", onTouchMove as EventListener);
 
       const loseContextExt = gl.getExtension("WEBGL_lose_context");
       loseContextExt?.loseContext();
     };
-  }, [onFirstFrame]);
+  }, []); // Run once on mount and once on unmount
 
   return (
     <canvas

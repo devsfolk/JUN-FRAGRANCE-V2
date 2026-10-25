@@ -35,6 +35,15 @@ export function HeroSlides({ products }: HeroSlidesProps) {
     setIndex((prev) => (prev - 1 + count) % count);
   }, [count]);
 
+  // Stable callbacks for WebGL mist
+  const handleFirstFrame = useCallback(() => {
+    setHasDrawnMist(true);
+  }, []);
+
+  const handleContextLost = useCallback(() => {
+    setHasDrawnMist(false);
+  }, []);
+
   // Mount WebGL mist strictly after first paint using requestIdleCallback with 1200ms fallback
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -152,7 +161,7 @@ export function HeroSlides({ products }: HeroSlidesProps) {
         className="sticky top-0 flex h-dvh w-full items-center overflow-hidden transition-colors duration-700"
       >
         {/* Layer 1: Mist Fallback Layer tinted by accent color, animated via --p without React state.
-            Fades out smoothly once WebGL canvas reports its first drawn frame. */}
+            Fades out smoothly once WebGL canvas reports its first drawn frame, and re-appears on context loss. */}
         <div
           style={{
             willChange: "opacity",
@@ -166,7 +175,8 @@ export function HeroSlides({ products }: HeroSlidesProps) {
         {canLoadMist ? (
           <HeroMist
             accentColor={accentColor}
-            onFirstFrame={() => setHasDrawnMist(true)}
+            onFirstFrame={handleFirstFrame}
+            onContextLost={handleContextLost}
           />
         ) : null}
 
