@@ -68,16 +68,22 @@ export async function deleteProduct(input: unknown) {
   const parsed = idSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: "Invalid product." };
   const { data: product, error: readError } = await supabase.from("jf_products").select("images").eq("id", parsed.data).maybeSingle();
-  if (readError || !product) return { ok: false, message: readError?.message ?? "Product not found." };
-  const paths: (string | null)[] = (product.images ?? []).map((url: string) => storagePath(url));
-  if (paths.some((path) => !path)) return { ok: false, message: "One or more product images are outside this project's products storage path." };
-  const files = [...new Set(paths as string[])];
-  if (files.length) {
-    const { error } = await supabase.storage.from("jf-media").remove(files);
-    if (error) return { ok: false, message: `Could not delete product images: ${error.message}` };
-  }
-  const { error } = await supabase.from("jf_products").delete().eq("id", parsed.data);
+  if (readError) return { ok: false, message: readError.message };
+  const { data: deleted, error } = await supabase.from("jf_products").delete().eq("id", parsed.data).select("id");
   if (error) return { ok: false, message: error.message };
+  if (!deleted || deleted.length !== 1) return { ok: false, message: "Product was not deleted." };
+
+  const paths: (string | null)[] = (product?.images ?? []).map((url: string) => storagePath(url));
+  let cleanupIncomplete = paths.some((path: string | null) => !path);
+  const files = [...new Set(paths.filter((path: string | null): path is string => Boolean(path)))];
+  if (files.length) {
+    try {
+      const { error: storageError } = await supabase.storage.from("jf-media").remove(files);
+      if (storageError) cleanupIncomplete = true;
+    } catch {
+      cleanupIncomplete = true;
+    }
+  }
   revalidatePath("/dashboard/products"); revalidatePath("/dashboard");
-  return { ok: true, message: "Product and its images deleted." };
+  return { ok: true, message: cleanupIncomplete ? "Product deleted. Image cleanup may be incomplete." : "Product and its images deleted." };
 }

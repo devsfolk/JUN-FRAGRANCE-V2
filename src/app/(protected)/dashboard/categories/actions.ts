@@ -38,6 +38,18 @@ export async function saveCategory(input: unknown) {
   return { ok: true, message: id ? "Category updated." : "Category created." };
 }
 
+function storagePath(url: string) {
+  try {
+    const parsed = new URL(url);
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!base || parsed.origin !== new URL(base).origin) return null;
+    const marker = "/storage/v1/object/public/jf-media/";
+    if (!parsed.pathname.includes(marker)) return null;
+    const path = decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
+    return path.startsWith("categories/") && !path.split("/").some((part) => part === "..") ? path : null;
+  } catch { return null; }
+}
+
 export async function deleteCategory(input: unknown) {
   const { supabase } = await requireAdmin();
   const parsed = idSchema.safeParse(input);
@@ -45,9 +57,24 @@ export async function deleteCategory(input: unknown) {
   const { count, error: countError } = await supabase.from("jf_products").select("id", { count: "exact", head: true }).eq("category_id", parsed.data);
   if (countError) return { ok: false, message: countError.message };
   if ((count ?? 0) > 0) return { ok: false, message: "This category still has products. Move or delete them before deleting the category." };
-  const { error } = await supabase.from("jf_categories").delete().eq("id", parsed.data);
+  const { data: category, error: readError } = await supabase.from("jf_categories").select("image_url").eq("id", parsed.data).maybeSingle();
+  if (readError) return { ok: false, message: readError.message };
+  const { data: deleted, error } = await supabase.from("jf_categories").delete().eq("id", parsed.data).select("id");
   if (error) return { ok: false, message: error.message };
+  if (!deleted || deleted.length !== 1) return { ok: false, message: "Category was not deleted." };
+
+  let cleanupIncomplete = false;
+  const path = category?.image_url ? storagePath(category.image_url) : null;
+  if (category?.image_url && !path) cleanupIncomplete = true;
+  if (path) {
+    try {
+      const { error: storageError } = await supabase.storage.from("jf-media").remove([path]);
+      if (storageError) cleanupIncomplete = true;
+    } catch {
+      cleanupIncomplete = true;
+    }
+  }
   revalidatePath("/dashboard/categories");
   revalidatePath("/dashboard");
-  return { ok: true, message: "Category deleted." };
+  return { ok: true, message: cleanupIncomplete ? "Category deleted. Image cleanup may be incomplete." : "Category deleted." };
 }
