@@ -15,7 +15,7 @@ export async function proxy(request: NextRequest) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    return redirectToLogin(request, response);
+    return response;
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
@@ -34,18 +34,8 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return redirectToLogin(request, response);
-  }
-
-  const { data: admin, error } = await supabase
-    .from("jf_admins")
-    .select("user_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (error || !admin) {
+  const { data, error } = await supabase.auth.getClaims();
+  if (error || typeof data?.claims.sub !== "string") {
     return redirectToLogin(request, response);
   }
 
