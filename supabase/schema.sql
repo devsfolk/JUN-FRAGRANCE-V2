@@ -270,8 +270,9 @@ set
 grant select on table storage.objects to anon, authenticated;
 grant insert, update, delete on table storage.objects to authenticated;
 drop policy if exists jf_media_public_read on storage.objects;
-create policy jf_media_public_read on storage.objects for select to public
-  using (bucket_id = 'jf-media');
+drop policy if exists jf_media_admin_read on storage.objects;
+create policy jf_media_admin_read on storage.objects for select to authenticated
+  using (bucket_id = 'jf-media' and (select public.jf_is_admin()));
 drop policy if exists jf_media_admin_insert on storage.objects;
 create policy jf_media_admin_insert on storage.objects for insert to authenticated
   with check (bucket_id = 'jf-media' and (select public.jf_is_admin()));
