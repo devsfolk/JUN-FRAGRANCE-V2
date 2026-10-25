@@ -114,3 +114,37 @@ const loadFeaturedHeroProducts = unstable_cache(
 );
 
 export const getFeaturedHeroProducts = () => loadFeaturedHeroProducts();
+
+export type ActiveCategory = {
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  sort_order: number | null;
+};
+
+const loadActiveCategories = unstable_cache(
+  async (): Promise<ActiveCategory[]> => {
+    const supabase = publicClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("jf_categories")
+      .select("name,slug,description,image_url,sort_order")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .order("name", { ascending: true });
+
+    if (error || !data) return [];
+    return data.map((item) => ({
+      name: item.name,
+      slug: item.slug,
+      description: item.description,
+      image_url: item.image_url,
+      sort_order: item.sort_order,
+    }));
+  },
+  ["jf-active-categories-v1"],
+  { revalidate: 60, tags: ["active-categories"] }
+);
+
+export const getActiveCategories = () => loadActiveCategories();
