@@ -4,12 +4,30 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
 
+function isProjectMediaUrl(value: string, folder: "categories" | "products") {
+  try {
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!base) return false;
+    const url = new URL(value);
+    const expectedOrigin = new URL(base).origin;
+    const path = decodeURIComponent(url.pathname);
+    const prefix = `/storage/v1/object/public/jf-media/${folder}/`;
+    return url.origin === expectedOrigin && path.startsWith(prefix) && path.slice(prefix.length).length > 0 && !path.split("/").some((part) => part === "..");
+  } catch {
+    return false;
+  }
+}
+
+const categoryImageSchema = z.string().url().refine(
+  (value) => isProjectMediaUrl(value, "categories"),
+  "Image must be a public jf-media URL in this project's categories folder.",
+);
 const categorySchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().trim().min(1).max(120),
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens."),
   description: z.string().max(5000),
-  image_url: z.union([z.string().url(), z.literal("")]),
+  image_url: z.union([categoryImageSchema, z.literal("")]),
   sort_order: z.number().int().min(-100000).max(100000),
   is_active: z.boolean(),
   seo_title: z.string().max(120),
@@ -18,14 +36,11 @@ const categorySchema = z.object({
 const idSchema = z.string().uuid();
 
 function storagePath(url: string, folder: "categories" | "products") {
+  if (!isProjectMediaUrl(url, folder)) return null;
   try {
     const parsed = new URL(url);
-    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (!base || parsed.origin !== new URL(base).origin) return null;
     const marker = "/storage/v1/object/public/jf-media/";
-    if (!parsed.pathname.includes(marker)) return null;
-    const path = decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
-    return path.startsWith(`${folder}/`) && !path.split("/").some((part) => part === "..") ? path : null;
+    return decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
   } catch { return null; }
 }
 

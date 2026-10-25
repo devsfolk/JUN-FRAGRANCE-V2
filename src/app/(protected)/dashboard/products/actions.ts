@@ -4,6 +4,24 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
 
+function isProjectMediaUrl(value: string, folder: "categories" | "products") {
+  try {
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!base) return false;
+    const url = new URL(value);
+    const expectedOrigin = new URL(base).origin;
+    const path = decodeURIComponent(url.pathname);
+    const prefix = `/storage/v1/object/public/jf-media/${folder}/`;
+    return url.origin === expectedOrigin && path.startsWith(prefix) && path.slice(prefix.length).length > 0 && !path.split("/").some((part) => part === "..");
+  } catch {
+    return false;
+  }
+}
+
+const productImageSchema = z.string().url().refine(
+  (value) => isProjectMediaUrl(value, "products"),
+  "Images must be public jf-media URLs in this project's products folder.",
+);
 const productSchema = z.object({
   id: z.string().uuid().optional(),
   title: z.string().trim().min(1).max(180),
@@ -20,7 +38,7 @@ const productSchema = z.object({
   notes_top: z.array(z.string().trim().min(1).max(80)).max(30),
   notes_heart: z.array(z.string().trim().min(1).max(80)).max(30),
   notes_base: z.array(z.string().trim().min(1).max(80)).max(30),
-  images: z.array(z.string().url()).max(20),
+  images: z.array(productImageSchema).max(20),
   is_featured: z.boolean(),
   is_active: z.boolean(),
   sort_order: z.number().int().min(-100000).max(100000),
@@ -30,14 +48,11 @@ const productSchema = z.object({
 const idSchema = z.string().uuid();
 
 function storagePath(url: string, folder: "categories" | "products") {
+  if (!isProjectMediaUrl(url, folder)) return null;
   try {
     const parsed = new URL(url);
-    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (!base || parsed.origin !== new URL(base).origin) return null;
     const marker = "/storage/v1/object/public/jf-media/";
-    if (!parsed.pathname.includes(marker)) return null;
-    const path = decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
-    return path.startsWith(`${folder}/`) && !path.split("/").some((part) => part === "..") ? path : null;
+    return decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
   } catch { return null; }
 }
 
