@@ -252,9 +252,19 @@ drop policy if exists jf_reviews_admin_delete on public.jf_reviews;
 create policy jf_reviews_admin_delete on public.jf_reviews for delete to authenticated
   using ((select public.jf_is_admin()));
 
-insert into storage.buckets (id, name, public)
-values ('jf-media', 'jf-media', true)
-on conflict (id) do update set public = excluded.public;
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'jf-media',
+  'jf-media',
+  true,
+  5242880,
+  array['image/jpeg', 'image/png', 'image/webp', 'image/avif']::text[]
+)
+on conflict (id) do update
+set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
 
 grant select on table storage.objects to anon, authenticated;
 grant insert, update, delete on table storage.objects to authenticated;
