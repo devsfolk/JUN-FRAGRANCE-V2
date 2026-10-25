@@ -1,9 +1,42 @@
 @import "tailwindcss";
 
-body {
-  min-width: 360px;
-  min-height: 100dvh;
-  overflow-x: clip;
-  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
-  font-family: Arial, Helvetica, sans-serif;
+@theme {
+  --color-ink: #0A0908;
+  --color-ink-2: #141210;
+  --color-bone: #EFE8DC;
+  --color-gold: #C9A66B;
+  --color-mute: #9A9186;
+  --font-serif: var(--font-cormorant), Georgia, serif;
+  --font-sans: var(--font-manrope), Arial, sans-serif;
+  --font-script: var(--font-pinyon), cursive;
+}
+
+:root { color-scheme: dark; scroll-padding-top: 5rem; }
+html { min-height: 100%; background: var(--color-ink); scroll-behavior: smooth; }
+body { min-width: 0; min-height: 100dvh; overflow-x: clip; background: var(--color-ink); color: var(--color-bone); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+body::after { position: fixed; z-index: 70; inset: 0; pointer-events: none; content: ""; opacity: .035; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E"); }
+::selection { color: var(--color-ink); background: var(--color-gold); }
+a, button, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 4px; }
+img { color: transparent; }
+.container-site { width: min(100% - 2rem, 78rem); margin-inline: auto; }
+.font-serif { font-family: var(--font-serif); }
+.font-script { font-family: var(--font-script); }
+.safe-top { padding-top: max(1rem, env(safe-area-inset-top)); }
+.safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+.anchor-offset { scroll-margin-top: 6rem; }
+
+.mist-fallback { background: radial-gradient(ellipse at 62% 42%, color-mix(in srgb, var(--mist-accent) 24%, transparent), transparent 47%), radial-gradient(ellipse at 28% 68%, color-mix(in srgb, var(--mist-accent) 13%, transparent), transparent 52%), linear-gradient(150deg, #0a0908 0%, #141210 55%, #0a0908 100%); }
+.mist-fallback::before, .mist-fallback::after { position: absolute; inset: -18%; content: ""; border-radius: 50%; filter: blur(56px); opacity: .18; background: radial-gradient(ellipse, color-mix(in srgb, var(--mist-accent) 60%, transparent), transparent 68%); animation: mist-drift 22s ease-in-out infinite alternate; will-change: transform; }
+.mist-fallback::after { inset: -25%; opacity: .11; animation-duration: 31s; animation-direction: alternate-reverse; }
+@keyframes mist-drift { from { transform: translate3d(-3%, 1%, 0) scale(.94) rotate(-4deg); } to { transform: translate3d(4%, -2%, 0) scale(1.08) rotate(5deg); } }
+.hero-bottle { animation: bottle-float 7s ease-in-out infinite; will-change: transform; }
+@keyframes bottle-float { 0%, 100% { transform: translate3d(var(--bottle-x, 0), var(--bottle-y, 0), 0) rotate(-1deg); } 50% { transform: translate3d(var(--bottle-x, 0), calc(var(--bottle-y, 0) - 9px), 0) rotate(1deg); } }
+.product-glow { background: radial-gradient(ellipse, color-mix(in srgb, var(--product-accent) 30%, transparent), transparent 69%); }
+
+@media (min-width: 768px) { .container-site { width: min(100% - 4rem, 78rem); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .mist-fallback::before, .mist-fallback::after, .hero-bottle { animation: none !important; }
+  body::after { display: none; }
 }
