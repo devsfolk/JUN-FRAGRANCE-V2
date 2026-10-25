@@ -73,6 +73,7 @@ create table if not exists public.jf_pages_seo (
   updated_at timestamptz not null default now()
 );
 
+-- PUBLIC READ - never store secrets here
 create table if not exists public.jf_settings (
   key text primary key,
   value jsonb,
