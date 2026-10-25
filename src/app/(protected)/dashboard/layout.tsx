@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { Suspense } from "react";
+import { cache, Suspense } from "react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { requireAdmin } from "@/lib/auth/require-admin";
+
+const checkDashboardAccess = cache(async () => requireAdmin());
 
 export const metadata: Metadata = {
   robots: {
@@ -21,6 +23,6 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
 
 async function AuthorizedDashboard({ children }: Readonly<{ children: React.ReactNode }>) {
   await connection();
-  await requireAdmin();
+  await checkDashboardAccess();
   return <DashboardShell>{children}</DashboardShell>;
 }
