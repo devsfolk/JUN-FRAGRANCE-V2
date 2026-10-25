@@ -234,8 +234,16 @@ export default function HeroMist({ onFirstFrame, onContextLost, accentColor }: H
     const heroContainer = canvas.closest<HTMLDivElement>("[data-hero-container]");
 
     const onPointerMove = (e: PointerEvent) => {
-      const rect = (heroContainer || canvas).getBoundingClientRect();
+      const rect = canvas.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) {
+        if (
+          e.clientX < rect.left ||
+          e.clientX > rect.right ||
+          e.clientY < rect.top ||
+          e.clientY > rect.bottom
+        ) {
+          return;
+        }
         pointerX = (e.clientX - rect.left) / rect.width;
         pointerY = 1.0 - (e.clientY - rect.top) / rect.height; // invert for WebGL UV
       }
@@ -244,8 +252,16 @@ export default function HeroMist({ onFirstFrame, onContextLost, accentColor }: H
     const onTouchMove = (e: TouchEvent) => {
       if (e.touches.length > 0) {
         const touch = e.touches[0];
-        const rect = (heroContainer || canvas).getBoundingClientRect();
+        const rect = canvas.getBoundingClientRect();
         if (rect.width > 0 && rect.height > 0) {
+          if (
+            touch.clientX < rect.left ||
+            touch.clientX > rect.right ||
+            touch.clientY < rect.top ||
+            touch.clientY > rect.bottom
+          ) {
+            return;
+          }
           pointerX = (touch.clientX - rect.left) / rect.width;
           pointerY = 1.0 - (touch.clientY - rect.top) / rect.height;
         }
