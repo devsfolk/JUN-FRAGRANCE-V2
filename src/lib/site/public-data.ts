@@ -73,3 +73,44 @@ const loadHomeData = unstable_cache(async (): Promise<HomeData> => {
 }, ["jf-home-public-data-v1"], { revalidate: 60, tags: ["home-data"] });
 
 export const getHomeData = () => loadHomeData();
+
+export type HeroProductData = {
+  title: string;
+  slug: string;
+  images: string[];
+  inspired_by: string | null;
+  accent_color: string | null;
+  notes_top: string[];
+  notes_heart: string[];
+  notes_base: string[];
+};
+
+const loadFeaturedHeroProducts = unstable_cache(
+  async (): Promise<HeroProductData[]> => {
+    const supabase = publicClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("jf_products")
+      .select("title,slug,images,inspired_by,accent_color,notes_top,notes_heart,notes_base")
+      .eq("is_active", true)
+      .eq("is_featured", true)
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .limit(3);
+
+    if (error || !data) return [];
+    return data.map((item) => ({
+      title: item.title,
+      slug: item.slug,
+      images: Array.isArray(item.images) ? item.images : [],
+      inspired_by: item.inspired_by,
+      accent_color: item.accent_color,
+      notes_top: Array.isArray(item.notes_top) ? item.notes_top : [],
+      notes_heart: Array.isArray(item.notes_heart) ? item.notes_heart : [],
+      notes_base: Array.isArray(item.notes_base) ? item.notes_base : [],
+    }));
+  },
+  ["jf-hero-products-v1"],
+  { revalidate: 60, tags: ["hero-products"] }
+);
+
+export const getFeaturedHeroProducts = () => loadFeaturedHeroProducts();
