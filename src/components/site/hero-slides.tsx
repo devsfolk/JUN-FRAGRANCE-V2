@@ -1,10 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { HeroProduct } from "./hero-section";
 import { Button } from "@/components/site/ui/button";
+
+const HeroMist = dynamic(() => import("./hero-mist"), { ssr: false });
 
 interface HeroSlidesProps {
   products: HeroProduct[];
@@ -12,6 +15,9 @@ interface HeroSlidesProps {
 
 export function HeroSlides({ products }: HeroSlidesProps) {
   const [index, setIndex] = useState(0);
+  const [canLoadMist, setCanLoadMist] = useState(false);
+  const [hasDrawnMist, setHasDrawnMist] = useState(false);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
 
@@ -28,6 +34,30 @@ export function HeroSlides({ products }: HeroSlidesProps) {
     if (count <= 1) return;
     setIndex((prev) => (prev - 1 + count) % count);
   }, [count]);
+
+  // Mount WebGL mist strictly after first paint using requestIdleCallback with 1200ms fallback
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let idleId: number | undefined;
+
+    if (typeof window !== "undefined") {
+      if ("requestIdleCallback" in window) {
+        idleId = (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback(
+          () => setCanLoadMist(true),
+          { timeout: 1200 }
+        );
+      } else {
+        timeoutId = setTimeout(() => setCanLoadMist(true), 1200);
+      }
+    }
+
+    return () => {
+      if (idleId && "cancelIdleCallback" in window) {
+        (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
+      }
+      clearTimeout(timeoutId);
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -105,6 +135,7 @@ export function HeroSlides({ products }: HeroSlidesProps) {
   return (
     <div
       ref={containerRef}
+      data-hero-container
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       style={
@@ -120,18 +151,28 @@ export function HeroSlides({ products }: HeroSlidesProps) {
         style={{ contain: "layout paint" }}
         className="sticky top-0 flex h-dvh w-full items-center overflow-hidden transition-colors duration-700"
       >
-        {/* Layer 1: Mist Fallback Layer tinted by accent color, animated via --p without React state */}
+        {/* Layer 1: Mist Fallback Layer tinted by accent color, animated via --p without React state.
+            Fades out smoothly once WebGL canvas reports its first drawn frame. */}
         <div
           style={{
             willChange: "opacity",
-            opacity: "calc(0.45 + (1 - var(--p)) * 0.55)",
+            opacity: hasDrawnMist ? 0 : "calc(0.45 + (1 - var(--p)) * 0.55)",
+            transition: "opacity 900ms ease-out",
           }}
-          className="mist-fallback pointer-events-none absolute inset-0"
+          className="mist-fallback pointer-events-none absolute inset-0 z-0"
         />
+
+        {/* Layer 2: WebGL Mist Canvas (mounted after first paint, z-index behind content and bottle) */}
+        {canLoadMist ? (
+          <HeroMist
+            accentColor={accentColor}
+            onFirstFrame={() => setHasDrawnMist(true)}
+          />
+        ) : null}
 
         {/* Ambient radial gradient glow (fast, no heavy blur filters) */}
         <div
-          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors duration-700"
+          className="pointer-events-none absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors duration-700"
           style={{
             width: "min(85vw, 600px)",
             height: "min(85vw, 600px)",
