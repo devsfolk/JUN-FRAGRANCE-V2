@@ -17,6 +17,18 @@ const categorySchema = z.object({
 });
 const idSchema = z.string().uuid();
 
+function storagePath(url: string, folder: "categories" | "products") {
+  try {
+    const parsed = new URL(url);
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!base || parsed.origin !== new URL(base).origin) return null;
+    const marker = "/storage/v1/object/public/jf-media/";
+    if (!parsed.pathname.includes(marker)) return null;
+    const path = decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
+    return path.startsWith(`${folder}/`) && !path.split("/").some((part) => part === "..") ? path : null;
+  } catch { return null; }
+}
+
 export async function saveCategory(input: unknown) {
   const { supabase } = await requireAdmin();
   const parsed = categorySchema.safeParse(input);
@@ -29,25 +41,30 @@ export async function saveCategory(input: unknown) {
     seo_title: form.seo_title || null,
     seo_description: form.seo_description || null,
   };
+  let oldImage: string | null = null;
+  if (id) {
+    const { data: existing, error } = await supabase.from("jf_categories").select("image_url").eq("id", id).maybeSingle();
+    if (error) return { ok: false, message: error.message };
+    oldImage = existing?.image_url ?? null;
+  }
   const result = id
     ? await supabase.from("jf_categories").update(row).eq("id", id)
     : await supabase.from("jf_categories").insert(row);
   if (result.error) return { ok: false, message: result.error.code === "23505" ? "That slug is already in use." : result.error.message };
+  let cleanupFailed = false;
+  if (oldImage && oldImage !== row.image_url) {
+    const path = storagePath(oldImage, "categories");
+    if (path) {
+      try {
+        const { error } = await supabase.storage.from("jf-media").remove([path]);
+        if (error) cleanupFailed = true;
+      } catch { cleanupFailed = true; }
+    }
+  }
   revalidatePath("/dashboard/categories");
   revalidatePath("/dashboard");
-  return { ok: true, message: id ? "Category updated." : "Category created." };
-}
-
-function storagePath(url: string) {
-  try {
-    const parsed = new URL(url);
-    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (!base || parsed.origin !== new URL(base).origin) return null;
-    const marker = "/storage/v1/object/public/jf-media/";
-    if (!parsed.pathname.includes(marker)) return null;
-    const path = decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
-    return path.startsWith("categories/") && !path.split("/").some((part) => part === "..") ? path : null;
-  } catch { return null; }
+  const message = cleanupFailed ? "Category saved. Old image cleanup may be incomplete." : id ? "Category updated." : "Category created.";
+  return { ok: true, message };
 }
 
 export async function deleteCategory(input: unknown) {
@@ -64,7 +81,7 @@ export async function deleteCategory(input: unknown) {
   if (!deleted || deleted.length !== 1) return { ok: false, message: "Category was not deleted." };
 
   let cleanupIncomplete = false;
-  const path = category?.image_url ? storagePath(category.image_url) : null;
+  const path = category?.image_url ? storagePath(category.image_url, "categories") : null;
   if (category?.image_url && !path) cleanupIncomplete = true;
   if (path) {
     try {

@@ -29,6 +29,18 @@ const productSchema = z.object({
 }).refine((item) => item.compare_at_price === null || item.compare_at_price > item.price, { message: "Compare-at price must be higher than price.", path: ["compare_at_price"] });
 const idSchema = z.string().uuid();
 
+function storagePath(url: string, folder: "categories" | "products") {
+  try {
+    const parsed = new URL(url);
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!base || parsed.origin !== new URL(base).origin) return null;
+    const marker = "/storage/v1/object/public/jf-media/";
+    if (!parsed.pathname.includes(marker)) return null;
+    const path = decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
+    return path.startsWith(`${folder}/`) && !path.split("/").some((part) => part === "..") ? path : null;
+  } catch { return null; }
+}
+
 export async function saveProduct(input: unknown) {
   const { supabase } = await requireAdmin();
   const parsed = productSchema.safeParse(input);
@@ -45,22 +57,31 @@ export async function saveProduct(input: unknown) {
     seo_title: form.seo_title || null,
     seo_description: form.seo_description || null,
   };
+  let oldImages: string[] = [];
+  if (id) {
+    const { data: existing, error } = await supabase.from("jf_products").select("images").eq("id", id).maybeSingle();
+    if (error) return { ok: false, message: error.message };
+    oldImages = existing?.images ?? [];
+  }
   const result = id ? await supabase.from("jf_products").update(row).eq("id", id) : await supabase.from("jf_products").insert(row);
   if (result.error) return { ok: false, message: result.error.code === "23505" ? "That slug is already in use." : result.error.message };
+
+  const removedImages = oldImages.filter((url) => !form.images.includes(url));
+  const paths = removedImages.map((url) => storagePath(url, "products")).filter((path): path is string => Boolean(path));
+  let cleanupFailed = false;
+  if (paths.length) {
+    try {
+      const { error } = await supabase.storage.from("jf-media").remove([...new Set(paths)]);
+      if (error) cleanupFailed = true;
+    } catch { cleanupFailed = true; }
+  }
   revalidatePath("/dashboard/products"); revalidatePath("/dashboard");
-  return { ok: true, message: id ? "Product updated." : "Product created." };
+  const message = cleanupFailed ? "Product saved. Old image cleanup may be incomplete." : id ? "Product updated." : "Product created.";
+  return { ok: true, message };
 }
 
-function storagePath(url: string) {
-  try {
-    const parsed = new URL(url);
-    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (!base || parsed.origin !== new URL(base).origin) return null;
-    const marker = "/storage/v1/object/public/jf-media/";
-    if (!parsed.pathname.includes(marker)) return null;
-    const path = decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
-    return path.startsWith("products/") && !path.split("/").some((part) => part === "..") ? path : null;
-  } catch { return null; }
+function productStoragePath(url: string) {
+  return storagePath(url, "products");
 }
 
 export async function deleteProduct(input: unknown) {
@@ -73,9 +94,9 @@ export async function deleteProduct(input: unknown) {
   if (error) return { ok: false, message: error.message };
   if (!deleted || deleted.length !== 1) return { ok: false, message: "Product was not deleted." };
 
-  const paths: (string | null)[] = (product?.images ?? []).map((url: string) => storagePath(url));
-  let cleanupIncomplete = paths.some((path: string | null) => !path);
-  const files = [...new Set(paths.filter((path: string | null): path is string => Boolean(path)))];
+  const paths: (string | null)[] = (product?.images ?? []).map((url: string) => productStoragePath(url));
+  let cleanupIncomplete = paths.some((path) => !path);
+  const files = [...new Set(paths.filter((path): path is string => Boolean(path)))];
   if (files.length) {
     try {
       const { error: storageError } = await supabase.storage.from("jf-media").remove(files);

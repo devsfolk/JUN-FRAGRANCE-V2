@@ -16,18 +16,6 @@ const acceptedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/a
 const maxOriginalBytes = 5 * 1024 * 1024;
 const bucket = "jf-media";
 
-function getStoragePath(url: string, supabaseUrl: string) {
-  try {
-    const parsed = new URL(url);
-    const expectedOrigin = new URL(supabaseUrl).origin;
-    const marker = "/storage/v1/object/public/jf-media/";
-    if (parsed.origin !== expectedOrigin || !parsed.pathname.includes(marker)) return null;
-    const path = decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
-    return path && !path.split("/").some((part) => part === "..") ? path : null;
-  } catch {
-    return null;
-  }
-}
 
 async function compressImage(file: File) {
   const bitmap = await createImageBitmap(file);
@@ -62,6 +50,7 @@ export function ImageUploader({ value, onChange, kind, multiple }: ImageUploader
         if (!acceptedTypes.has(file.type)) throw new Error("Use a JPEG, PNG, WebP, or AVIF image.");
         if (file.size > maxOriginalBytes) throw new Error("Each original image must be 5 MB or smaller.");
         const blob = await compressImage(file);
+        // TODO: Clean up uploaded files that are never saved in the form.
         const path = `${kind}/${crypto.randomUUID()}.webp`;
         const { error: uploadError } = await supabase.storage.from(bucket).upload(path, blob, { contentType: "image/webp", upsert: false });
         if (uploadError) throw new Error(uploadError.message || "Image upload failed.");
@@ -72,13 +61,7 @@ export function ImageUploader({ value, onChange, kind, multiple }: ImageUploader
       if (uploaded.length) {
         const next = multiple ? [...value, ...uploaded] : uploaded;
         onChange(next);
-        if (!multiple && value[0]) {
-          const oldPath = getStoragePath(value[0], process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
-          if (oldPath) {
-            const { error: deleteError } = await supabase.storage.from(bucket).remove([oldPath]);
-            if (deleteError) setError("Image updated, but the previous file could not be removed.");
-          }
-        }
+
       }
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "Image upload failed.";
@@ -89,26 +72,9 @@ export function ImageUploader({ value, onChange, kind, multiple }: ImageUploader
     }
   }
 
-  async function removeImage(url: string) {
-    const supabase = createClient();
-    const path = getStoragePath(url, process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
-    if (!path) {
-      setError("This image is not in the jf-media bucket and cannot be removed here.");
-      return;
-    }
-    setBusy(true);
-    setError("");
-    try {
-      const { error: deleteError } = await supabase.storage.from(bucket).remove([path]);
-      if (deleteError) throw new Error(deleteError.message || "Image removal failed.");
-      onChange(value.filter((item) => item !== url));
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Image removal failed.");
-    } finally {
-      setBusy(false);
-    }
+  function removeImage(url: string) {
+    onChange(value.filter((item) => item !== url));
   }
-
   function moveImage(index: number, offset: -1 | 1) {
     const target = index + offset;
     if (target < 0 || target >= value.length) return;
@@ -127,8 +93,8 @@ export function ImageUploader({ value, onChange, kind, multiple }: ImageUploader
         onChange={(event) => void uploadFiles(event.target.files)}
         type="file"
       />
-      <Button disabled={busy || (!multiple && value.length > 0)} onClick={() => inputRef.current?.click()} type="button" variant="secondary">
-        {busy ? "Uploading..." : multiple ? "Add images" : value.length ? "Image added" : "Choose image"}
+      <Button disabled={busy} onClick={() => inputRef.current?.click()} type="button" variant="secondary">
+        {busy ? "Uploading..." : multiple ? "Add images" : value.length ? "Replace image" : "Choose image"}
       </Button>
       <p className="text-xs text-slate-500">JPEG, PNG, WebP, or AVIF. Max 5 MB per original. Images are resized and saved as WebP.</p>
       {error ? <p className="text-sm text-red-700" role="alert">{error}</p> : null}
