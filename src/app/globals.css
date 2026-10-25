@@ -26,13 +26,43 @@ img { color: transparent; }
 .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
 .anchor-offset { scroll-margin-top: 6rem; }
 
-.mist-fallback { background: radial-gradient(ellipse at 62% 42%, color-mix(in srgb, var(--mist-accent) 24%, transparent), transparent 47%), radial-gradient(ellipse at 28% 68%, color-mix(in srgb, var(--mist-accent) 13%, transparent), transparent 52%), linear-gradient(150deg, #0a0908 0%, #141210 55%, #0a0908 100%); }
-.mist-fallback::before, .mist-fallback::after { position: absolute; inset: -18%; content: ""; border-radius: 50%; filter: blur(56px); opacity: .18; background: radial-gradient(ellipse, color-mix(in srgb, var(--mist-accent) 60%, transparent), transparent 68%); animation: mist-drift 22s ease-in-out infinite alternate; will-change: transform; }
-.mist-fallback::after { inset: -25%; opacity: .11; animation-duration: 31s; animation-direction: alternate-reverse; }
-@keyframes mist-drift { from { transform: translate3d(-3%, 1%, 0) scale(.94) rotate(-4deg); } to { transform: translate3d(4%, -2%, 0) scale(1.08) rotate(5deg); } }
-.hero-bottle { animation: bottle-float 7s ease-in-out infinite; will-change: transform; }
-@keyframes bottle-float { 0%, 100% { transform: translate3d(var(--bottle-x, 0), var(--bottle-y, 0), 0) rotate(-1deg); } 50% { transform: translate3d(var(--bottle-x, 0), calc(var(--bottle-y, 0) - 9px), 0) rotate(1deg); } }
+.mist-fallback {
+  background:
+    radial-gradient(ellipse at 65% 40%, color-mix(in srgb, var(--mist-accent, #C9A66B) 38%, transparent), transparent 55%),
+    radial-gradient(ellipse at 25% 65%, color-mix(in srgb, var(--mist-accent, #C9A66B) 28%, transparent), transparent 60%),
+    linear-gradient(150deg, #0a0908 0%, #141210 50%, #0a0908 100%);
+}
+.mist-fallback::before, .mist-fallback::after {
+  position: absolute;
+  inset: -15%;
+  content: "";
+  border-radius: 50%;
+  opacity: .28;
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--mist-accent, #C9A66B) 70%, transparent), transparent 65%);
+  animation: mist-drift 20s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.mist-fallback::after {
+  inset: -22%;
+  opacity: .20;
+  animation-duration: 28s;
+  animation-direction: alternate-reverse;
+}
+@keyframes mist-drift {
+  from { transform: translate3d(-3%, 2%, 0) scale(.95); }
+  to { transform: translate3d(3%, -2%, 0) scale(1.06); }
+}
+.hero-bottle { animation: bottle-float 6s ease-in-out infinite; will-change: transform; }
+@keyframes bottle-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -8px, 0); }
+}
+.bottle-mask {
+  -webkit-mask-image: radial-gradient(ellipse at center, #000000 55%, transparent 78%);
+  mask-image: radial-gradient(ellipse at center, #000000 55%, transparent 78%);
+}
 .product-glow { background: radial-gradient(ellipse, color-mix(in srgb, var(--product-accent) 30%, transparent), transparent 69%); }
+
 
 @media (min-width: 768px) { .container-site { width: min(100% - 4rem, 78rem); } }
 @media (prefers-reduced-motion: reduce) {
