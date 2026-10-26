@@ -1,5 +1,4 @@
-import fs from "node:fs";
-import path from "node:path";
+// Add a new photo to public/hero/ and add one line here.
 
 export interface HeroScene {
   src: string;
@@ -8,29 +7,27 @@ export interface HeroScene {
   objectPosition: string;
 }
 
-const DEFAULT_ACCENTS = ["#C9A66B", "#D9502B", "#4F8FBF"];
-const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+export const HERO_SCENES: HeroScene[] = [
+  {
+    src: "/hero/79d2bac5-3d04-4fd5-9d5d-d884081c1941.jfif",
+    alt: "Jun.fragrance perfume scene",
+    accent: "#C9A66B",
+    objectPosition: "center center",
+  },
+  {
+    src: "/hero/mainimage.jpeg",
+    alt: "Jun.fragrance perfume scene",
+    accent: "#D9502B",
+    objectPosition: "center center",
+  },
+  {
+    src: "/hero/WhatsApp Image 2026-10-26 at 4.15.36 AM.jpeg",
+    alt: "Jun.fragrance perfume scene",
+    accent: "#4F8FBF",
+    objectPosition: "center center",
+  },
+];
 
 export function getHeroScenes(): HeroScene[] {
-  const heroDir = path.join(process.cwd(), "public", "hero");
-
-  if (!fs.existsSync(heroDir)) {
-    return [];
-  }
-
-  try {
-    const files = fs
-      .readdirSync(heroDir)
-      .filter((file) => ALLOWED_EXTENSIONS.has(path.extname(file).toLowerCase()))
-      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
-
-    return files.map((file, idx) => ({
-      src: `/hero/${file}`,
-      alt: "Jun.fragrance perfume scene",
-      accent: DEFAULT_ACCENTS[idx % DEFAULT_ACCENTS.length],
-      objectPosition: "center center",
-    }));
-  } catch {
-    return [];
-  }
+  return HERO_SCENES;
 }

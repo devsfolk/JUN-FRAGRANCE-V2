@@ -220,6 +220,11 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
   }, []);
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (target?.closest("[data-no-swipe]")) {
+      touchStartX.current = null;
+      return;
+    }
     touchStartX.current = e.touches[0].clientX;
   };
 
@@ -374,7 +379,7 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
               <Button href="/shop">Explore collection</Button>
 
               {sceneCount > 1 ? (
-                <div className="flex items-center gap-3">
+                <div data-no-swipe className="flex items-center gap-3">
                   <span className="font-sans text-[11px] tracking-widest text-gold tabular-nums">
                     {String(sceneIndex + 1).padStart(2, "0")} / {String(sceneCount).padStart(2, "0")}
                   </span>
@@ -413,7 +418,10 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
 
             {/* Mini Product Order Strip (up to 4 products) */}
             {products && products.length > 0 ? (
-              <div className="mt-1 flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div
+                data-no-swipe
+                className="mt-1 flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
                 {products.slice(0, 4).map((p) => {
                   const thumb = p.images?.[0];
                   const orderUrl = whatsappNumber
