@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Price } from "./ui/price";
@@ -25,64 +25,51 @@ export function CartDrawer({ whatsappNumber, siteUrl }: CartDrawerProps) {
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
 
   const [products, setProducts] = useState<Record<string, CartProductDetail>>({});
-  const [loading, setLoading] = useState(false);
   const [removedNote, setRemovedNote] = useState(false);
   const [fetchError, setFetchError] = useState(false);
 
-  // Fetch fresh product details when drawer opens or cart changes
-  const fetchFreshData = useCallback(async () => {
-    if (cart.length === 0) {
-      setProducts({});
-      setLoading(false);
-      return;
-    }
+  // Fetch fresh product details when drawer opens with items
+  useEffect(() => {
+    if (!isOpen || cart.length === 0) return;
 
-    setLoading(true);
-    setFetchError(false);
+    let ignore = false;
+    const ids = cart.map((i) => i.id).join(",");
 
-    try {
-      const ids = cart.map((i) => i.id).join(",");
-      const res = await fetch(`/api/cart-products?ids=${encodeURIComponent(ids)}`, {
-        cache: "no-store",
+    fetch(`/api/cart-products?ids=${encodeURIComponent(ids)}`, {
+      cache: "no-store",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Fetch failed");
+        return res.json();
+      })
+      .then((data) => {
+        if (ignore) return;
+        const list: CartProductDetail[] = data.products || [];
+        const map: Record<string, CartProductDetail> = {};
+        const activeIds = new Set<string>();
+
+        for (const p of list) {
+          map[p.id] = p;
+          activeIds.add(p.id);
+        }
+
+        setProducts(map);
+        setFetchError(false);
+
+        const wasPruned = cartStore.removeInactiveIds(activeIds);
+        if (wasPruned) {
+          setRemovedNote(true);
+        }
+      })
+      .catch(() => {
+        if (ignore) return;
+        setFetchError(true);
       });
 
-      if (!res.ok) {
-        setFetchError(true);
-        setLoading(false);
-        return;
-      }
-
-      const data = await res.json();
-      const list: CartProductDetail[] = data.products || [];
-      const map: Record<string, CartProductDetail> = {};
-      const activeIds = new Set<string>();
-
-      for (const p of list) {
-        map[p.id] = p;
-        activeIds.add(p.id);
-      }
-
-      setProducts(map);
-
-      // Remove inactive or discontinued products from cart
-      const wasPruned = cartStore.removeInactiveIds(activeIds);
-      if (wasPruned) {
-        setRemovedNote(true);
-      }
-    } catch {
-      setFetchError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [cart]);
-
-  useEffect(() => {
-    if (isOpen) {
-      void fetchFreshData();
-    } else {
-      setRemovedNote(false);
-    }
-  }, [isOpen, fetchFreshData]);
+    return () => {
+      ignore = true;
+    };
+  }, [isOpen, cart]);
 
   // Focus trap, ESC key, body scroll lock
   useEffect(() => {

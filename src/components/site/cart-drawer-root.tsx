@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useCartDrawer } from "@/lib/site/cart-store";
 import { CartToast } from "./cart-toast";
 
@@ -22,11 +22,9 @@ export function CartDrawerRoot({
   const { isOpen } = useCartDrawer();
   const [hasEverOpened, setHasEverOpened] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      setHasEverOpened(true);
-    }
-  }, [isOpen]);
+  if (isOpen && !hasEverOpened) {
+    setHasEverOpened(true);
+  }
 
   if (!whatsappNumber) return null;
 

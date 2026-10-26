@@ -1,24 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useCartCount } from "@/lib/site/cart-store";
+
+const emptySubscribe = () => () => {};
 
 export function CartBadge({ className = "" }: { className?: string }) {
   const count = useCartCount();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const [pulse, setPulse] = useState(false);
+  const prevCountRef = useRef(count);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (count > 0 && mounted) {
-      setPulse(true);
-      const timer = setTimeout(() => setPulse(false), 300);
+    if (count > prevCountRef.current) {
+      const timer = setTimeout(() => {
+        setPulse(true);
+        const resetTimer = setTimeout(() => setPulse(false), 300);
+        return () => clearTimeout(resetTimer);
+      }, 0);
       return () => clearTimeout(timer);
     }
-  }, [count, mounted]);
+    prevCountRef.current = count;
+  }, [count]);
 
   if (!mounted || count <= 0) return null;
 
