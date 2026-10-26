@@ -10,6 +10,7 @@ import {
   getPublicSettings,
 } from "@/lib/site/public-data";
 import { whatsappNumber as extractWhatsappNumber } from "@/lib/site/whatsapp";
+import { JsonLd, breadcrumbJsonLd } from "@/lib/site/json-ld";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -80,8 +81,15 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const number = extractWhatsappNumber(rawSettings);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
 
+  const breadcrumbs = [
+    { name: "Home", url: `${siteUrl}` },
+    { name: "Shop", url: `${siteUrl}/shop` },
+    { name: category.name, url: `${siteUrl}/category/${category.slug}` },
+  ];
+
   return (
     <div className="bg-ink pb-20 pt-10 md:pt-14">
+      <JsonLd data={breadcrumbJsonLd(breadcrumbs)} />
       <Container>
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="mb-6 flex items-center text-xs text-mute">

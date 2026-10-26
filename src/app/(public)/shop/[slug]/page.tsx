@@ -18,6 +18,7 @@ import {
   whatsappLink,
   productWhatsAppMessage,
 } from "@/lib/site/whatsapp";
+import { JsonLd, productJsonLd, breadcrumbJsonLd } from "@/lib/site/json-ld";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -130,8 +131,40 @@ export default async function ProductPage({ params }: ProductPageProps) {
     product.notes_heart.length > 0 ||
     product.notes_base.length > 0;
 
+  const breadcrumbs = [
+    { name: "Home", url: siteUrl },
+    { name: "Shop", url: `${siteUrl}/shop` },
+    ...(product.category
+      ? [
+          {
+            name: product.category.name,
+            url: `${siteUrl}/category/${product.category.slug}`,
+          },
+        ]
+      : []),
+    { name: product.title, url: `${siteUrl}/shop/${product.slug}` },
+  ];
+
+  const pJsonLd = productJsonLd({
+    name: product.title,
+    images: product.images,
+    description:
+      product.description ||
+      product.short_description ||
+      `Premium perfume ${product.title} in Pakistan`,
+    price: product.price,
+    url: `${siteUrl}/shop/${product.slug}`,
+    reviews: reviews.map((r) => ({
+      author_name: r.author_name,
+      rating: r.rating,
+      body: r.body,
+    })),
+  });
+
   return (
     <div className="bg-ink pb-24 pt-8 md:pb-20 md:pt-12">
+      <JsonLd data={breadcrumbJsonLd(breadcrumbs)} />
+      <JsonLd data={pJsonLd} />
       <Container>
         {/* Breadcrumb: Home / Shop / <category> / <product> */}
         <nav
