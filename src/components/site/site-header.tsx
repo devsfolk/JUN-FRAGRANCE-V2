@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { whatsappLink } from "@/lib/site/whatsapp";
+import { cartStore } from "@/lib/site/cart-store";
+import { CartBadge } from "./cart-badge";
 import type { SiteLogo } from "@/lib/site/public-data";
 
 const links = [{ label: "Home", href: "/" }, { label: "Shop", href: "/shop" }, { label: "About", href: "/about" }, { label: "Journal", href: "/journal" }, { label: "Contact", href: "/contact" }];
@@ -46,8 +48,23 @@ export function SiteHeader({
             <span className="font-serif text-[1.7rem] leading-none text-bone">Jun.fragrance</span>
           )}
         </Link>
-        <nav aria-label="Main navigation" className="hidden items-center gap-8 md:flex">{links.map((link) => <Link className="min-h-11 py-3 text-xs font-medium uppercase tracking-[.16em] text-bone/75 transition-colors hover:text-gold" href={link.href} key={link.href}>{link.label}</Link>)}</nav>
-        <button aria-expanded={open} aria-label={open ? "Close menu" : "Open menu"} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-bone/25 text-bone md:hidden" onClick={() => setOpen((value) => !value)} type="button"><span aria-hidden="true" className="text-xl">{open ? "×" : "☰"}</span></button>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <nav aria-label="Main navigation" className="hidden items-center gap-8 mr-4 md:flex">{links.map((link) => <Link className="min-h-11 py-3 text-xs font-medium uppercase tracking-[.16em] text-bone/75 transition-colors hover:text-gold" href={link.href} key={link.href}>{link.label}</Link>)}</nav>
+          {whatsappNumber ? (
+            <button
+              type="button"
+              onClick={() => cartStore.openDrawer()}
+              aria-label="View shopping cart"
+              className="relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-bone/80 hover:text-gold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+            >
+              <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+              </svg>
+              <CartBadge className="absolute right-0.5 top-0.5" />
+            </button>
+          ) : null}
+          <button aria-expanded={open} aria-label={open ? "Close menu" : "Open menu"} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-bone/25 text-bone md:hidden" onClick={() => setOpen((value) => !value)} type="button"><span aria-hidden="true" className="text-xl">{open ? "×" : "☰"}</span></button>
+        </div>
       </div>
     </header>
     {open ? <div className="fixed inset-0 z-30 flex min-h-dvh flex-col justify-center bg-ink px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(5.5rem,env(safe-area-inset-top))] md:hidden"><nav aria-label="Mobile navigation" className="container-site flex flex-col">{links.map((link, index) => <Link className="min-h-[4.25rem] border-b border-white/10 py-2 font-serif text-5xl text-bone" href={link.href} key={link.href} onClick={() => setOpen(false)}><span className="mr-3 align-middle font-sans text-[10px] tracking-widest text-gold">0{index + 1}</span>{link.label}</Link>)}</nav>{chat ? <div className="container-site mt-8"><Button href={chat} onClick={() => setOpen(false)}>Chat on WhatsApp <span aria-hidden="true">↗</span></Button></div> : null}</div> : null}

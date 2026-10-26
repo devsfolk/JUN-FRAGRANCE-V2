@@ -9,6 +9,7 @@ import type { HeroScene } from "@/lib/site/hero-scenes";
 import { Button } from "@/components/site/ui/button";
 import { Price } from "@/components/site/ui/price";
 import { whatsappLink, productWhatsAppMessage } from "@/lib/site/whatsapp";
+import { cartStore } from "@/lib/site/cart-store";
 
 const HeroMist = dynamic(() => import("./hero-mist"), { ssr: false });
 
@@ -26,6 +27,39 @@ const FALLBACK_SCENES: HeroScene[] = [
     objectPosition: "center center",
   },
 ];
+
+function HeroStripAddToCartButton({ productId, title }: { productId: string; title: string }) {
+  const [added, setAdded] = useState(false);
+
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        cartStore.addItem(productId, 1);
+        setAdded(true);
+        setTimeout(() => setAdded(false), 1500);
+      }}
+      aria-label={added ? "Added to cart" : `Add ${title} to cart`}
+      className={`inline-flex min-h-11 min-w-11 h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-all ${
+        added
+          ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-400"
+          : "border-gold/40 bg-gold/15 text-gold hover:bg-gold/25"
+      } focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold`}
+    >
+      {added ? (
+        <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+      ) : (
+        <span aria-hidden="true" className="text-xl leading-none font-light">
+          +
+        </span>
+      )}
+    </button>
+  );
+}
 
 export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotlightProps) {
   const effectiveScenes = scenes.length > 0 ? scenes : FALLBACK_SCENES;
@@ -514,7 +548,7 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
                   return (
                     <div
                       key={p.slug || p.id}
-                      className="flex w-[230px] shrink-0 snap-start items-center justify-between gap-2.5 rounded-xl border border-white/10 bg-ink-2/80 p-2 backdrop-blur-sm transition-colors hover:border-gold/40"
+                      className="flex w-[265px] shrink-0 snap-start items-center justify-between gap-2.5 rounded-xl border border-white/10 bg-ink-2/80 p-2 backdrop-blur-sm transition-colors hover:border-gold/40"
                     >
                       <Link
                         href={`/shop/${p.slug}`}
@@ -547,17 +581,20 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
                       </Link>
 
                       {orderUrl ? (
-                        <a
-                          href={orderUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`Order ${p.title} on WhatsApp`}
-                          className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full bg-[#155D3A] text-white transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
-                        >
-                          <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12.04 2a9.9 9.9 0 0 0-8.48 15.01L2.25 22l5.12-1.34A9.95 9.95 0 1 0 12.04 2Zm0 18.1a8.14 8.14 0 0 1-4.15-1.14l-.3-.18-3.04.8.81-2.97-.2-.31a8.18 8.18 0 1 1 6.88 3.8Zm4.49-6.13c-.25-.13-1.48-.73-1.71-.81-.23-.09-.4-.13-.56.13-.17.25-.65.81-.8.98-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.38-1.73-.14-.25-.02-.39.1-.52.11-.1.25-.29.37-.43.13-.14.17-.25.25-.42.09-.17.05-.31-.02-.44-.06-.12-.56-1.36-.77-1.86-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.09 0 1.24.9 2.43 1.02 2.6.13.17 1.77 2.7 4.3 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.48-.61 1.69-1.2.21-.59.21-1.1.15-1.2-.06-.1-.23-.17-.48-.3Z" />
-                          </svg>
-                        </a>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <HeroStripAddToCartButton productId={p.id} title={p.title} />
+                          <a
+                            href={orderUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label={`Order ${p.title} on WhatsApp`}
+                            className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full bg-[#155D3A] text-white transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+                          >
+                            <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12.04 2a9.9 9.9 0 0 0-8.48 15.01L2.25 22l5.12-1.34A9.95 9.95 0 1 0 12.04 2Zm0 18.1a8.14 8.14 0 0 1-4.15-1.14l-.3-.18-3.04.8.81-2.97-.2-.31a8.18 8.18 0 1 1 6.88 3.8Zm4.49-6.13c-.25-.13-1.48-.73-1.71-.81-.23-.09-.4-.13-.56.13-.17.25-.65.81-.8.98-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.38-1.73-.14-.25-.02-.39.1-.52.11-.1.25-.29.37-.43.13-.14.17-.25.25-.42.09-.17.05-.31-.02-.44-.06-.12-.56-1.36-.77-1.86-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.09 0 1.24.9 2.43 1.02 2.6.13.17 1.77 2.7 4.3 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.48-.61 1.69-1.2.21-.59.21-1.1.15-1.2-.06-.1-.23-.17-.48-.3Z" />
+                            </svg>
+                          </a>
+                        </div>
                       ) : null}
                     </div>
                   );

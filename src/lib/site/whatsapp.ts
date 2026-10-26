@@ -17,6 +17,7 @@ export function socialUrl(value: string | undefined) {
   }
 }
 
-export function productWhatsAppMessage(title: string, sizeMl: number, siteUrl: string, slug: string) {
-  return `Assalam o Alaikum! I want to order ${title} (${sizeMl}ml) - ${new URL(`/shop/${slug}`, siteUrl).toString()}`;
+export function productWhatsAppMessage(title: string, sizeMl: number, siteUrl: string, slug: string, qty = 1) {
+  const qtySuffix = qty > 1 ? ` x${qty}` : "";
+  return `Assalam o Alaikum! I want to order ${title} (${sizeMl}ml)${qtySuffix} - ${new URL(`/shop/${slug}`, siteUrl).toString()}`;
 }
