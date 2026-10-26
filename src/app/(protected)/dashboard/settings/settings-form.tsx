@@ -340,6 +340,69 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
         </div>
       </section>
 
+      {/* 6. Logo */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="font-serif text-xl font-medium text-slate-900">
+            6. Logo
+          </h2>
+          <p className="mt-1 text-xs text-slate-500">
+            Displayed in the site header and footer instead of the text logo.
+          </p>
+        </div>
+
+        <div className="mt-5 space-y-4">
+          <p className="text-xs text-slate-500">
+            Use a transparent PNG or WebP, ideally wider than tall.
+          </p>
+
+          <ImageUploader
+            value={data.site_logo?.url ? [data.site_logo.url] : []}
+            onChange={(urls) => {
+              if (urls[0]) {
+                setData({
+                  ...data,
+                  site_logo: {
+                    url: urls[0],
+                    alt: data.site_logo?.alt || "Jun.fragrance",
+                  },
+                });
+              } else {
+                setData({
+                  ...data,
+                  site_logo: null,
+                });
+              }
+            }}
+            kind="logo"
+            multiple={false}
+          />
+
+          {data.site_logo?.url ? (
+            <div className="max-w-md pt-2">
+              <Input
+                label="Logo Alt Text"
+                type="text"
+                placeholder="Jun.fragrance"
+                value={data.site_logo.alt}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    site_logo: {
+                      url: data.site_logo!.url,
+                      alt: e.target.value,
+                    },
+                  })
+                }
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                Defaults to &ldquo;Jun.fragrance&rdquo; if left blank.
+              </p>
+            </div>
+          ) : null}
+        </div>
+      </section>
+
       {/* Sticky Save Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white/95 p-4 backdrop-blur-sm sm:left-64">
         <div className="mx-auto flex max-w-4xl items-center justify-between">

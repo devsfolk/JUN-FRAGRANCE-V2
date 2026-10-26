@@ -15,6 +15,7 @@ export const settingKeys = [
   "business_address",
   "business_phone_display",
   "hero_scenes",
+  "site_logo",
 ] as const;
 export type SiteSettings = Partial<Record<(typeof settingKeys)[number], string>>;
 
@@ -58,6 +59,27 @@ const loadSettings = unstable_cache(async (): Promise<SiteSettings> => {
 }, ["jf-public-settings-v1"], { revalidate: 60, tags: ["public-settings"] });
 
 export const getPublicSettings = () => loadSettings();
+
+export type SiteLogo = {
+  url: string;
+  alt: string;
+};
+
+export function parseSiteLogo(val: string | undefined): SiteLogo | null {
+  if (!val) return null;
+  try {
+    const parsed = JSON.parse(val);
+    if (parsed && typeof parsed === "object" && typeof parsed.url === "string" && parsed.url) {
+      return {
+        url: parsed.url,
+        alt: typeof parsed.alt === "string" && parsed.alt.trim() ? parsed.alt.trim() : "Jun.fragrance",
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 export type HomeProduct = {
   id: string;

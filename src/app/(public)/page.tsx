@@ -7,7 +7,7 @@ import { ReviewsSection } from "@/components/site/reviews-section";
 import { ClosingCtaSection } from "@/components/site/closing-cta-section";
 import { JournalPlacement } from "@/components/site/journal-placement";
 import { JsonLd, homeJsonLd } from "@/lib/site/json-ld";
-import { getPublicSettings, getPageSEO } from "@/lib/site/public-data";
+import { getPublicSettings, getPageSEO, parseSiteLogo } from "@/lib/site/public-data";
 import { whatsappNumber as extractWhatsappNumber, socialUrl } from "@/lib/site/whatsapp";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -42,6 +42,7 @@ export default async function HomePage() {
   const rawSettings = await getPublicSettings();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
   const number = extractWhatsappNumber(rawSettings);
+  const siteLogo = parseSiteLogo(rawSettings.site_logo);
 
   const socials = [
     rawSettings.social_instagram ? socialUrl(rawSettings.social_instagram) : null,
@@ -57,6 +58,7 @@ export default async function HomePage() {
     businessAddress: rawSettings.business_address,
     businessCity: rawSettings.business_city,
     businessPhone: rawSettings.business_phone_display,
+    logoUrl: siteLogo?.url,
   });
 
   return (

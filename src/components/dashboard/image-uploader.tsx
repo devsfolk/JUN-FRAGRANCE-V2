@@ -8,7 +8,7 @@ import { Button } from "@/components/dashboard/ui/button";
 type ImageUploaderProps = {
   value: string[];
   onChange: (urls: string[]) => void;
-  kind: "categories" | "products" | "hero" | "seo" | "blog";
+  kind: "categories" | "products" | "hero" | "seo" | "blog" | "logo";
   multiple: boolean;
 };
 
@@ -102,8 +102,15 @@ export function ImageUploader({ value, onChange, kind, multiple }: ImageUploader
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {value.map((url, index) => (
             <li className="min-w-0 rounded-lg border border-slate-200 p-2" key={`${url}-${index}`}>
-              <div className="relative aspect-square overflow-hidden rounded-md bg-slate-100">
-                <Image alt={index === 0 ? "Main product image" : "Uploaded image"} className="object-cover" fill sizes="(max-width: 640px) 45vw, 180px" src={url} unoptimized />
+              <div className={`relative ${kind === "logo" ? "h-20 w-44 bg-slate-900/10 p-2" : "aspect-square bg-slate-100"} overflow-hidden rounded-md`}>
+                <Image
+                  alt={index === 0 ? "Main image" : "Uploaded image"}
+                  className={kind === "logo" ? "object-contain" : "object-cover"}
+                  fill
+                  sizes="(max-width: 640px) 45vw, 180px"
+                  src={url}
+                  unoptimized
+                />
                 {multiple && index === 0 ? <span className="absolute left-2 top-2 rounded bg-slate-950/80 px-2 py-1 text-xs text-white">Main</span> : null}
               </div>
               <div className="mt-2 flex flex-wrap gap-1">

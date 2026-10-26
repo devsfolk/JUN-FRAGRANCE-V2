@@ -43,6 +43,7 @@ export interface OrganizationJsonLdOptions {
   businessAddress?: string | null;
   businessCity?: string | null;
   businessPhone?: string | null;
+  logoUrl?: string | null;
 }
 
 export function homeJsonLd({
@@ -52,6 +53,7 @@ export function homeJsonLd({
   businessAddress,
   businessCity,
   businessPhone,
+  logoUrl,
 }: OrganizationJsonLdOptions) {
   const organization: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -60,6 +62,10 @@ export function homeJsonLd({
     url: siteUrl,
     areaServed: "PK",
   };
+
+  if (logoUrl) {
+    organization.logo = logoUrl;
+  }
 
   if (socialUrls.length > 0) {
     organization.sameAs = socialUrls;
@@ -102,6 +108,9 @@ export function homeJsonLd({
         addressCountry: "PK",
       },
     };
+    if (logoUrl) {
+      localBusiness.logo = logoUrl;
+    }
     if (phone) {
       localBusiness.telephone = phone.startsWith("+")
         ? phone

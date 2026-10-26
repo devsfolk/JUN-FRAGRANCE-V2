@@ -1,13 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { whatsappLink } from "@/lib/site/whatsapp";
+import type { SiteLogo } from "@/lib/site/public-data";
 
 const links = [{ label: "Home", href: "/" }, { label: "Shop", href: "/shop" }, { label: "About", href: "/about" }, { label: "Journal", href: "/journal" }, { label: "Contact", href: "/contact" }];
 
-export function SiteHeader({ whatsappNumber }: { whatsappNumber: string | null }) {
+export function SiteHeader({
+  whatsappNumber,
+  siteLogo,
+}: {
+  whatsappNumber: string | null;
+  siteLogo?: SiteLogo | null;
+}) {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
   useEffect(() => {
@@ -23,7 +31,21 @@ export function SiteHeader({ whatsappNumber }: { whatsappNumber: string | null }
   return <>
     <header className={`fixed inset-x-0 top-0 z-40 border-b transition-colors duration-300 ${solid || open ? "border-white/10 bg-ink/95 backdrop-blur-md" : "border-transparent bg-ink/20"}`}>
       <div className="container-site flex h-16 items-center justify-between gap-4">
-        <Link aria-label="Jun.fragrance home" className="font-serif text-[1.7rem] leading-none text-bone" href="/">Jun.fragrance</Link>
+        <Link aria-label="Jun.fragrance home" className="flex items-center min-w-0" href="/">
+          {siteLogo?.url ? (
+            <Image
+              src={siteLogo.url}
+              alt={siteLogo.alt || "Jun.fragrance"}
+              width={0}
+              height={0}
+              sizes="(max-width: 768px) 160px, 220px"
+              priority
+              className="h-[28px] md:h-[36px] w-auto max-w-[160px] sm:max-w-[220px] object-contain"
+            />
+          ) : (
+            <span className="font-serif text-[1.7rem] leading-none text-bone">Jun.fragrance</span>
+          )}
+        </Link>
         <nav aria-label="Main navigation" className="hidden items-center gap-8 md:flex">{links.map((link) => <Link className="min-h-11 py-3 text-xs font-medium uppercase tracking-[.16em] text-bone/75 transition-colors hover:text-gold" href={link.href} key={link.href}>{link.label}</Link>)}</nav>
         <button aria-expanded={open} aria-label={open ? "Close menu" : "Open menu"} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-bone/25 text-bone md:hidden" onClick={() => setOpen((value) => !value)} type="button"><span aria-hidden="true" className="text-xl">{open ? "×" : "☰"}</span></button>
       </div>

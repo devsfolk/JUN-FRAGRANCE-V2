@@ -43,6 +43,22 @@ export default async function SettingsPage() {
     }
   };
 
+  const parseSiteLogo = (val: unknown): SettingsFormData["site_logo"] => {
+    if (!val) return null;
+    try {
+      const parsed = typeof val === "string" ? JSON.parse(val) : val;
+      if (parsed && typeof parsed === "object" && typeof parsed.url === "string") {
+        return {
+          url: parsed.url,
+          alt: typeof parsed.alt === "string" ? parsed.alt : "Jun.fragrance",
+        };
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
   const initialData: SettingsFormData = {
     whatsapp_number: parseString(settingsMap.whatsapp_number),
     social_instagram: parseString(settingsMap.social_instagram),
@@ -55,6 +71,7 @@ export default async function SettingsPage() {
     business_address: parseString(settingsMap.business_address),
     business_phone_display: parseString(settingsMap.business_phone_display),
     hero_scenes: parseHeroScenes(settingsMap.hero_scenes),
+    site_logo: parseSiteLogo(settingsMap.site_logo),
   };
 
   return (

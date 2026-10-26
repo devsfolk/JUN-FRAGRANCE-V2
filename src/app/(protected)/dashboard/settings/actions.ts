@@ -34,6 +34,36 @@ function heroStoragePath(url: string) {
   }
 }
 
+function isProjectLogoMediaUrl(value: string) {
+  try {
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!base) return false;
+    const url = new URL(value);
+    const expectedOrigin = new URL(base).origin;
+    const path = decodeURIComponent(url.pathname);
+    const prefix = "/storage/v1/object/public/jf-media/logo/";
+    return (
+      url.origin === expectedOrigin &&
+      path.startsWith(prefix) &&
+      path.slice(prefix.length).length > 0 &&
+      !path.split("/").some((part) => part === "..")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function logoStoragePath(url: string) {
+  if (!isProjectLogoMediaUrl(url)) return null;
+  try {
+    const parsed = new URL(url);
+    const marker = "/storage/v1/object/public/jf-media/";
+    return decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
+  } catch {
+    return null;
+  }
+}
+
 const heroSceneItemSchema = z.object({
   url: z
     .string()
@@ -45,6 +75,19 @@ const heroSceneItemSchema = z.object({
   accent: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Must be a valid hex color like #C9A66B"),
   alt: z.string().trim().max(200),
 });
+
+const siteLogoSchema = z
+  .object({
+    url: z
+      .string()
+      .url()
+      .refine(
+        (val) => isProjectLogoMediaUrl(val),
+        "Logo must be a public URL in this project's jf-media bucket under logo/."
+      ),
+    alt: z.string().trim().max(120),
+  })
+  .nullable();
 
 const settingsSchema = z.object({
   whatsapp_number: z
@@ -76,6 +119,7 @@ const settingsSchema = z.object({
   business_address: z.string().trim().max(300),
   business_phone_display: z.string().trim().max(50),
   hero_scenes: z.array(heroSceneItemSchema).max(4),
+  site_logo: siteLogoSchema.optional().nullable(),
 });
 
 export type SettingsFormData = z.infer<typeof settingsSchema>;
@@ -89,12 +133,22 @@ export async function saveSettings(input: unknown) {
 
   const data = parsed.data;
 
-  // Retrieve existing hero_scenes to detect removed files for safe deletion
-  const { data: existingHeroRow } = await supabase
-    .from("jf_settings")
-    .select("value")
-    .eq("key", "hero_scenes")
-    .maybeSingle();
+  // Retrieve existing hero_scenes and site_logo to detect removed files for safe deletion
+  const [heroRowRes, logoRowRes] = await Promise.all([
+    supabase
+      .from("jf_settings")
+      .select("value")
+      .eq("key", "hero_scenes")
+      .maybeSingle(),
+    supabase
+      .from("jf_settings")
+      .select("value")
+      .eq("key", "site_logo")
+      .maybeSingle(),
+  ]);
+
+  const existingHeroRow = heroRowRes.data;
+  const existingLogoRow = logoRowRes.data;
 
   let existingHeroUrls: string[] = [];
   if (existingHeroRow?.value) {
@@ -108,6 +162,21 @@ export async function saveSettings(input: unknown) {
       }
     } catch {
       existingHeroUrls = [];
+    }
+  }
+
+  let existingLogoUrl: string | null = null;
+  if (existingLogoRow?.value) {
+    try {
+      const decoded =
+        typeof existingLogoRow.value === "string"
+          ? JSON.parse(existingLogoRow.value)
+          : existingLogoRow.value;
+      if (decoded && typeof decoded === "object" && typeof decoded.url === "string") {
+        existingLogoUrl = decoded.url;
+      }
+    } catch {
+      existingLogoUrl = null;
     }
   }
 
@@ -144,6 +213,19 @@ export async function saveSettings(input: unknown) {
     keysToDelete.push("hero_scenes");
   }
 
+  // Site logo: if present and has url, upsert as JSON object; otherwise delete setting key
+  if (data.site_logo && data.site_logo.url) {
+    keysToUpsert.push({
+      key: "site_logo",
+      value: {
+        url: data.site_logo.url,
+        alt: data.site_logo.alt.trim() || "Jun.fragrance",
+      },
+    });
+  } else {
+    keysToDelete.push("site_logo");
+  }
+
   // Execute Upserts
   if (keysToUpsert.length > 0) {
     const { error: upsertErr } = await supabase
@@ -174,6 +256,15 @@ export async function saveSettings(input: unknown) {
 
   if (removedHeroPaths.length > 0) {
     await supabase.storage.from("jf-media").remove(removedHeroPaths);
+  }
+
+  // Clean up removed or replaced logo from storage safely
+  const currentLogoUrl = data.site_logo?.url ?? null;
+  if (existingLogoUrl && existingLogoUrl !== currentLogoUrl) {
+    const oldLogoPath = logoStoragePath(existingLogoUrl);
+    if (oldLogoPath) {
+      await supabase.storage.from("jf-media").remove([oldLogoPath]);
+    }
   }
 
   // Revalidate layout so public site updates immediately
