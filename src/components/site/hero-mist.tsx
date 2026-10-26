@@ -151,12 +151,45 @@ export default function HeroMist({ onFirstFrame, onContextLost, accentColor }: H
       connection?: { saveData?: boolean };
     };
 
-    if (
-      isReducedMotion ||
-      (nav.hardwareConcurrency !== undefined && nav.hardwareConcurrency <= 4) ||
-      (nav.deviceMemory !== undefined && nav.deviceMemory <= 2) ||
-      (nav.connection?.saveData === true)
-    ) {
+    // URL override: ?mist=1 forces WebGL, ?mist=0 forces CSS
+    const urlParams = new URLSearchParams(window.location.search);
+    const mistOverride = urlParams.get("mist");
+
+    let canRunWebGL = true;
+    let reason = "supported";
+
+    if (mistOverride === "0") {
+      canRunWebGL = false;
+      reason = "disabled via ?mist=0 override";
+    } else if (mistOverride === "1") {
+      canRunWebGL = true;
+      reason = "forced via ?mist=1 override";
+    } else {
+      if (isReducedMotion) {
+        canRunWebGL = false;
+        reason = "prefers-reduced-motion is active";
+      } else if (nav.connection?.saveData === true) {
+        canRunWebGL = false;
+        reason = "saveData is enabled";
+      } else if (isTouch) {
+        if (
+          (nav.hardwareConcurrency !== undefined && nav.hardwareConcurrency <= 2) ||
+          (nav.deviceMemory !== undefined && nav.deviceMemory <= 1)
+        ) {
+          canRunWebGL = false;
+          reason = `low capability touch device (cores: ${nav.hardwareConcurrency}, memory: ${nav.deviceMemory})`;
+        }
+      }
+    }
+
+    const heroContainerEl = canvas.closest<HTMLDivElement>("[data-hero-container]");
+    if (heroContainerEl) {
+      heroContainerEl.setAttribute("data-mist", canRunWebGL ? "webgl" : "css");
+    }
+
+    console.info(`[hero] mist: ${canRunWebGL ? "webgl" : "css"} (${reason})`);
+
+    if (!canRunWebGL) {
       return;
     }
 
