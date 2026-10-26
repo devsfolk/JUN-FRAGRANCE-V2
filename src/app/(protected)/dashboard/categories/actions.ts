@@ -79,6 +79,7 @@ export async function saveCategory(input: unknown) {
   }
   revalidatePath("/dashboard/categories");
   revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
   if (row.is_active) {
     void pingIndexNow([`/category/${row.slug}`, "/shop"]);
   }
@@ -120,6 +121,7 @@ export async function deleteCategory(input: unknown) {
   }
   revalidatePath("/dashboard/categories");
   revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
   if (category?.is_active && category.slug) {
     void pingIndexNow([`/category/${category.slug}`, "/shop"]);
   }

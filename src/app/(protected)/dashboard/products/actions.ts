@@ -92,6 +92,7 @@ export async function saveProduct(input: unknown) {
     } catch { cleanupFailed = true; }
   }
   revalidatePath("/dashboard/products"); revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
   if (row.is_active) {
     void pingIndexNow([`/shop/${row.slug}`, "/shop"]);
   }
@@ -133,6 +134,7 @@ export async function deleteProduct(input: unknown) {
     }
   }
   revalidatePath("/dashboard/products"); revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
   if (product?.is_active && product.slug) {
     void pingIndexNow([`/shop/${product.slug}`, "/shop"]);
   }
