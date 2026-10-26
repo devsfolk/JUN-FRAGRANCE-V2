@@ -4,11 +4,13 @@ import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
 import { ScrollEnhancer } from "./scroll-enhancer";
 import { FloatingWhatsApp } from "./floating-whatsapp";
+import { CartDrawerRoot } from "./cart-drawer-root";
 
 export async function SiteLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const rawSettings = await getPublicSettings();
   const settings = Object.fromEntries(Object.entries(rawSettings).map(([key, value]) => [key, key.startsWith("social_") ? socialUrl(value) ?? undefined : value]));
   const number = getWhatsappNumber(settings);
   const siteLogo = parseSiteLogo(rawSettings.site_logo);
-  return <><ScrollEnhancer /><SiteHeader siteLogo={siteLogo} whatsappNumber={number} /><main>{children}</main><SiteFooter settings={settings} siteLogo={siteLogo} whatsappNumber={number} /><FloatingWhatsApp whatsappNumber={number} /></>;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
+  return <><ScrollEnhancer /><SiteHeader siteLogo={siteLogo} whatsappNumber={number} /><main>{children}</main><SiteFooter settings={settings} siteLogo={siteLogo} whatsappNumber={number} /><FloatingWhatsApp whatsappNumber={number} /><CartDrawerRoot siteUrl={siteUrl} whatsappNumber={number} /></>;
 }

@@ -19,6 +19,20 @@ let isDrawerOpen = false;
 
 const listeners = new Set<() => void>();
 const drawerListeners = new Set<() => void>();
+const toastListeners = new Set<(toast: { message: string }) => void>();
+
+export function emitCartToast(message = "Added to cart") {
+  for (const listener of toastListeners) {
+    listener({ message });
+  }
+}
+
+export function subscribeCartToast(listener: (toast: { message: string }) => void): () => void {
+  toastListeners.add(listener);
+  return () => {
+    toastListeners.delete(listener);
+  };
+}
 
 function emitChange() {
   for (const listener of listeners) {
@@ -134,6 +148,7 @@ export const cartStore = {
     memoryCart = next;
     writeStorage(next);
     emitChange();
+    emitCartToast("Added to cart");
     return { ok: true };
   },
 
