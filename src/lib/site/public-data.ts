@@ -75,6 +75,7 @@ const loadHomeData = unstable_cache(async (): Promise<HomeData> => {
 export const getHomeData = () => loadHomeData();
 
 export type HeroProductData = {
+  id: string;
   title: string;
   slug: string;
   images: string[];
@@ -83,6 +84,8 @@ export type HeroProductData = {
   notes_top: string[];
   notes_heart: string[];
   notes_base: string[];
+  price: number;
+  size_ml: number;
 };
 
 const loadFeaturedHeroProducts = unstable_cache(
@@ -91,14 +94,15 @@ const loadFeaturedHeroProducts = unstable_cache(
     if (!supabase) return [];
     const { data, error } = await supabase
       .from("jf_products")
-      .select("title,slug,images,inspired_by,accent_color,notes_top,notes_heart,notes_base")
+      .select("id,title,slug,images,inspired_by,accent_color,notes_top,notes_heart,notes_base,price,size_ml")
       .eq("is_active", true)
       .eq("is_featured", true)
       .order("sort_order", { ascending: true, nullsFirst: false })
-      .limit(3);
+      .limit(4);
 
     if (error || !data) return [];
     return data.map((item) => ({
+      id: item.id,
       title: item.title,
       slug: item.slug,
       images: Array.isArray(item.images) ? item.images : [],
@@ -107,9 +111,11 @@ const loadFeaturedHeroProducts = unstable_cache(
       notes_top: Array.isArray(item.notes_top) ? item.notes_top : [],
       notes_heart: Array.isArray(item.notes_heart) ? item.notes_heart : [],
       notes_base: Array.isArray(item.notes_base) ? item.notes_base : [],
+      price: Number(item.price) || 0,
+      size_ml: Number(item.size_ml) || 50,
     }));
   },
-  ["jf-hero-products-v1"],
+  ["jf-hero-products-v2"],
   { revalidate: 60, tags: ["hero-products"] }
 );
 
