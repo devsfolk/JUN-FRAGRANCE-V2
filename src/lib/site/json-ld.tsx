@@ -173,3 +173,72 @@ export function productJsonLd({
 
   return product;
 }
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export function faqPageJsonLd(faqs: FaqItem[]) {
+  if (!faqs || faqs.length === 0) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: f.answer,
+      },
+    })),
+  };
+}
+
+export interface ArticleJsonLdOptions {
+  headline: string;
+  image?: string | null;
+  datePublished: string;
+  dateModified?: string | null;
+  url: string;
+  description?: string | null;
+}
+
+export function articleJsonLd({
+  headline,
+  image,
+  datePublished,
+  dateModified,
+  url,
+  description,
+}: ArticleJsonLdOptions) {
+  const article: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline,
+    url,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": url,
+    },
+    author: {
+      "@type": "Organization",
+      name: "Jun.fragrance",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Jun.fragrance",
+    },
+    datePublished,
+    dateModified: dateModified || datePublished,
+  };
+
+  if (image) {
+    article.image = [image];
+  }
+  if (description) {
+    article.description = description;
+  }
+
+  return article;
+}

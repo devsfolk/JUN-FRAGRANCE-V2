@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { pingIndexNow } from "@/lib/site/indexnow";
 
 function isProjectMediaUrl(value: string, folder: "categories" | "products") {
   try {
@@ -91,6 +92,9 @@ export async function saveProduct(input: unknown) {
     } catch { cleanupFailed = true; }
   }
   revalidatePath("/dashboard/products"); revalidatePath("/dashboard");
+  if (row.is_active) {
+    void pingIndexNow([`/shop/${row.slug}`, "/shop"]);
+  }
   const message = cleanupFailed ? "Product saved. Old image cleanup may be incomplete." : id ? "Product updated." : "Product created.";
   return { ok: true, message };
 }
@@ -111,7 +115,7 @@ export async function deleteProduct(input: unknown) {
   const { supabase } = await requireAdmin();
   const parsed = idSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: "Invalid product." };
-  const { data: product, error: readError } = await supabase.from("jf_products").select("images").eq("id", parsed.data).maybeSingle();
+  const { data: product, error: readError } = await supabase.from("jf_products").select("images,slug,is_active").eq("id", parsed.data).maybeSingle();
   if (readError) return { ok: false, message: readError.message };
   const { data: deleted, error } = await supabase.from("jf_products").delete().eq("id", parsed.data).select("id");
   if (error) return { ok: false, message: error.message };
@@ -129,5 +133,8 @@ export async function deleteProduct(input: unknown) {
     }
   }
   revalidatePath("/dashboard/products"); revalidatePath("/dashboard");
+  if (product?.is_active && product.slug) {
+    void pingIndexNow([`/shop/${product.slug}`, "/shop"]);
+  }
   return { ok: true, message: cleanupIncomplete ? "Product deleted. Image cleanup may be incomplete." : "Product and its images deleted." };
 }

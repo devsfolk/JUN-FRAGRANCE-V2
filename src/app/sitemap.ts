@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllActiveSlugs } from "@/lib/site/public-data";
+import { getAllActiveSlugs, getAllActiveBlogSlugs } from "@/lib/site/public-data";
 
 export const revalidate = 3600; // hourly revalidation for dynamic sitemap
 
@@ -48,7 +48,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const { products, categories } = await getAllActiveSlugs();
+    const [{ products, categories }, blogPosts] = await Promise.all([
+      getAllActiveSlugs(),
+      getAllActiveBlogSlugs(),
+    ]);
 
     const categoryEntries: MetadataRoute.Sitemap = categories.map((cat) => ({
       url: `${siteUrl}/category/${cat.slug}`,
@@ -64,7 +67,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-    return [...staticRoutes, ...categoryEntries, ...productEntries];
+    const blogEntries: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+      url: `${siteUrl}/journal/${post.slug}`,
+      lastModified: post.updated_at ? new Date(post.updated_at) : now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }));
+
+    return [...staticRoutes, ...categoryEntries, ...productEntries, ...blogEntries];
   } catch {
     return staticRoutes;
   }

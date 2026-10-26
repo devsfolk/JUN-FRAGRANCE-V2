@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/site/ui/container";
 import { ProductCard } from "@/components/site/ui/product-card";
+import { JournalPlacement } from "@/components/site/journal-placement";
 import {
   getCategoryBySlug,
   getProductsByCategory,
@@ -149,6 +150,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </div>
         )}
       </Container>
+      <JournalPlacement placement={`category:${category.slug}`} />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { pingIndexNow } from "@/lib/site/indexnow";
 
 function isProjectMediaUrl(value: string, folder: "categories" | "products") {
   try {
@@ -78,6 +79,9 @@ export async function saveCategory(input: unknown) {
   }
   revalidatePath("/dashboard/categories");
   revalidatePath("/dashboard");
+  if (row.is_active) {
+    void pingIndexNow([`/category/${row.slug}`, "/shop"]);
+  }
   const message = cleanupFailed ? "Category saved. Old image cleanup may be incomplete." : id ? "Category updated." : "Category created.";
   return { ok: true, message };
 }
@@ -97,7 +101,7 @@ export async function deleteCategory(input: unknown) {
   const { count, error: countError } = await supabase.from("jf_products").select("id", { count: "exact", head: true }).eq("category_id", parsed.data);
   if (countError) return { ok: false, message: countError.message };
   if ((count ?? 0) > 0) return { ok: false, message: "This category still has products. Move or delete them before deleting the category." };
-  const { data: category, error: readError } = await supabase.from("jf_categories").select("image_url").eq("id", parsed.data).maybeSingle();
+  const { data: category, error: readError } = await supabase.from("jf_categories").select("image_url,slug,is_active").eq("id", parsed.data).maybeSingle();
   if (readError) return { ok: false, message: readError.message };
   const { data: deleted, error } = await supabase.from("jf_categories").delete().eq("id", parsed.data).select("id");
   if (error) return { ok: false, message: error.message };
@@ -116,5 +120,8 @@ export async function deleteCategory(input: unknown) {
   }
   revalidatePath("/dashboard/categories");
   revalidatePath("/dashboard");
+  if (category?.is_active && category.slug) {
+    void pingIndexNow([`/category/${category.slug}`, "/shop"]);
+  }
   return { ok: true, message: cleanupIncomplete ? "Category deleted. Image cleanup may be incomplete." : "Category deleted." };
 }

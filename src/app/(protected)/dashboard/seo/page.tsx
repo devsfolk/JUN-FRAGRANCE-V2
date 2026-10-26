@@ -62,6 +62,7 @@ export default async function SeoDashboardPage() {
   const settingsRows = settingsRes.data ?? [];
   const googleTokenPresent = settingsRows.some((s) => s.key === "google_site_verification" && Boolean(s.value));
   const bingTokenPresent = settingsRows.some((s) => s.key === "bing_site_verification" && Boolean(s.value));
+  const indexNowConfigured = Boolean(process.env.INDEXNOW_KEY?.trim());
 
   const audit: SeoAuditData = {
     missingProductSeo,
@@ -71,6 +72,7 @@ export default async function SeoDashboardPage() {
     siteUrl,
     googleTokenPresent,
     bingTokenPresent,
+    indexNowConfigured,
   };
 
   return (

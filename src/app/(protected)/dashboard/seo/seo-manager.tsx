@@ -24,6 +24,7 @@ export interface SeoAuditData {
   siteUrl: string;
   googleTokenPresent: boolean;
   bingTokenPresent: boolean;
+  indexNowConfigured: boolean;
 }
 
 interface SeoManagerProps {
@@ -143,6 +144,15 @@ export function SeoManager({ initialPages, audit }: SeoManagerProps) {
             </span>
             <span className="text-slate-700 font-medium">
               Bing Verification ({audit.bingTokenPresent ? "Configured" : "Not configured"})
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-xs">
+            <span className={audit.indexNowConfigured ? "text-emerald-600 font-bold" : "text-slate-400 font-bold"}>
+              {audit.indexNowConfigured ? "✓" : "○"}
+            </span>
+            <span className="text-slate-700 font-medium">
+              IndexNow ({audit.indexNowConfigured ? "Key Present" : "Key Not Set"})
             </span>
           </div>
         </div>

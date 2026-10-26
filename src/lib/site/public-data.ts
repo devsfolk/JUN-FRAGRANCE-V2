@@ -544,3 +544,74 @@ export async function getPageSEO(pageKey: string): Promise<PageSEO | null> {
   const all = await getPagesSEO();
   return all[pageKey] ?? null;
 }
+
+export type BlogPostItem = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  cover_image_url: string | null;
+  published_at: string | null;
+  created_at: string;
+  content: string | null;
+  status: "draft" | "published";
+  show_on_page: string | null;
+  faq: Array<{ question: string; answer: string }>;
+  seo_title: string | null;
+  seo_description: string | null;
+  updated_at: string;
+};
+
+const loadPublishedBlogPosts = unstable_cache(
+  async (): Promise<BlogPostItem[]> => {
+    const supabase = publicClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("jf_blog_posts")
+      .select("id,title,slug,excerpt,cover_image_url,published_at,created_at,content,status,show_on_page,faq,seo_title,seo_description,updated_at")
+      .eq("status", "published")
+      .order("published_at", { ascending: false, nullsFirst: false });
+
+    if (error || !data) return [];
+    return data.map((item) => ({
+      ...item,
+      faq: Array.isArray(item.faq) ? item.faq : [],
+    }));
+  },
+  ["jf-published-blog-posts-v1"],
+  { revalidate: 60, tags: ["blog-posts"] }
+);
+
+export const getPublishedBlogPosts = () => loadPublishedBlogPosts();
+
+export async function getBlogPostBySlug(slug: string): Promise<BlogPostItem | null> {
+  const supabase = publicClient();
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("jf_blog_posts")
+    .select("id,title,slug,excerpt,cover_image_url,published_at,created_at,content,status,show_on_page,faq,seo_title,seo_description,updated_at")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return {
+    ...data,
+    faq: Array.isArray(data.faq) ? data.faq : [],
+  };
+}
+
+export async function getPlacementPosts(placement: string, limit = 3): Promise<BlogPostItem[]> {
+  const all = await getPublishedBlogPosts();
+  return all.filter((p) => p.show_on_page === placement).slice(0, limit);
+}
+
+export async function getAllActiveBlogSlugs(): Promise<Array<{ slug: string; updated_at: string }>> {
+  const supabase = publicClient();
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from("jf_blog_posts")
+    .select("slug,updated_at")
+    .eq("status", "published");
+  return data ?? [];
+}

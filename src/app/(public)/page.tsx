@@ -5,6 +5,7 @@ import { PicksSection } from "@/components/site/picks-section";
 import { StorySection } from "@/components/site/story-section";
 import { ReviewsSection } from "@/components/site/reviews-section";
 import { ClosingCtaSection } from "@/components/site/closing-cta-section";
+import { JournalPlacement } from "@/components/site/journal-placement";
 import { JsonLd, homeJsonLd } from "@/lib/site/json-ld";
 import { getPublicSettings, getPageSEO } from "@/lib/site/public-data";
 import { whatsappNumber as extractWhatsappNumber, socialUrl } from "@/lib/site/whatsapp";
@@ -66,6 +67,7 @@ export default async function HomePage() {
       <PicksSection />
       <StorySection />
       <ReviewsSection />
+      <JournalPlacement placement="home" />
       <ClosingCtaSection />
     </>
   );

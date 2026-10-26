@@ -6,6 +6,7 @@ import { Price } from "@/components/site/ui/price";
 import { ProductCard } from "@/components/site/ui/product-card";
 import { ProductGallery } from "@/components/site/product-gallery";
 import { ProductStickyBar } from "@/components/site/product-sticky-bar";
+import { JournalPlacement } from "@/components/site/journal-placement";
 import {
   getProductBySlug,
   getProductReviews,
@@ -418,6 +419,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </section>
         ) : null}
       </Container>
+
+      {/* From the journal placement for this product */}
+      <JournalPlacement placement={`product:${product.slug}`} />
 
       {/* Mobile Sticky Order Bar */}
       <ProductStickyBar
