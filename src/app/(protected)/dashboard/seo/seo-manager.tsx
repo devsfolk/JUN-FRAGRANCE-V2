@@ -44,7 +44,7 @@ export function SeoManager({ initialPages, audit }: SeoManagerProps) {
   const [pages, setPages] = useState<PageSeoItem[]>(initialPages);
   const [activeTab, setActiveTab] = useState<PageSeoItem["page_key"]>("home");
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(null);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
 
   const currentPage = pages.find((p) => p.page_key === activeTab) || pages[0];
@@ -60,9 +60,9 @@ export function SeoManager({ initialPages, audit }: SeoManagerProps) {
     startTransition(async () => {
       const res = await savePageSEO(pages);
       if (res.ok) {
-        setToast({ message: "Page SEO configurations saved.", type: "success" });
+        setToast({ message: "Page SEO configurations saved.", tone: "success" });
       } else {
-        setToast({ message: res.error || "Failed to save page SEO.", type: "error" });
+        setToast({ message: res.error || "Failed to save page SEO.", tone: "error" });
       }
     });
   };
@@ -81,8 +81,8 @@ export function SeoManager({ initialPages, audit }: SeoManagerProps) {
       {toast ? (
         <Toast
           message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
+          tone={toast.tone}
+          onDismiss={() => setToast(null)}
         />
       ) : null}
 
@@ -354,41 +354,21 @@ export function SeoManager({ initialPages, audit }: SeoManagerProps) {
 
         {/* Current Page Form */}
         <form onSubmit={handleSave} className="mt-6 space-y-5">
-          <div>
-            <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium text-slate-700">
-                SEO Title ({pageLabels[currentPage.page_key]})
-              </label>
-              <span className={`text-xs ${currentPage.seo_title.length > 60 ? "text-amber-600 font-semibold" : "text-slate-400"}`}>
-                {currentPage.seo_title.length} / 60 chars recommended
-              </span>
-            </div>
-            <Input
-              type="text"
-              placeholder="e.g. Jun.fragrance | Premium Perfumes in Pakistan"
-              value={currentPage.seo_title}
-              onChange={(e) => updateCurrentPage({ seo_title: e.target.value })}
-              className="mt-1"
-            />
-          </div>
+          <Input
+            label={`SEO Title (${pageLabels[currentPage.page_key]}) — ${currentPage.seo_title.length}/60 chars`}
+            type="text"
+            placeholder="e.g. Jun.fragrance | Premium Perfumes in Pakistan"
+            value={currentPage.seo_title}
+            onChange={(e) => updateCurrentPage({ seo_title: e.target.value })}
+          />
 
-          <div>
-            <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium text-slate-700">
-                SEO Meta Description
-              </label>
-              <span className={`text-xs ${currentPage.seo_description.length > 160 ? "text-amber-600 font-semibold" : "text-slate-400"}`}>
-                {currentPage.seo_description.length} / 155 chars recommended
-              </span>
-            </div>
-            <Textarea
-              rows={3}
-              placeholder="Compelling summary shown in Google and Bing search results..."
-              value={currentPage.seo_description}
-              onChange={(e) => updateCurrentPage({ seo_description: e.target.value })}
-              className="mt-1"
-            />
-          </div>
+          <Textarea
+            label={`SEO Meta Description — ${currentPage.seo_description.length}/155 chars`}
+            rows={3}
+            placeholder="Compelling summary shown in Google and Bing search results..."
+            value={currentPage.seo_description}
+            onChange={(e) => updateCurrentPage({ seo_description: e.target.value })}
+          />
 
           <div>
             <label className="block text-sm font-medium text-slate-700">

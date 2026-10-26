@@ -14,16 +14,16 @@ interface SettingsFormProps {
 export function SettingsForm({ initialData }: SettingsFormProps) {
   const [data, setData] = useState<SettingsFormData>(initialData);
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
       const res = await saveSettings(data);
       if (res.ok) {
-        setToast({ message: "Settings saved successfully.", type: "success" });
+        setToast({ message: "Settings saved successfully.", tone: "success" });
       } else {
-        setToast({ message: res.error || "Failed to save settings.", type: "error" });
+        setToast({ message: res.error || "Failed to save settings.", tone: "error" });
       }
     });
   };
@@ -73,8 +73,8 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
       {toast ? (
         <Toast
           message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
+          tone={toast.tone}
+          onDismiss={() => setToast(null)}
         />
       ) : null}
 
@@ -89,19 +89,16 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
 
         <div className="mt-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700">
-              WhatsApp Number
-            </label>
             <Input
+              label="WhatsApp Number"
               type="text"
               value={data.whatsapp_number}
               onChange={(e) =>
                 setData({ ...data, whatsapp_number: e.target.value.replace(/\D/g, "") })
               }
               placeholder="923001234567"
-              className="mt-1"
             />
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1.5 text-xs text-slate-500">
               Example: 923001234567, no plus sign, no spaces. Digits only, 10 to 15 digits.
             </p>
           </div>
@@ -114,53 +111,41 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
           2. Social Media Links
         </h2>
         <p className="mt-1 text-xs text-slate-500">
-          Direct profile links shown in the footer and included in Organization structured data. Must begin with https://.
+          Direct profile links shown in the footer and included in Organization structured data. Must begin with https://. Empty removes the link.
         </p>
 
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-slate-700">Instagram</label>
-            <Input
-              type="url"
-              placeholder="https://instagram.com/jun.fragrance"
-              value={data.social_instagram}
-              onChange={(e) => setData({ ...data, social_instagram: e.target.value })}
-              className="mt-1"
-            />
-          </div>
+          <Input
+            label="Instagram"
+            type="url"
+            placeholder="https://instagram.com/jun.fragrance"
+            value={data.social_instagram}
+            onChange={(e) => setData({ ...data, social_instagram: e.target.value })}
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700">TikTok</label>
-            <Input
-              type="url"
-              placeholder="https://tiktok.com/@jun.fragrance"
-              value={data.social_tiktok}
-              onChange={(e) => setData({ ...data, social_tiktok: e.target.value })}
-              className="mt-1"
-            />
-          </div>
+          <Input
+            label="TikTok"
+            type="url"
+            placeholder="https://tiktok.com/@jun.fragrance"
+            value={data.social_tiktok}
+            onChange={(e) => setData({ ...data, social_tiktok: e.target.value })}
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700">Facebook</label>
-            <Input
-              type="url"
-              placeholder="https://facebook.com/junfragrance"
-              value={data.social_facebook}
-              onChange={(e) => setData({ ...data, social_facebook: e.target.value })}
-              className="mt-1"
-            />
-          </div>
+          <Input
+            label="Facebook"
+            type="url"
+            placeholder="https://facebook.com/junfragrance"
+            value={data.social_facebook}
+            onChange={(e) => setData({ ...data, social_facebook: e.target.value })}
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700">YouTube</label>
-            <Input
-              type="url"
-              placeholder="https://youtube.com/@junfragrance"
-              value={data.social_youtube}
-              onChange={(e) => setData({ ...data, social_youtube: e.target.value })}
-              className="mt-1"
-            />
-          </div>
+          <Input
+            label="YouTube"
+            type="url"
+            placeholder="https://youtube.com/@junfragrance"
+            value={data.social_youtube}
+            onChange={(e) => setData({ ...data, social_youtube: e.target.value })}
+          />
         </div>
       </section>
 
@@ -175,33 +160,27 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
 
         <div className="mt-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Google Site Verification Token
-            </label>
             <Input
+              label="Google Site Verification Token"
               type="text"
               placeholder="e.g. AbC123_xyz..."
               value={data.google_site_verification}
               onChange={(e) => setData({ ...data, google_site_verification: e.target.value.trim() })}
-              className="mt-1"
             />
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1.5 text-xs text-slate-500">
               In Google Search Console, select &ldquo;HTML tag&rdquo; method. Copy only the value inside content=&quot;...&quot; (not the entire tag).
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Bing Webmaster Verification Token
-            </label>
             <Input
+              label="Bing Webmaster Verification Token"
               type="text"
               placeholder="e.g. 1A2B3C4D5E..."
               value={data.bing_site_verification}
               onChange={(e) => setData({ ...data, bing_site_verification: e.target.value.trim() })}
-              className="mt-1"
             />
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1.5 text-xs text-slate-500">
               In Bing Webmaster Tools, choose manual meta tag verification. Copy only the token value.
             </p>
           </div>
@@ -219,39 +198,30 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
 
         <div className="mt-5 space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-sm font-medium text-slate-700">City</label>
-              <Input
-                type="text"
-                placeholder="e.g. Lahore, Karachi, Islamabad"
-                value={data.business_city}
-                onChange={(e) => setData({ ...data, business_city: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Display Phone</label>
-              <Input
-                type="text"
-                placeholder="e.g. +92 300 1234567"
-                value={data.business_phone_display}
-                onChange={(e) => setData({ ...data, business_phone_display: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700">Address / Location</label>
             <Input
+              label="City"
               type="text"
-              placeholder="e.g. Suite 402, MM Alam Road, Gulberg III"
-              value={data.business_address}
-              onChange={(e) => setData({ ...data, business_address: e.target.value })}
-              className="mt-1"
+              placeholder="e.g. Lahore, Karachi, Islamabad"
+              value={data.business_city}
+              onChange={(e) => setData({ ...data, business_city: e.target.value })}
+            />
+
+            <Input
+              label="Display Phone"
+              type="text"
+              placeholder="e.g. +92 300 1234567"
+              value={data.business_phone_display}
+              onChange={(e) => setData({ ...data, business_phone_display: e.target.value })}
             />
           </div>
+
+          <Input
+            label="Address / Location"
+            type="text"
+            placeholder="e.g. Suite 402, MM Alam Road, Gulberg III"
+            value={data.business_address}
+            onChange={(e) => setData({ ...data, business_address: e.target.value })}
+          />
         </div>
       </section>
 
@@ -308,11 +278,11 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
 
                 <div>
                   <Input
+                    label="Scene Alt Text"
                     type="text"
                     placeholder="Scene description / alt text"
                     value={scene.alt}
                     onChange={(e) => updateScene(index, { alt: e.target.value })}
-                    className="text-xs"
                   />
                 </div>
               </div>
