@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Container } from "@/components/site/ui/container";
 import { ShopCatalog } from "@/components/site/shop-catalog";
 import {
   getAllShopProducts,
   getActiveCategories,
-  getCategoryBySlug,
   getPublicSettings,
 } from "@/lib/site/public-data";
 import { whatsappNumber as extractWhatsappNumber } from "@/lib/site/whatsapp";
@@ -31,21 +29,7 @@ export const metadata: Metadata = {
   },
 };
 
-interface ShopPageProps {
-  searchParams: Promise<{ category?: string }>;
-}
-
-export default async function ShopPage({ searchParams }: ShopPageProps) {
-  const { category: categoryQuery } = await searchParams;
-
-  // If a ?category=<slug> query is present and matches an active category, permanently redirect
-  if (categoryQuery) {
-    const existingCategory = await getCategoryBySlug(categoryQuery.trim());
-    if (existingCategory) {
-      redirect(`/category/${existingCategory.slug}`);
-    }
-  }
-
+export default async function ShopPage() {
   const [products, categories, rawSettings] = await Promise.all([
     getAllShopProducts(),
     getActiveCategories(),

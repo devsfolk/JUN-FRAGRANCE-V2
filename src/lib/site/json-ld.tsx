@@ -68,7 +68,6 @@ export function homeJsonLd({
       telephone: formattedPhone,
       contactType: "customer service",
       areaServed: "PK",
-      availableLanguage: ["en", "ur"],
     };
   }
 
@@ -123,14 +122,18 @@ export function productJsonLd({
     },
   };
 
-  // Add aggregateRating ONLY if real approved reviews exist for that product
-  if (reviews.length > 0) {
-    const sum = reviews.reduce((acc, r) => acc + (r.rating || 5), 0);
-    const avg = (sum / reviews.length).toFixed(1);
+  // Add aggregateRating ONLY if real approved reviews with a valid rating exist for that product
+  const ratedReviews = reviews.filter(
+    (r) => typeof r.rating === "number" && !isNaN(r.rating) && r.rating > 0
+  );
+
+  if (ratedReviews.length > 0) {
+    const sum = ratedReviews.reduce((acc, r) => acc + r.rating, 0);
+    const avg = (sum / ratedReviews.length).toFixed(1);
     product.aggregateRating = {
       "@type": "AggregateRating",
       ratingValue: avg,
-      reviewCount: reviews.length.toString(),
+      reviewCount: ratedReviews.length.toString(),
       bestRating: "5",
       worstRating: "1",
     };

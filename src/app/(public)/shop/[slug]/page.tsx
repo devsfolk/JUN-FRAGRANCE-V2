@@ -229,7 +229,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             {/* Size */}
             <p className="mt-2 text-xs text-mute">
-              Volume: <span className="text-bone">{product.size_ml} ml</span> Extrait de Parfum
+              Volume: <span className="text-bone">{product.size_ml} ml</span>
             </p>
 
             {/* Price with compare price and Save % badge */}
