@@ -105,15 +105,46 @@ export async function saveBlogPost(input: unknown) {
     published_at,
   };
 
-  const result = id
-    ? await supabase.from("jf_blog_posts").update(row).eq("id", id)
-    : await supabase.from("jf_blog_posts").insert(row);
+  let savedId = id;
+  let savedPublishedAt = published_at;
+  let savedStatus = row.status;
 
-  if (result.error) {
-    return {
-      ok: false,
-      message: result.error.code === "23505" ? "That slug is already in use." : result.error.message,
-    };
+  if (id) {
+    const { data: updated, error } = await supabase
+      .from("jf_blog_posts")
+      .update(row)
+      .eq("id", id)
+      .select("id, published_at, status")
+      .maybeSingle();
+
+    if (error) {
+      return {
+        ok: false,
+        message: error.code === "23505" ? "That slug is already in use." : error.message,
+      };
+    }
+    if (!updated) {
+      return { ok: false, message: "Post not found to update." };
+    }
+    savedId = updated.id;
+    savedPublishedAt = updated.published_at;
+    savedStatus = updated.status as "draft" | "published";
+  } else {
+    const { data: inserted, error } = await supabase
+      .from("jf_blog_posts")
+      .insert(row)
+      .select("id, published_at, status")
+      .single();
+
+    if (error) {
+      return {
+        ok: false,
+        message: error.code === "23505" ? "That slug is already in use." : error.message,
+      };
+    }
+    savedId = inserted.id;
+    savedPublishedAt = inserted.published_at;
+    savedStatus = inserted.status as "draft" | "published";
   }
 
   // Clean up old cover image if replaced
@@ -140,13 +171,20 @@ export async function saveBlogPost(input: unknown) {
     void pingIndexNow([`/journal/${row.slug}`, "/journal"]);
   }
 
+  const statusLabel = savedStatus === "published" ? "Published" : "Draft";
   const message = cleanupFailed
-    ? "Post saved. Old image cleanup may be incomplete."
-    : id
-    ? "Post updated."
-    : "Post created.";
+    ? `Saved as ${statusLabel}. Old image cleanup may be incomplete.`
+    : `Saved as ${statusLabel}`;
 
-  return { ok: true, message };
+  return {
+    ok: true,
+    message,
+    post: {
+      id: savedId,
+      status: savedStatus,
+      published_at: savedPublishedAt,
+    },
+  };
 }
 
 export async function deleteBlogPost(input: unknown) {

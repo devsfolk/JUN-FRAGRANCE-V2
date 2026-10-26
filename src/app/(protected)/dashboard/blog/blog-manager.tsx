@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/dashboard/ui/button";
 import { Input } from "@/components/dashboard/ui/input";
 import { Textarea } from "@/components/dashboard/ui/textarea";
@@ -39,6 +40,7 @@ export function BlogManager({
   activeCategories,
   activeProducts,
 }: BlogManagerProps) {
+  const router = useRouter();
   const [posts, setPosts] = useState<BlogPostRecord[]>(initialPosts);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "published">("all");
@@ -142,10 +144,12 @@ export function BlogManager({
     startTransition(async () => {
       const res = await saveBlogPost(formData);
       if (res.ok) {
-        setToast({ message: res.message || "Post saved successfully.", tone: "success" });
+        const savedStatus = res.post?.status ?? formData.status;
+        const statusLabel = savedStatus === "published" ? "Published" : "Draft";
+        setToast({ message: `Saved as ${statusLabel}`, tone: "success" });
         setIsCreating(false);
         setEditingPost(null);
-        // Refresh local list
+        // Refresh local list with actual DB id and status
         setPosts((prev) => {
           if (formData.id) {
             return prev.map((p) =>
@@ -153,20 +157,23 @@ export function BlogManager({
                 ? {
                     ...p,
                     ...formData,
-                    published_at: formData.status === "published" && !p.published_at ? new Date().toISOString() : p.published_at,
+                    status: savedStatus,
+                    published_at: res.post?.published_at ?? p.published_at,
                   }
                 : p
             );
           } else {
             const newPost: BlogPostRecord = {
-              id: crypto.randomUUID(),
+              id: res.post?.id ?? crypto.randomUUID(),
               ...formData,
-              published_at: formData.status === "published" ? new Date().toISOString() : null,
+              status: savedStatus,
+              published_at: res.post?.published_at ?? (savedStatus === "published" ? new Date().toISOString() : null),
               created_at: new Date().toISOString(),
             };
             return [newPost, ...prev];
           }
         });
+        router.refresh();
       } else {
         setToast({ message: res.message || "Failed to save post.", tone: "error" });
       }
