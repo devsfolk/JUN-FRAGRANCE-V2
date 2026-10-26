@@ -27,6 +27,7 @@ export function CartDrawer({ whatsappNumber, siteUrl }: CartDrawerProps) {
   const [products, setProducts] = useState<Record<string, CartProductDetail>>({});
   const [removedNote, setRemovedNote] = useState(false);
   const [fetchError, setFetchError] = useState(false);
+  const [fetchTick, setFetchTick] = useState(0);
 
   // Fetch fresh product details when drawer opens with items
   useEffect(() => {
@@ -69,7 +70,7 @@ export function CartDrawer({ whatsappNumber, siteUrl }: CartDrawerProps) {
     return () => {
       ignore = true;
     };
-  }, [isOpen, cart]);
+  }, [isOpen, cart, fetchTick]);
 
   // Focus trap, ESC key, body scroll lock
   useEffect(() => {
@@ -207,7 +208,7 @@ export function CartDrawer({ whatsappNumber, siteUrl }: CartDrawerProps) {
             <span>Could not update prices. Check your connection.</span>
             <button
               type="button"
-              onClick={() => void fetchFreshData()}
+              onClick={() => setFetchTick((t) => t + 1)}
               className="text-gold underline ml-2 text-[11px]"
             >
               Retry
