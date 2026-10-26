@@ -6,26 +6,36 @@ import { StorySection } from "@/components/site/story-section";
 import { ReviewsSection } from "@/components/site/reviews-section";
 import { ClosingCtaSection } from "@/components/site/closing-cta-section";
 import { JsonLd, homeJsonLd } from "@/lib/site/json-ld";
-import { getPublicSettings } from "@/lib/site/public-data";
+import { getPublicSettings, getPageSEO } from "@/lib/site/public-data";
 import { whatsappNumber as extractWhatsappNumber, socialUrl } from "@/lib/site/whatsapp";
 
-export const metadata: Metadata = {
-  title: "Jun.fragrance | Premium Perfumes in Pakistan",
-  description:
-    "Premium fragrances crafted for the modern you. Long-lasting, inspired scents made for people who want to stand out.",
-  alternates: {
-    canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com",
-  },
-  openGraph: {
-    title: "Jun.fragrance | Premium Perfumes in Pakistan",
-    description:
-      "Premium fragrances crafted for the modern you. Bold. Elegant. Unforgettable.",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com",
-    siteName: "Jun.fragrance",
-    locale: "en_PK",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const [pageSeo] = await Promise.all([getPageSEO("home")]);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
+
+  const title = pageSeo?.seo_title?.trim() || "Jun.fragrance | Premium Perfumes in Pakistan";
+  const description =
+    pageSeo?.seo_description?.trim() ||
+    "Premium fragrances crafted for the modern you. Long-lasting, inspired scents made for people who want to stand out.";
+  const ogImage = pageSeo?.og_image_url?.trim() || `${siteUrl}/hero/scene-1.jpg`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: siteUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: siteUrl,
+      siteName: "Jun.fragrance",
+      locale: "en_PK",
+      type: "website",
+      images: [{ url: ogImage }],
+    },
+  };
+}
 
 export default async function HomePage() {
   const rawSettings = await getPublicSettings();

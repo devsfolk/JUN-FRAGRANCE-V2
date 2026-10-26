@@ -511,3 +511,36 @@ export async function getAllActiveSlugs(): Promise<{
      categories: catRes.data ?? [],
    };
  }
+
+export type PageSEO = {
+  page_key: string;
+  seo_title: string | null;
+  seo_description: string | null;
+  og_image_url: string | null;
+};
+
+const loadPagesSEO = unstable_cache(
+  async (): Promise<Record<string, PageSEO>> => {
+    const supabase = publicClient();
+    if (!supabase) return {};
+    const { data, error } = await supabase
+      .from("jf_pages_seo")
+      .select("page_key,seo_title,seo_description,og_image_url");
+
+    if (error || !data) return {};
+    const map: Record<string, PageSEO> = {};
+    for (const row of data) {
+      map[row.page_key] = row;
+    }
+    return map;
+  },
+  ["jf-pages-seo-v1"],
+  { revalidate: 60, tags: ["pages-seo"] }
+);
+
+export const getPagesSEO = () => loadPagesSEO();
+
+export async function getPageSEO(pageKey: string): Promise<PageSEO | null> {
+  const all = await getPagesSEO();
+  return all[pageKey] ?? null;
+}

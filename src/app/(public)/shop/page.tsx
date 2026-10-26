@@ -6,28 +6,39 @@ import {
   getAllShopProducts,
   getActiveCategories,
   getPublicSettings,
+  getPageSEO,
 } from "@/lib/site/public-data";
 import { whatsappNumber as extractWhatsappNumber } from "@/lib/site/whatsapp";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: "Shop All Perfumes | Premium Fragrances in Pakistan",
-  description:
-    "Explore our complete collection of long-lasting, luxury perfumes crafted for Pakistan. Find your signature scent with fast WhatsApp ordering.",
-  alternates: {
-    canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com"}/shop`,
-  },
-  openGraph: {
-    title: "Shop All Perfumes | Jun.fragrance",
-    description:
-      "Explore our complete collection of luxury fragrances crafted for Pakistan.",
-    url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com"}/shop`,
-    siteName: "Jun.fragrance",
-    locale: "en_PK",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const [pageSeo] = await Promise.all([getPageSEO("shop")]);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
+
+  const title = pageSeo?.seo_title?.trim() || "Shop All Perfumes | Premium Fragrances in Pakistan";
+  const description =
+    pageSeo?.seo_description?.trim() ||
+    "Explore our complete collection of long-lasting, luxury perfumes crafted for Pakistan. Find your signature scent with fast WhatsApp ordering.";
+  const ogImage = pageSeo?.og_image_url?.trim() || `${siteUrl}/hero/scene-1.jpg`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `${siteUrl}/shop`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/shop`,
+      siteName: "Jun.fragrance",
+      locale: "en_PK",
+      type: "website",
+      images: [{ url: ogImage }],
+    },
+  };
+}
 
 export default async function ShopPage() {
   const [products, categories, rawSettings] = await Promise.all([
