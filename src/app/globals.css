@@ -63,6 +63,27 @@ img { color: transparent; }
 }
 .product-glow { background: radial-gradient(ellipse, color-mix(in srgb, var(--product-accent) 30%, transparent), transparent 69%); }
 
+@keyframes hero-line-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+.hero-line-1 {
+  animation: hero-line-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.hero-line-2 {
+  animation: hero-line-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+.hero-line-3 {
+  animation: hero-line-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+
 
 @media (min-width: 768px) { .container-site { width: min(100% - 4rem, 78rem); } }
 @media (prefers-reduced-motion: reduce) {
