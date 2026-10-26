@@ -32,11 +32,19 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
   const [sceneIndex, setSceneIndex] = useState(0);
   const [canLoadMist, setCanLoadMist] = useState(false);
   const [hasDrawnMist, setHasDrawnMist] = useState(false);
+  const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
+
+  // Autoplay pause condition flags stored in refs for zero-overhead loop checks
+  const isTabHiddenRef = useRef(false);
+  const isHeroOffScreenRef = useRef(false);
+  const isInteractingRef = useRef(false);
+  const isPointerOverControlsRef = useRef(false);
+  const autoplayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const sceneCount = effectiveScenes.length;
   const activeScene = effectiveScenes[sceneIndex] ?? effectiveScenes[0];
@@ -60,7 +68,49 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
     setHasDrawnMist(false);
   }, []);
 
-  // Keyboard navigation
+  // Update paused state for CSS progress line animation
+  const syncAutoplayState = useCallback(() => {
+    const shouldPause =
+      isTabHiddenRef.current ||
+      isHeroOffScreenRef.current ||
+      isInteractingRef.current ||
+      isPointerOverControlsRef.current;
+    setIsAutoplayPaused(shouldPause);
+  }, []);
+
+  // 6-second Autoplay timer with pause handling & manual restart
+  useEffect(() => {
+    const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (isReducedMotion || sceneCount <= 1) return;
+
+    const clearTimer = () => {
+      if (autoplayTimerRef.current) {
+        clearTimeout(autoplayTimerRef.current);
+        autoplayTimerRef.current = null;
+      }
+    };
+
+    const scheduleNext = () => {
+      clearTimer();
+      const isPaused =
+        isTabHiddenRef.current ||
+        isHeroOffScreenRef.current ||
+        isInteractingRef.current ||
+        isPointerOverControlsRef.current;
+
+      if (!isPaused) {
+        autoplayTimerRef.current = setTimeout(() => {
+          nextScene();
+        }, 6000);
+      }
+    };
+
+    scheduleNext();
+
+    return () => clearTimer();
+  }, [sceneIndex, sceneCount, nextScene, isAutoplayPaused]);
+
+  // Keyboard navigation (restarts 6s timer via sceneIndex change)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") nextScene();
@@ -94,7 +144,7 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
     };
   }, []);
 
-  // Spotlight animation loop (pointer follow + Lissajous drift on idle + scroll scale)
+  // Spotlight animation loop & pause listeners
   useEffect(() => {
     const stage = stageRef.current;
     const spotlight = spotlightRef.current;
@@ -103,7 +153,6 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
 
     const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Static reduced-motion spotlight
     if (isReducedMotion) {
       spotlight.style.transform = "translate3d(0, 0, 0) scale(2)";
       return;
@@ -123,7 +172,6 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
     const onPointerMove = (e: PointerEvent) => {
       const rect = stage.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) {
-        // Calculate offset from center of stage
         targetX = e.clientX - (rect.left + rect.width / 2);
         targetY = e.clientY - (rect.top + rect.height / 2);
         lastInputTime = performance.now();
@@ -148,15 +196,18 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
 
     const onVisibilityChange = () => {
       isVisible = !document.hidden;
+      isTabHiddenRef.current = document.hidden;
+      syncAutoplayState();
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     const observer = new IntersectionObserver(([entry]) => {
       isIntersecting = entry.isIntersecting;
+      isHeroOffScreenRef.current = !entry.isIntersecting;
+      syncAutoplayState();
     });
     observer.observe(container);
 
-    // Scroll progress handler
     let rafScrollId: number;
     const updateScrollProgress = () => {
       const rect = container.getBoundingClientRect();
@@ -179,7 +230,6 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
     window.addEventListener("scroll", handleScroll, { passive: true });
     updateScrollProgress();
 
-    // Main Spotlight Loop
     const loop = (currentTime: number) => {
       animId = requestAnimationFrame(loop);
 
@@ -187,7 +237,6 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
 
       const timeSinceInput = currentTime - lastInputTime;
 
-      // Idle Lissajous motion if no touch/pointer input for 1.5s
       if (timeSinceInput > 1500) {
         const t = (currentTime - 1500) * 0.0008;
         const widthHalf = stage.clientWidth * 0.35;
@@ -196,11 +245,9 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
         targetY = Math.cos(t * 2.2) * heightHalf;
       }
 
-      // Smooth lerp (0.12)
       currentX += (targetX - currentX) * 0.12;
       currentY += (targetY - currentY) * 0.12;
 
-      // Lights on: scale grows from 1 to ~4.2 on scroll
       const currentScale = 1.0 + scrollProgress * 3.2;
 
       spotlight.style.transform = `translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0) scale(${currentScale.toFixed(3)})`;
@@ -217,9 +264,13 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
       targetEl.removeEventListener("pointermove", onPointerMove as EventListener);
       targetEl.removeEventListener("touchmove", onTouchMove as EventListener);
     };
-  }, []);
+  }, [syncAutoplayState]);
 
+  // Touch tracking for swipe & interaction pause
   const handleTouchStart = (e: React.TouchEvent) => {
+    isInteractingRef.current = true;
+    syncAutoplayState();
+
     const target = e.target as HTMLElement | null;
     if (target?.closest("[data-no-swipe]")) {
       touchStartX.current = null;
@@ -229,6 +280,9 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    isInteractingRef.current = false;
+    syncAutoplayState();
+
     if (touchStartX.current === null) return;
     const touchEndX = e.changedTouches[0].clientX;
     const diff = touchStartX.current - touchEndX;
@@ -242,6 +296,22 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
     touchStartX.current = null;
   };
 
+  const handleTouchCancel = () => {
+    isInteractingRef.current = false;
+    touchStartX.current = null;
+    syncAutoplayState();
+  };
+
+  const onControlsPointerEnter = () => {
+    isPointerOverControlsRef.current = true;
+    syncAutoplayState();
+  };
+
+  const onControlsPointerLeave = () => {
+    isPointerOverControlsRef.current = false;
+    syncAutoplayState();
+  };
+
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
 
   return (
@@ -251,6 +321,7 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
       data-mist="css"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
       style={
         {
           "--mist-accent": accentColor,
@@ -379,16 +450,23 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
               <Button href="/shop">Explore collection</Button>
 
               {sceneCount > 1 ? (
-                <div data-no-swipe className="flex items-center gap-3">
+                <div
+                  data-no-swipe
+                  onPointerEnter={onControlsPointerEnter}
+                  onPointerLeave={onControlsPointerLeave}
+                  className="flex items-center gap-3"
+                >
                   <span className="font-sans text-[11px] tracking-widest text-gold tabular-nums">
                     {String(sceneIndex + 1).padStart(2, "0")} / {String(sceneCount).padStart(2, "0")}
                   </span>
 
-                  {/* Thin Progress line */}
+                  {/* Thin Progress line restarted on key={sceneIndex} */}
                   <div className="hidden h-0.5 w-12 rounded-full bg-white/10 sm:block overflow-hidden">
                     <div
-                      className="h-full bg-gold transition-all duration-300"
-                      style={{ width: `${((sceneIndex + 1) / sceneCount) * 100}%` }}
+                      key={sceneIndex}
+                      className={`h-full w-full bg-gold hero-progress-active ${
+                        isAutoplayPaused ? "hero-progress-paused" : ""
+                      }`}
                     />
                   </div>
 
@@ -420,6 +498,8 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
             {products && products.length > 0 ? (
               <div
                 data-no-swipe
+                onPointerEnter={onControlsPointerEnter}
+                onPointerLeave={onControlsPointerLeave}
                 className="mt-1 flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {products.slice(0, 4).map((p) => {

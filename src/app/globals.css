@@ -83,6 +83,22 @@ img { color: transparent; }
   animation: hero-line-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
 }
 
+@keyframes hero-progress-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.hero-progress-active {
+  transform-origin: left center;
+  animation: hero-progress-fill 6s linear forwards;
+}
+.hero-progress-paused {
+  animation-play-state: paused;
+}
+
 
 
 @media (min-width: 768px) { .container-site { width: min(100% - 4rem, 78rem); } }
