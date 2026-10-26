@@ -3,7 +3,15 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
-export const settingKeys = ["whatsapp_number", "social_instagram", "social_tiktok", "social_facebook", "social_youtube"] as const;
+export const settingKeys = [
+  "whatsapp_number",
+  "social_instagram",
+  "social_tiktok",
+  "social_facebook",
+  "social_youtube",
+  "google_site_verification",
+  "bing_site_verification",
+] as const;
 export type SiteSettings = Partial<Record<(typeof settingKeys)[number], string>>;
 
 function publicClient() {
@@ -229,3 +237,266 @@ const loadApprovedReviews = unstable_cache(
 );
 
 export const getApprovedReviews = () => loadApprovedReviews();
+ 
+export type ShopProduct = {
+   id: string;
+   title: string;
+   slug: string;
+   images: string[];
+   inspired_by: string | null;
+   price: number;
+   compare_at_price: number | null;
+   size_ml: number;
+   accent_color: string | null;
+   category_id: string | null;
+ };
+ 
+const loadAllShopProducts = unstable_cache(
+   async (): Promise<ShopProduct[]> => {
+     const supabase = publicClient();
+     if (!supabase) return [];
+     const { data, error } = await supabase
+       .from("jf_products")
+       .select("id,title,slug,images,inspired_by,price,compare_at_price,size_ml,accent_color,category_id")
+       .eq("is_active", true)
+       .order("sort_order", { ascending: true, nullsFirst: false })
+       .order("created_at", { ascending: false })
+       .limit(200);
+ 
+     if (error || !data) return [];
+     return data.map((item) => ({
+       id: item.id,
+       title: item.title,
+       slug: item.slug,
+       images: Array.isArray(item.images) ? item.images : [],
+       inspired_by: item.inspired_by,
+       price: Number(item.price) || 0,
+       compare_at_price: item.compare_at_price ? Number(item.compare_at_price) : null,
+       size_ml: Number(item.size_ml) || 50,
+       accent_color: item.accent_color,
+       category_id: item.category_id,
+     }));
+   },
+   ["jf-shop-products-v1"],
+   { revalidate: 60, tags: ["shop-products"] }
+ );
+ 
+export const getAllShopProducts = () => loadAllShopProducts();
+ 
+export type CategoryWithSEO = {
+   id: string;
+   name: string;
+   slug: string;
+   description: string | null;
+   image_url: string | null;
+   seo_title: string | null;
+   seo_description: string | null;
+ };
+ 
+export async function getCategoryBySlug(slug: string): Promise<CategoryWithSEO | null> {
+   const supabase = publicClient();
+   if (!supabase) return null;
+   const { data, error } = await supabase
+     .from("jf_categories")
+     .select("id,name,slug,description,image_url,seo_title,seo_description")
+     .eq("slug", slug)
+     .eq("is_active", true)
+     .maybeSingle();
+ 
+   if (error || !data) return null;
+   return data;
+ }
+ 
+export async function getProductsByCategory(categoryId: string): Promise<ShopProduct[]> {
+   const supabase = publicClient();
+   if (!supabase) return [];
+   const { data, error } = await supabase
+     .from("jf_products")
+     .select("id,title,slug,images,inspired_by,price,compare_at_price,size_ml,accent_color,category_id")
+     .eq("category_id", categoryId)
+     .eq("is_active", true)
+     .order("sort_order", { ascending: true, nullsFirst: false })
+     .order("created_at", { ascending: false })
+     .limit(200);
+ 
+   if (error || !data) return [];
+   return data.map((item) => ({
+     id: item.id,
+     title: item.title,
+     slug: item.slug,
+     images: Array.isArray(item.images) ? item.images : [],
+     inspired_by: item.inspired_by,
+     price: Number(item.price) || 0,
+     compare_at_price: item.compare_at_price ? Number(item.compare_at_price) : null,
+     size_ml: Number(item.size_ml) || 50,
+     accent_color: item.accent_color,
+     category_id: item.category_id,
+   }));
+ }
+ 
+export type ProductDetail = {
+   id: string;
+   category_id: string | null;
+   category?: { name: string; slug: string } | null;
+   title: string;
+   slug: string;
+   short_description: string | null;
+   description: string | null;
+   inspired_by: string | null;
+   size_ml: number;
+   price: number;
+   compare_at_price: number | null;
+   images: string[];
+   notes_top: string[];
+   notes_heart: string[];
+   notes_base: string[];
+   gender: string | null;
+   accent_color: string | null;
+   seo_title: string | null;
+   seo_description: string | null;
+   updated_at: string;
+ };
+ 
+export async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
+   const supabase = publicClient();
+   if (!supabase) return null;
+   const { data, error } = await supabase
+     .from("jf_products")
+     .select(
+       "id,category_id,title,slug,short_description,description,inspired_by,size_ml,price,compare_at_price,images,notes_top,notes_heart,notes_base,gender,accent_color,seo_title,seo_description,updated_at"
+     )
+     .eq("slug", slug)
+     .eq("is_active", true)
+     .maybeSingle();
+ 
+   if (error || !data) return null;
+ 
+   let category: { name: string; slug: string } | null = null;
+   if (data.category_id) {
+     const { data: catData } = await supabase
+       .from("jf_categories")
+       .select("name,slug")
+       .eq("id", data.category_id)
+       .maybeSingle();
+     if (catData) {
+       category = catData;
+     }
+   }
+ 
+   return {
+     id: data.id,
+     category_id: data.category_id,
+     category,
+     title: data.title,
+     slug: data.slug,
+     short_description: data.short_description,
+     description: data.description,
+     inspired_by: data.inspired_by,
+     size_ml: Number(data.size_ml) || 50,
+     price: Number(data.price) || 0,
+     compare_at_price: data.compare_at_price ? Number(data.compare_at_price) : null,
+     images: Array.isArray(data.images) ? data.images : [],
+     notes_top: Array.isArray(data.notes_top) ? data.notes_top : [],
+     notes_heart: Array.isArray(data.notes_heart) ? data.notes_heart : [],
+     notes_base: Array.isArray(data.notes_base) ? data.notes_base : [],
+     gender: data.gender,
+     accent_color: data.accent_color,
+     seo_title: data.seo_title,
+     seo_description: data.seo_description,
+     updated_at: data.updated_at,
+   };
+ }
+ 
+export async function getProductReviews(productId: string): Promise<ApprovedReview[]> {
+   const supabase = publicClient();
+   if (!supabase) return [];
+   const { data, error } = await supabase
+     .from("jf_reviews")
+     .select("id,author_name,rating,body")
+     .eq("product_id", productId)
+     .eq("is_approved", true)
+     .order("created_at", { ascending: false });
+ 
+   if (error || !data) return [];
+   return data.map((item) => ({
+     id: item.id,
+     author_name: item.author_name,
+     rating: Number(item.rating) || 5,
+     body: item.body,
+   }));
+ }
+ 
+export async function getRelatedProducts(
+   categoryId: string | null,
+   excludeProductId: string,
+   limit = 4
+ ): Promise<ShopProduct[]> {
+   const supabase = publicClient();
+   if (!supabase) return [];
+ 
+   if (categoryId) {
+     const { data, error } = await supabase
+       .from("jf_products")
+       .select("id,title,slug,images,inspired_by,price,compare_at_price,size_ml,accent_color,category_id")
+       .eq("category_id", categoryId)
+       .eq("is_active", true)
+       .neq("id", excludeProductId)
+       .order("sort_order", { ascending: true, nullsFirst: false })
+       .limit(limit);
+ 
+     if (!error && data && data.length > 0) {
+       return data.map((item) => ({
+         id: item.id,
+         title: item.title,
+         slug: item.slug,
+         images: Array.isArray(item.images) ? item.images : [],
+         inspired_by: item.inspired_by,
+         price: Number(item.price) || 0,
+         compare_at_price: item.compare_at_price ? Number(item.compare_at_price) : null,
+         size_ml: Number(item.size_ml) || 50,
+         accent_color: item.accent_color,
+         category_id: item.category_id,
+       }));
+     }
+   }
+ 
+   // Fallback: other featured active products
+   const { data, error } = await supabase
+     .from("jf_products")
+     .select("id,title,slug,images,inspired_by,price,compare_at_price,size_ml,accent_color,category_id")
+     .eq("is_active", true)
+     .neq("id", excludeProductId)
+     .order("is_featured", { ascending: false })
+     .order("sort_order", { ascending: true, nullsFirst: false })
+     .limit(limit);
+ 
+   if (error || !data) return [];
+   return data.map((item) => ({
+     id: item.id,
+     title: item.title,
+     slug: item.slug,
+     images: Array.isArray(item.images) ? item.images : [],
+     inspired_by: item.inspired_by,
+     price: Number(item.price) || 0,
+     compare_at_price: item.compare_at_price ? Number(item.compare_at_price) : null,
+     size_ml: Number(item.size_ml) || 50,
+     accent_color: item.accent_color,
+     category_id: item.category_id,
+   }));
+ }
+ 
+export async function getAllActiveSlugs(): Promise<{
+   products: Array<{ slug: string; updated_at: string }>;
+   categories: Array<{ slug: string; updated_at: string }>;
+ }> {
+   const supabase = publicClient();
+   if (!supabase) return { products: [], categories: [] };
+   const [prodRes, catRes] = await Promise.all([
+     supabase.from("jf_products").select("slug,updated_at").eq("is_active", true),
+     supabase.from("jf_categories").select("slug,updated_at").eq("is_active", true),
+   ]);
+   return {
+     products: prodRes.data ?? [],
+     categories: catRes.data ?? [],
+   };
+ }

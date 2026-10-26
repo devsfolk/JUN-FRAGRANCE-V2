@@ -28,7 +28,7 @@ export async function CategoriesSection() {
             return (
               <Link
                 key={category.slug}
-                href={`/shop?category=${encodeURIComponent(category.slug)}`}
+                href={`/category/${category.slug}`}
                 className="group relative flex aspect-[3/4] w-[72vw] max-w-[280px] shrink-0 snap-start flex-col justify-end overflow-hidden rounded-2xl border border-white/10 p-5 transition-transform duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold md:w-auto md:max-w-none hover:border-gold/60"
               >
                 {/* Background Image with slight hover scale, or subtle gold radial fallback */}
