@@ -40,12 +40,18 @@ export interface OrganizationJsonLdOptions {
   siteUrl: string;
   whatsappNumber?: string | null;
   socialUrls?: string[];
+  businessAddress?: string | null;
+  businessCity?: string | null;
+  businessPhone?: string | null;
 }
 
 export function homeJsonLd({
   siteUrl,
   whatsappNumber,
   socialUrls = [],
+  businessAddress,
+  businessCity,
+  businessPhone,
 }: OrganizationJsonLdOptions) {
   const organization: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -59,10 +65,11 @@ export function homeJsonLd({
     organization.sameAs = socialUrls;
   }
 
-  if (whatsappNumber) {
-    const formattedPhone = whatsappNumber.startsWith("+")
-      ? whatsappNumber
-      : `+${whatsappNumber.replace(/\D/g, "")}`;
+  const phone = businessPhone || whatsappNumber;
+  if (phone) {
+    const formattedPhone = phone.startsWith("+")
+      ? phone
+      : `+${phone.replace(/\D/g, "")}`;
     organization.contactPoint = {
       "@type": "ContactPoint",
       telephone: formattedPhone,
@@ -78,7 +85,32 @@ export function homeJsonLd({
     url: siteUrl,
   };
 
-  return [organization, website];
+  const results: Record<string, unknown>[] = [organization, website];
+
+  // If business_address exists, add a LocalBusiness JSON-LD in addition to Organization
+  if (businessAddress && businessAddress.trim()) {
+    const localBusiness: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      name: "Jun.fragrance",
+      url: siteUrl,
+      areaServed: "PK",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: businessAddress.trim(),
+        addressLocality: businessCity?.trim() || "Pakistan",
+        addressCountry: "PK",
+      },
+    };
+    if (phone) {
+      localBusiness.telephone = phone.startsWith("+")
+        ? phone
+        : `+${phone.replace(/\D/g, "")}`;
+    }
+    results.push(localBusiness);
+  }
+
+  return results;
 }
 
 export interface ProductJsonLdOptions {

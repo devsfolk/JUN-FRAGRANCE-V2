@@ -43,6 +43,9 @@ export default async function HomePage() {
     siteUrl,
     whatsappNumber: number,
     socialUrls: socials,
+    businessAddress: rawSettings.business_address,
+    businessCity: rawSettings.business_city,
+    businessPhone: rawSettings.business_phone_display,
   });
 
   return (

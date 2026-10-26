@@ -8,7 +8,7 @@ import { Button } from "@/components/dashboard/ui/button";
 type ImageUploaderProps = {
   value: string[];
   onChange: (urls: string[]) => void;
-  kind: "categories" | "products";
+  kind: "categories" | "products" | "hero" | "seo" | "blog";
   multiple: boolean;
 };
 

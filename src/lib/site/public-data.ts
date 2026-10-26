@@ -11,6 +11,10 @@ export const settingKeys = [
   "social_youtube",
   "google_site_verification",
   "bing_site_verification",
+  "business_city",
+  "business_address",
+  "business_phone_display",
+  "hero_scenes",
 ] as const;
 export type SiteSettings = Partial<Record<(typeof settingKeys)[number], string>>;
 
@@ -22,13 +26,20 @@ function publicClient() {
 }
 
 function settingText(value: unknown) {
-  if (typeof value !== "string") return undefined;
-  try {
-    const decoded: unknown = JSON.parse(value);
-    return typeof decoded === "string" ? decoded : value;
-  } catch {
-    return value;
+  if (value === null || value === undefined) return undefined;
+  if (typeof value === "string") {
+    try {
+      const decoded: unknown = JSON.parse(value);
+      if (typeof decoded === "string") return decoded;
+      return typeof decoded === "object" ? JSON.stringify(decoded) : value;
+    } catch {
+      return value;
+    }
   }
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+  return String(value);
 }
 
 const loadSettings = unstable_cache(async (): Promise<SiteSettings> => {

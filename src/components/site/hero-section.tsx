@@ -4,12 +4,12 @@ import { getHeroScenes } from "@/lib/site/hero-scenes";
 import { whatsappNumber as extractWhatsappNumber } from "@/lib/site/whatsapp";
 
 export async function HeroSection() {
-  const [scenes, products, settings] = await Promise.all([
-    Promise.resolve(getHeroScenes()),
+  const [products, settings] = await Promise.all([
     getFeaturedHeroProducts(),
     getPublicSettings(),
   ]);
 
+  const scenes = getHeroScenes(settings.hero_scenes);
   const number = extractWhatsappNumber(settings);
 
   return (
