@@ -16,6 +16,8 @@ export const settingKeys = [
   "business_phone_display",
   "hero_scenes",
   "site_logo",
+  "site_favicon",
+  "logo_show_text",
 ] as const;
 export type SiteSettings = Partial<Record<(typeof settingKeys)[number], string>>;
 
@@ -79,6 +81,28 @@ export function parseSiteLogo(val: string | undefined): SiteLogo | null {
   } catch {
     return null;
   }
+}
+
+export type SiteFavicon = {
+  url: string;
+};
+
+export function parseSiteFavicon(val: string | undefined): SiteFavicon | null {
+  if (!val) return null;
+  try {
+    const parsed = JSON.parse(val);
+    if (parsed && typeof parsed === "object" && typeof parsed.url === "string" && parsed.url) {
+      return { url: parsed.url };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function parseLogoShowText(val: string | undefined): boolean {
+  if (!val) return false;
+  return val === "true" || val === "1";
 }
 
 export type HomeProduct = {

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/dashboard/ui/button";
 import { Input } from "@/components/dashboard/ui/input";
+import { Toggle } from "@/components/dashboard/ui/toggle";
 import { ImageUploader } from "@/components/dashboard/image-uploader";
 import { Toast } from "@/components/dashboard/ui/toast";
 import { saveSettings, type SettingsFormData } from "./actions";
@@ -400,6 +401,57 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
               </p>
             </div>
           ) : null}
+
+          {/* Logo + Name Switch */}
+          <div className="pt-3 border-t border-slate-100 max-w-md">
+            <Toggle
+              label="Show brand name next to logo"
+              checked={Boolean(data.logo_show_text)}
+              onChange={(checked) => setData({ ...data, logo_show_text: checked })}
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              When enabled, displays &ldquo;Jun.fragrance&rdquo; next to the logo image in the header and footer.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Favicon */}
+      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="font-serif text-xl font-medium text-slate-900">
+            7. Favicon
+          </h2>
+          <p className="mt-1 text-xs text-slate-500">
+            The small icon displayed in browser tabs, bookmarks, and mobile home screens.
+          </p>
+        </div>
+
+        <div className="mt-5 space-y-4">
+          <p className="text-xs text-slate-500">
+            Use a square image, at least 512x512 pixels. PNG with transparent background works best.
+          </p>
+
+          <ImageUploader
+            value={data.site_favicon?.url ? [data.site_favicon.url] : []}
+            onChange={(urls) => {
+              if (urls[0]) {
+                setData({
+                  ...data,
+                  site_favicon: {
+                    url: urls[0],
+                  },
+                });
+              } else {
+                setData({
+                  ...data,
+                  site_favicon: null,
+                });
+              }
+            }}
+            kind="favicon"
+            multiple={false}
+          />
         </div>
       </section>
 

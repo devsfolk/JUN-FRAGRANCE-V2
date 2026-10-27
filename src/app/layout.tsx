@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Manrope, Pinyon_Script } from "next/font/google";
-import { getPublicSettings } from "@/lib/site/public-data";
+import { getPublicSettings, parseSiteFavicon } from "@/lib/site/public-data";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -29,6 +29,9 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getPublicSettings();
+  const favicon = parseSiteFavicon(settings.site_favicon);
+  const iconUrl = favicon?.url || "/fallback-icon.png";
+  const appleUrl = favicon?.url || "/fallback-apple-icon.png";
 
   const google = settings.google_site_verification?.trim();
   const bing = settings.bing_site_verification?.trim();
@@ -39,6 +42,16 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(siteUrl),
+    icons: {
+      icon: [
+        { url: iconUrl, sizes: "32x32", type: "image/png" },
+        { url: iconUrl, sizes: "192x192", type: "image/png" },
+        { url: iconUrl, sizes: "512x512", type: "image/png" },
+      ],
+      apple: [
+        { url: appleUrl, sizes: "180x180", type: "image/png" },
+      ],
+    },
     title: {
       default: "Jun.fragrance | Premium Perfumes in Pakistan",
       template: "%s | Jun.fragrance",

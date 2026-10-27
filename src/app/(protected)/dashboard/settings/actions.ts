@@ -64,6 +64,36 @@ function logoStoragePath(url: string) {
   }
 }
 
+function isProjectFaviconMediaUrl(value: string) {
+  try {
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!base) return false;
+    const url = new URL(value);
+    const expectedOrigin = new URL(base).origin;
+    const path = decodeURIComponent(url.pathname);
+    const prefix = "/storage/v1/object/public/jf-media/favicon/";
+    return (
+      url.origin === expectedOrigin &&
+      path.startsWith(prefix) &&
+      path.slice(prefix.length).length > 0 &&
+      !path.split("/").some((part) => part === "..")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function faviconStoragePath(url: string) {
+  if (!isProjectFaviconMediaUrl(url)) return null;
+  try {
+    const parsed = new URL(url);
+    const marker = "/storage/v1/object/public/jf-media/";
+    return decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
+  } catch {
+    return null;
+  }
+}
+
 const heroSceneItemSchema = z.object({
   url: z
     .string()
@@ -86,6 +116,18 @@ const siteLogoSchema = z
         "Logo must be a public URL in this project's jf-media bucket under logo/."
       ),
     alt: z.string().trim().max(120),
+  })
+  .nullable();
+
+const siteFaviconSchema = z
+  .object({
+    url: z
+      .string()
+      .url()
+      .refine(
+        (val) => isProjectFaviconMediaUrl(val),
+        "Favicon must be a public URL in this project's jf-media bucket under favicon/."
+      ),
   })
   .nullable();
 
@@ -120,6 +162,8 @@ const settingsSchema = z.object({
   business_phone_display: z.string().trim().max(50),
   hero_scenes: z.array(heroSceneItemSchema).max(4),
   site_logo: siteLogoSchema.optional().nullable(),
+  site_favicon: siteFaviconSchema.optional().nullable(),
+  logo_show_text: z.boolean().default(false),
 });
 
 export type SettingsFormData = z.infer<typeof settingsSchema>;
@@ -133,8 +177,8 @@ export async function saveSettings(input: unknown) {
 
   const data = parsed.data;
 
-  // Retrieve existing hero_scenes and site_logo to detect removed files for safe deletion
-  const [heroRowRes, logoRowRes] = await Promise.all([
+  // Retrieve existing hero_scenes, site_logo, and site_favicon to detect removed files for safe deletion
+  const [heroRowRes, logoRowRes, faviconRowRes] = await Promise.all([
     supabase
       .from("jf_settings")
       .select("value")
@@ -145,10 +189,16 @@ export async function saveSettings(input: unknown) {
       .select("value")
       .eq("key", "site_logo")
       .maybeSingle(),
+    supabase
+      .from("jf_settings")
+      .select("value")
+      .eq("key", "site_favicon")
+      .maybeSingle(),
   ]);
 
   const existingHeroRow = heroRowRes.data;
   const existingLogoRow = logoRowRes.data;
+  const existingFaviconRow = faviconRowRes.data;
 
   let existingHeroUrls: string[] = [];
   if (existingHeroRow?.value) {
@@ -177,6 +227,21 @@ export async function saveSettings(input: unknown) {
       }
     } catch {
       existingLogoUrl = null;
+    }
+  }
+
+  let existingFaviconUrl: string | null = null;
+  if (existingFaviconRow?.value) {
+    try {
+      const decoded =
+        typeof existingFaviconRow.value === "string"
+          ? JSON.parse(existingFaviconRow.value)
+          : existingFaviconRow.value;
+      if (decoded && typeof decoded === "object" && typeof decoded.url === "string") {
+        existingFaviconUrl = decoded.url;
+      }
+    } catch {
+      existingFaviconUrl = null;
     }
   }
 
@@ -226,6 +291,24 @@ export async function saveSettings(input: unknown) {
     keysToDelete.push("site_logo");
   }
 
+  // Site favicon: if present and has url, upsert as JSON object; otherwise delete setting key
+  if (data.site_favicon && data.site_favicon.url) {
+    keysToUpsert.push({
+      key: "site_favicon",
+      value: {
+        url: data.site_favicon.url,
+      },
+    });
+  } else {
+    keysToDelete.push("site_favicon");
+  }
+
+  // Logo show text switch
+  keysToUpsert.push({
+    key: "logo_show_text",
+    value: String(Boolean(data.logo_show_text)),
+  });
+
   // Execute Upserts
   if (keysToUpsert.length > 0) {
     const { error: upsertErr } = await supabase
@@ -264,6 +347,15 @@ export async function saveSettings(input: unknown) {
     const oldLogoPath = logoStoragePath(existingLogoUrl);
     if (oldLogoPath) {
       await supabase.storage.from("jf-media").remove([oldLogoPath]);
+    }
+  }
+
+  // Clean up removed or replaced favicon from storage safely
+  const currentFaviconUrl = data.site_favicon?.url ?? null;
+  if (existingFaviconUrl && existingFaviconUrl !== currentFaviconUrl) {
+    const oldFaviconPath = faviconStoragePath(existingFaviconUrl);
+    if (oldFaviconPath) {
+      await supabase.storage.from("jf-media").remove([oldFaviconPath]);
     }
   }
 
