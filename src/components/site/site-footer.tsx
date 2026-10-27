@@ -11,26 +11,35 @@ export function SiteFooter({
   settings,
   whatsappNumber,
   siteLogo,
+  logoShowText = false,
 }: {
   settings: Record<string, string | undefined>;
   whatsappNumber: string | null;
   siteLogo?: SiteLogo | null;
+  logoShowText?: boolean;
 }) {
   const chat = whatsappLink(whatsappNumber, "Assalam o Alaikum! I would like to know more about Jun.fragrance.");
   return <footer className="border-t border-white/10 bg-ink-2 pb-[max(2rem,env(safe-area-inset-bottom))] pt-14 md:pt-20">
     <Container><div className="grid gap-10 md:grid-cols-[1.3fr_1fr_1fr] md:gap-12">
       <div>
-        <Link className="inline-block" href="/">
+        <Link className="inline-flex items-center gap-3" href="/">
           {siteLogo?.url ? (
-            <Image
-              src={siteLogo.url}
-              alt={siteLogo.alt || "Jun.fragrance"}
-              width={0}
-              height={0}
-              sizes="(max-width: 768px) 160px, 220px"
-              priority
-              className="h-[28px] md:h-[36px] w-auto max-w-[180px] md:max-w-[240px] object-contain"
-            />
+            <>
+              <Image
+                src={siteLogo.url}
+                alt={siteLogo.alt || "Jun.fragrance"}
+                width={0}
+                height={0}
+                sizes="(max-width: 768px) 160px, 220px"
+                priority
+                className="h-[28px] md:h-[36px] w-auto max-w-[160px] md:max-w-[200px] object-contain shrink-0"
+              />
+              {logoShowText ? (
+                <span className="hidden min-[360px]:inline-block font-serif text-2xl md:text-3xl text-bone">
+                  Jun.fragrance
+                </span>
+              ) : null}
+            </>
           ) : (
             <span className="font-serif text-4xl text-bone">Jun.fragrance</span>
           )}

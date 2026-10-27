@@ -14,9 +14,11 @@ const links = [{ label: "Home", href: "/" }, { label: "Shop", href: "/shop" }, {
 export function SiteHeader({
   whatsappNumber,
   siteLogo,
+  logoShowText = false,
 }: {
   whatsappNumber: string | null;
   siteLogo?: SiteLogo | null;
+  logoShowText?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
@@ -33,17 +35,24 @@ export function SiteHeader({
   return <>
     <header className={`fixed inset-x-0 top-0 z-40 border-b transition-colors duration-300 ${solid || open ? "border-white/10 bg-ink/95 backdrop-blur-md" : "border-transparent bg-ink/20"}`}>
       <div className="container-site flex h-16 items-center justify-between gap-4">
-        <Link aria-label="Jun.fragrance home" className="flex items-center min-w-0" href="/">
+        <Link aria-label="Jun.fragrance home" className="flex items-center gap-2.5 min-w-0" href="/">
           {siteLogo?.url ? (
-            <Image
-              src={siteLogo.url}
-              alt={siteLogo.alt || "Jun.fragrance"}
-              width={0}
-              height={0}
-              sizes="(max-width: 768px) 160px, 220px"
-              priority
-              className="h-[28px] md:h-[36px] w-auto max-w-[160px] sm:max-w-[220px] object-contain"
-            />
+            <>
+              <Image
+                src={siteLogo.url}
+                alt={siteLogo.alt || "Jun.fragrance"}
+                width={0}
+                height={0}
+                sizes="(max-width: 768px) 160px, 220px"
+                priority
+                className="h-[28px] md:h-[36px] w-auto max-w-[120px] sm:max-w-[200px] object-contain shrink-0"
+              />
+              {logoShowText ? (
+                <span className="hidden min-[360px]:inline-block font-serif text-[1.35rem] sm:text-[1.7rem] leading-none text-bone truncate">
+                  Jun.fragrance
+                </span>
+              ) : null}
+            </>
           ) : (
             <span className="font-serif text-[1.7rem] leading-none text-bone">Jun.fragrance</span>
           )}
