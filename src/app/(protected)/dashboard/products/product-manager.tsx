@@ -1,0 +1,72 @@
+"use client";
+
+import Image from "next/image";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/dashboard/ui/button";
+import { ConfirmDialog } from "@/components/dashboard/ui/confirm-dialog";
+import { Input } from "@/components/dashboard/ui/input";
+import { Select } from "@/components/dashboard/ui/select";
+import { Textarea } from "@/components/dashboard/ui/textarea";
+import { Toggle } from "@/components/dashboard/ui/toggle";
+import { Toast } from "@/components/dashboard/ui/toast";
+import { ImageUploader } from "@/components/dashboard/image-uploader";
+import { deleteProduct, getProductForEdit, saveProduct } from "./actions";
+
+type Category = { id: string; name: string };
+type Product = { id: string; title: string; slug: string; category_id: string | null; price: number; images: string[]; is_featured: boolean; is_active: boolean; category_name: string };
+type Form = { id?: string; title: string; slug: string; category_id: string | null; short_description: string; description: string; inspired_by: string; size_ml: number; price: number; compare_at_price: number | null; gender: "men" | "women" | "unisex" | null; accent_color: string; notes_top: string[]; notes_heart: string[]; notes_base: string[]; images: string[]; is_featured: boolean; is_active: boolean; sort_order: number; seo_title: string; seo_description: string };const blank: Form = { title: "", slug: "", category_id: null, short_description: "", description: "", inspired_by: "", size_ml: 50, price: 0, compare_at_price: null, gender: "unisex", accent_color: "#1e293b", notes_top: [], notes_heart: [], notes_base: [], images: [], is_featured: false, is_active: true, sort_order: 0, seo_title: "", seo_description: "" };
+const slugify = (value: string) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const money = (value: number) => new Intl.NumberFormat("en-PK", { style: "currency", currency: "PKR", maximumFractionDigits: 0 }).format(value);
+
+function TagInput({ label, value, onChange }: { label: string; value: string[]; onChange: (values: string[]) => void }) {
+  const [draft, setDraft] = useState("");
+  const add = () => { const next = draft.trim().replace(/,$/, "").trim(); if (next && !value.includes(next)) onChange([...value, next]); setDraft(""); };
+  return <div className="min-w-0"><label className="text-sm font-medium text-slate-800">{label}</label><div className="mt-1 flex min-h-11 flex-wrap gap-2 rounded-md border border-slate-300 bg-white p-2"><div className="flex flex-wrap gap-1">{value.map((tag) => <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-1 text-sm" key={tag}>{tag}<button aria-label={`Remove ${tag}`} className="min-h-6 min-w-6 rounded text-slate-700" onClick={() => onChange(value.filter((item) => item !== tag))} type="button">x</button></span>)}</div><input aria-label={label} className="min-w-24 flex-1 text-base outline-none" onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === ",") { event.preventDefault(); add(); } }} value={draft} /></div><p className="mt-1 text-xs text-slate-500">Type and press Enter or comma.</p></div>;
+}
+
+export function ProductManager({ products, categories }: { products: Product[]; categories: Category[] }) {
+  const router = useRouter();
+  const [form, setForm] = useState<Form | null>(null);
+  const [slugEdited, setSlugEdited] = useState(false);
+  const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [pending, startTransition] = useTransition();
+  const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(null);
+  const [deleting, setDeleting] = useState<Product | null>(null);
+  const [error, setError] = useState("");
+  const listed = useMemo(() => products.filter((product) => product.title.toLowerCase().includes(query.toLowerCase()) && (!categoryFilter || product.category_id === categoryFilter) && (!statusFilter || (statusFilter === "active" ? product.is_active : !product.is_active))), [products, query, categoryFilter, statusFilter]);
+  const notify = (message: string, ok: boolean) => setToast({ message, tone: ok ? "success" : "error" });
+  const update = (key: keyof Form, value: unknown) => setForm((current) => current ? { ...current, [key]: value } as Form : current);
+  const edit = (product?: Product) => {
+    setError(""); setSlugEdited(Boolean(product));
+    if (!product) { setForm({ ...blank }); return; }
+    startTransition(async () => {
+      const result = await getProductForEdit(product.id);
+      if (!("product" in result) || !result.product) { notify(result.message, false); return; }
+      const details = result.product;
+      setForm({
+        id: details.id, title: details.title, slug: details.slug, category_id: details.category_id,
+        short_description: details.short_description ?? "", description: details.description ?? "", inspired_by: details.inspired_by ?? "",
+        size_ml: details.size_ml, price: Number(details.price), compare_at_price: details.compare_at_price === null ? null : Number(details.compare_at_price),
+        gender: details.gender, accent_color: details.accent_color ?? "#1e293b", notes_top: details.notes_top, notes_heart: details.notes_heart,
+        notes_base: details.notes_base, images: details.images, is_featured: details.is_featured, is_active: details.is_active,
+        sort_order: details.sort_order ?? 0, seo_title: details.seo_title ?? "", seo_description: details.seo_description ?? "",
+      });
+    });
+  };  const submit = () => { if (!form) return; startTransition(async () => { const result = await saveProduct(form); if (!result.ok) { setError(result.message); return; } setForm(null); notify(result.message, true); router.refresh(); }); };
+  const remove = () => { if (!deleting) return; startTransition(async () => { const result = await deleteProduct(deleting.id); setDeleting(null); notify(result.message, result.ok); if (result.ok) router.refresh(); }); };
+
+  return <>
+    <div className="mb-4 grid gap-3 sm:grid-cols-3"><Input label="Search title" onChange={(e) => setQuery(e.target.value)} placeholder="Search products" value={query} /><Select label="Category" onChange={(e) => setCategoryFilter(e.target.value)} options={[{ label: "All categories", value: "" }, ...categories.map((item) => ({ label: item.name, value: item.id }))]} value={categoryFilter} /><Select label="Status" onChange={(e) => setStatusFilter(e.target.value)} options={[{ label: "All statuses", value: "" }, { label: "Active", value: "active" }, { label: "Inactive", value: "inactive" }]} value={statusFilter} /></div>
+    <div className="mb-5 flex items-center justify-between gap-3"><p className="text-sm text-slate-600">{listed.length} of {products.length} products</p><Button onClick={() => edit()}>Add product</Button></div>
+    {products.length === 0 ? <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No products yet. Add your first product.</div> : listed.length === 0 ? <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No products match these filters.</div> : <ul className="space-y-3">{listed.map((product) => <li className="flex min-w-0 items-center gap-3 rounded-lg border border-slate-200 bg-white p-3" key={product.id}><div className="relative h-14 w-14 shrink-0 overflow-hidden rounded bg-slate-100">{product.images[0] ? <Image alt="" className="object-cover" fill sizes="56px" src={product.images[0]} unoptimized /> : null}</div><div className="min-w-0 flex-1"><p className="truncate font-medium text-slate-950">{product.title}</p><p className="truncate text-xs text-slate-500">{product.category_name || "Uncategorized"} · {money(product.price)} · {product.is_active ? "Active" : "Inactive"}{product.is_featured ? " · Featured" : ""}</p></div><div className="flex shrink-0 gap-2"><Button className="px-3" onClick={() => edit(product)} variant="secondary">Edit</Button><Button aria-label={`Delete ${product.title}`} className="px-3" onClick={() => setDeleting(product)} variant="secondary">Delete</Button></div></li>)}</ul>}
+    {form ? <div className="fixed inset-0 z-40 overflow-y-auto bg-slate-950/40 p-3 sm:p-6"><section aria-labelledby="product-form-title" aria-modal="true" className="mx-auto my-2 w-full max-w-3xl rounded-lg bg-white p-4 shadow-xl sm:p-6" role="dialog"><div className="mb-5 flex items-center justify-between gap-3"><h2 className="text-xl font-semibold" id="product-form-title">{form.id ? "Edit product" : "Add product"}</h2><Button onClick={() => setForm(null)} variant="secondary">Close</Button></div>
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2"><Input label="Title" maxLength={180} onChange={(e) => { const title = e.target.value; setForm((current) => current ? { ...current, title, slug: slugEdited ? current.slug : slugify(title) } : current); }} value={form.title} /><Input label="Slug" onChange={(e) => { setSlugEdited(true); update("slug", e.target.value); }} value={form.slug} /><Select label="Category" onChange={(e) => update("category_id", e.target.value || null)} options={[{ label: "No category", value: "" }, ...categories.map((item) => ({ label: item.name, value: item.id }))]} value={form.category_id ?? ""} /><Input label="Size (ml)" min={1} onChange={(e) => update("size_ml", Number(e.target.value))} type="number" value={form.size_ml} /><Textarea className="sm:col-span-2" label="Short description" onChange={(e) => update("short_description", e.target.value)} value={form.short_description} /><Textarea className="sm:col-span-2" label="Description" onChange={(e) => update("description", e.target.value)} value={form.description} /><Input label="Inspired by" onChange={(e) => update("inspired_by", e.target.value)} value={form.inspired_by} /><Select label="Gender" onChange={(e) => update("gender", e.target.value)} options={[{ label: "Men", value: "men" }, { label: "Women", value: "women" }, { label: "Unisex", value: "unisex" }]} value={form.gender ?? "unisex"} /><Input label="Price (PKR)" min={0} onChange={(e) => update("price", Number(e.target.value))} step="0.01" type="number" value={form.price} /><Input label="Compare-at price (PKR, optional)" min={0} onChange={(e) => update("compare_at_price", e.target.value ? Number(e.target.value) : null)} step="0.01" type="number" value={form.compare_at_price ?? ""} /><label className="grid gap-1.5 text-sm font-medium">Accent color<input aria-label="Accent color" className="h-11 w-full rounded-md border border-slate-300" onChange={(e) => update("accent_color", e.target.value)} type="color" value={form.accent_color ?? "#1e293b"} /></label><Input label="Sort order" onChange={(e) => update("sort_order", Number(e.target.value))} type="number" value={form.sort_order} /><TagInput label="Top notes" onChange={(value) => update("notes_top", value)} value={form.notes_top} /><TagInput label="Heart notes" onChange={(value) => update("notes_heart", value)} value={form.notes_heart} /><TagInput label="Base notes" onChange={(value) => update("notes_base", value)} value={form.notes_base} /><div className="sm:col-span-2"><span className="mb-2 block text-sm font-medium">Images (first image is main)</span><ImageUploader kind="products" multiple onChange={(value) => update("images", value)} value={form.images} /></div><div className="sm:col-span-2 grid gap-2 sm:grid-cols-2"><Toggle checked={form.is_featured} label="Featured" onChange={(value) => update("is_featured", value)} /><Toggle checked={form.is_active} label="Active" onChange={(value) => update("is_active", value)} /></div><Input label="SEO title" maxLength={120} onChange={(e) => update("seo_title", e.target.value)} value={form.seo_title} /><p className="self-end pb-3 text-xs text-slate-500">{form.seo_title.length}/60 recommended</p><div className="sm:col-span-2"><Textarea label="SEO description" maxLength={300} onChange={(e) => update("seo_description", e.target.value)} value={form.seo_description} /><p className="mt-1 text-right text-xs text-slate-500">{form.seo_description.length}/155 recommended</p></div></div>
+      {error ? <p className="mt-4 text-sm text-red-700" role="alert">{error}</p> : null}<div className="sticky bottom-0 -mx-4 mt-5 flex justify-end gap-2 border-t border-slate-200 bg-white p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:-mx-6 sm:px-6"><Button onClick={() => setForm(null)} variant="secondary">Cancel</Button><Button disabled={pending} onClick={submit}>{pending ? "Saving..." : "Save product"}</Button></div>
+    </section></div> : null}
+    <ConfirmDialog open={Boolean(deleting)} pending={pending} title="Delete product?" message="This will also delete the product's images from jf-media." onCancel={() => setDeleting(null)} onConfirm={remove} />
+    {toast ? <Toast message={toast.message} onDismiss={() => setToast(null)} tone={toast.tone} /> : null}
+  </>;
+}
