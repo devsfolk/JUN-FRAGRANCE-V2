@@ -29,11 +29,11 @@ export async function PicksSection() {
       <Container>
         {/* Mobile: horizontal scroll-snap carousel (78vw, max 300px, next card peeking).
             Desktop: 3 cols on md, 4 cols on xl */}
-        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 pt-1 scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0 xl:grid-cols-4">
+        <div className="flex min-w-0 max-w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-4 pt-1 overscroll-x-contain [touch-action:pan-x_pan-y] [-webkit-overflow-scrolling:touch] scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0 xl:grid-cols-4">
           {products.map((product) => (
             <div
               key={product.slug || product.id}
-              className="w-[78vw] max-w-[300px] shrink-0 snap-start md:w-auto md:max-w-none flex"
+              className="w-[78vw] max-w-[300px] flex-none snap-start md:w-auto md:max-w-none flex"
             >
               <ProductCard
                 product={product}

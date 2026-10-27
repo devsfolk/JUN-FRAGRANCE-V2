@@ -42,7 +42,7 @@ export function ProductGallery({
   return (
     <div className="flex flex-col gap-4">
       {/* Main Image Frame (4:5 aspect, rounded, soft accent glow behind, no cutout) */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-ink-2">
+      <div className="relative aspect-[4/5] w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-white/10 bg-ink-2">
         {/* Soft accent glow behind image */}
         <div
           aria-hidden="true"
@@ -56,12 +56,12 @@ export function ProductGallery({
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex h-full w-full snap-x snap-mandatory overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden"
+          className="flex h-full w-full min-w-0 max-w-full snap-x snap-mandatory overflow-x-auto pb-0 overscroll-x-contain [touch-action:pan-x_pan-y] [-webkit-overflow-scrolling:touch] scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden"
         >
           {displayImages.map((src, i) => (
             <div
               key={src + i}
-              className="relative h-full w-full shrink-0 snap-center"
+              className="relative h-full w-full flex-none snap-center"
             >
               <Image
                 src={src}

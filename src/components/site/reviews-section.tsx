@@ -18,11 +18,11 @@ export async function ReviewsSection() {
 
       <Container>
         {/* Mobile: snap carousel, Desktop: 3-column grid */}
-        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 pt-1 scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0">
+        <div className="flex min-w-0 max-w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-4 pt-1 overscroll-x-contain [touch-action:pan-x_pan-y] [-webkit-overflow-scrolling:touch] scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0">
           {reviews.map((review) => (
             <div
               key={review.id}
-              className="flex w-[80vw] max-w-[320px] shrink-0 snap-start flex-col justify-between rounded-2xl border border-white/10 bg-ink/60 p-6 backdrop-blur-sm md:w-auto md:max-w-none"
+              className="flex w-[80vw] max-w-[320px] flex-none snap-start flex-col justify-between rounded-2xl border border-white/10 bg-ink/60 p-6 backdrop-blur-sm md:w-auto md:max-w-none"
             >
               <div>
                 {/* 5-star rating display with inline SVG */}

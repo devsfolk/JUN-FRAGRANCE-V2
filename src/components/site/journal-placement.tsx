@@ -41,11 +41,11 @@ export async function JournalPlacement({
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-[minmax(0,1fr)] min-w-0 max-w-full gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (
             <article
               key={post.slug}
-              className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-ink-2/60 transition-colors hover:border-gold/40"
+              className="group flex min-w-0 flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-ink-2/60 transition-colors hover:border-gold/40"
             >
               <Link href={`/journal/${post.slug}`} className="flex flex-col">
                 <div className="relative aspect-[16/10] w-full overflow-hidden bg-black/40">

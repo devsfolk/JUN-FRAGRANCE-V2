@@ -196,16 +196,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </nav>
 
         {/* Product Hero Layout: Gallery on left, Details on right */}
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-12 lg:gap-16">
+        <div className="grid grid-cols-[minmax(0,1fr)] min-w-0 max-w-full gap-10 md:grid-cols-2 md:gap-12 lg:gap-16">
           {/* Gallery Column */}
-          <ProductGallery
-            images={product.images}
-            title={product.title}
-            accentColor={accent}
-          />
+          <div className="min-w-0 max-w-full">
+            <ProductGallery
+              images={product.images}
+              title={product.title}
+              accentColor={accent}
+            />
+          </div>
 
           {/* Product Info Column */}
-          <div className="flex flex-col">
+          <div className="flex min-w-0 max-w-full flex-col">
             {/* Gender tag & Category */}
             <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider text-mute">
               {product.category ? <span>{product.category.name}</span> : null}
@@ -394,9 +396,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+            <div className="grid grid-cols-2 min-w-0 max-w-full gap-3 sm:gap-4 md:grid-cols-4 md:gap-6">
               {relatedProducts.map((relProduct) => (
-                <div key={relProduct.slug || relProduct.id} className="flex">
+                <div key={relProduct.slug || relProduct.id} className="flex min-w-0">
                   <ProductCard
                     product={relProduct}
                     whatsappNumber={number}

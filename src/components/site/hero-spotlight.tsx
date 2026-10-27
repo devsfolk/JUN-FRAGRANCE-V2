@@ -71,7 +71,44 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
+  const stripRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
+
+  // Soft fade on right edge of strip when it can scroll further
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+
+    const fade = strip.parentElement?.querySelector<HTMLElement>("[data-strip-fade]");
+    if (!fade) return;
+
+    let rafId = 0;
+    let lastCanScroll: boolean | null = null;
+
+    const updateScrollHint = () => {
+      const maxScroll = strip.scrollWidth - strip.clientWidth;
+      const canScroll = maxScroll > 2 && strip.scrollLeft < maxScroll - 4;
+      if (canScroll !== lastCanScroll) {
+        lastCanScroll = canScroll;
+        fade.setAttribute("data-visible", canScroll ? "true" : "false");
+      }
+    };
+
+    const onScroll = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(updateScrollHint);
+    };
+
+    updateScrollHint();
+    strip.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      strip.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [products]);
 
   // Autoplay pause condition flags stored in refs for zero-overhead loop checks
   const isTabHiddenRef = useRef(false);
@@ -446,7 +483,7 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
         />
 
         {/* Layer 5: UI Content (CSS Grid fit for 100svh across mobile & desktop) */}
-        <div className="container-site relative z-30 grid h-full w-full grid-rows-[auto_1fr_auto] pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(4.5rem,env(safe-area-inset-top))]">
+        <div className="container-site relative z-30 grid h-full w-full grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr_auto] min-w-0 max-w-full pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(4.5rem,env(safe-area-inset-top))]">
           {/* Top: Eyebrow */}
           <div className="pt-2">
             <p className="text-[10px] font-semibold uppercase tracking-[.32em] text-gold md:text-xs">
@@ -478,9 +515,9 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
           </div>
 
           {/* Bottom Area: Explore CTA + Slide Controls + Mini Product Order Strip */}
-          <div className="flex flex-col gap-3 pb-1 pr-[72px] sm:pr-0">
+          <div className="relative min-w-0 max-w-full flex flex-col gap-3 pb-1">
             {/* Action Row: CTA & Slide Controls */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 pr-[72px] sm:pr-0">
               <Button href="/shop">Explore collection</Button>
 
               {sceneCount > 1 ? (
@@ -530,75 +567,84 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
 
             {/* Mini Product Order Strip (up to 4 products) */}
             {products && products.length > 0 ? (
-              <div
-                data-no-swipe
-                onPointerEnter={onControlsPointerEnter}
-                onPointerLeave={onControlsPointerLeave}
-                className="mt-1 flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              >
-                {products.slice(0, 4).map((p) => {
-                  const thumb = p.images?.[0];
-                  const orderUrl = whatsappNumber
-                    ? whatsappLink(
-                        whatsappNumber,
-                        productWhatsAppMessage(p.title, p.size_ml, siteUrl, p.slug)
-                      )
-                    : null;
+              <div className="relative min-w-0 max-w-full">
+                <div
+                  ref={stripRef}
+                  data-no-swipe
+                  onPointerEnter={onControlsPointerEnter}
+                  onPointerLeave={onControlsPointerLeave}
+                  className="mt-1 flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1 overscroll-x-contain [touch-action:pan-x_pan-y] [-webkit-overflow-scrolling:touch] min-w-0 max-w-full pr-24 sm:pr-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
+                  {products.slice(0, 4).map((p) => {
+                    const thumb = p.images?.[0];
+                    const orderUrl = whatsappNumber
+                      ? whatsappLink(
+                          whatsappNumber,
+                          productWhatsAppMessage(p.title, p.size_ml, siteUrl, p.slug)
+                        )
+                      : null;
 
-                  return (
-                    <div
-                      key={p.slug || p.id}
-                      className="flex w-[265px] shrink-0 snap-start items-center justify-between gap-2.5 rounded-xl border border-white/10 bg-ink-2/80 p-2 backdrop-blur-sm transition-colors hover:border-gold/40"
-                    >
-                      <Link
-                        href={`/shop/${p.slug}`}
-                        className="flex min-w-0 flex-1 items-center gap-2.5 group"
+                    return (
+                      <div
+                        key={p.slug || p.id}
+                        className="flex w-[265px] flex-none snap-start items-center justify-between gap-2.5 rounded-xl border border-white/10 bg-ink-2/80 p-2 backdrop-blur-sm transition-colors hover:border-gold/40"
                       >
-                        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-black/40">
-                          {thumb ? (
-                            <Image
-                              src={thumb}
-                              alt={p.title}
-                              fill
-                              sizes="56px"
-                              className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            />
-                          ) : (
-                            <div className="grid h-full w-full place-items-center text-[10px] text-mute">
-                              JUN
-                            </div>
-                          )}
-                        </div>
+                        <Link
+                          href={`/shop/${p.slug}`}
+                          className="flex min-w-0 flex-1 items-center gap-2.5 group"
+                        >
+                          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-black/40">
+                            {thumb ? (
+                              <Image
+                                src={thumb}
+                                alt={p.title}
+                                fill
+                                sizes="56px"
+                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="grid h-full w-full place-items-center text-[10px] text-mute">
+                                JUN
+                              </div>
+                            )}
+                          </div>
 
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-serif text-sm font-medium text-bone group-hover:text-gold transition-colors">
-                            {p.title}
-                          </p>
-                          <p className="mt-0.5 text-xs text-gold">
-                            <Price value={p.price} />
-                          </p>
-                        </div>
-                      </Link>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-serif text-sm font-medium text-bone group-hover:text-gold transition-colors">
+                              {p.title}
+                            </p>
+                            <p className="mt-0.5 text-xs text-gold">
+                              <Price value={p.price} />
+                            </p>
+                          </div>
+                        </Link>
 
-                      {orderUrl ? (
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <HeroStripAddToCartButton productId={p.id} title={p.title} />
-                          <a
-                            href={orderUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            aria-label={`Order ${p.title} on WhatsApp`}
-                            className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full bg-[#155D3A] text-white transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
-                          >
-                            <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12.04 2a9.9 9.9 0 0 0-8.48 15.01L2.25 22l5.12-1.34A9.95 9.95 0 1 0 12.04 2Zm0 18.1a8.14 8.14 0 0 1-4.15-1.14l-.3-.18-3.04.8.81-2.97-.2-.31a8.18 8.18 0 1 1 6.88 3.8Zm4.49-6.13c-.25-.13-1.48-.73-1.71-.81-.23-.09-.4-.13-.56.13-.17.25-.65.81-.8.98-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.38-1.73-.14-.25-.02-.39.1-.52.11-.1.25-.29.37-.43.13-.14.17-.25.25-.42.09-.17.05-.31-.02-.44-.06-.12-.56-1.36-.77-1.86-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.09 0 1.24.9 2.43 1.02 2.6.13.17 1.77 2.7 4.3 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.48-.61 1.69-1.2.21-.59.21-1.1.15-1.2-.06-.1-.23-.17-.48-.3Z" />
-                            </svg>
-                          </a>
-                        </div>
-                      ) : null}
-                    </div>
-                  );
-                })}
+                        {orderUrl ? (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <HeroStripAddToCartButton productId={p.id} title={p.title} />
+                            <a
+                              href={orderUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-label={`Order ${p.title} on WhatsApp`}
+                              className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full bg-[#155D3A] text-white transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+                            >
+                              <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12.04 2a9.9 9.9 0 0 0-8.48 15.01L2.25 22l5.12-1.34A9.95 9.95 0 1 0 12.04 2Zm0 18.1a8.14 8.14 0 0 1-4.15-1.14l-.3-.18-3.04.8.81-2.97-.2-.31a8.18 8.18 0 1 1 6.88 3.8Zm4.49-6.13c-.25-.13-1.48-.73-1.71-.81-.23-.09-.4-.13-.56.13-.17.25-.65.81-.8.98-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.38-1.73-.14-.25-.02-.39.1-.52.11-.1.25-.29.37-.43.13-.14.17-.25.25-.42.09-.17.05-.31-.02-.44-.06-.12-.56-1.36-.77-1.86-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.09 0 1.24.9 2.43 1.02 2.6.13.17 1.77 2.7 4.3 3.78.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.48-.61 1.69-1.2.21-.59.21-1.1.15-1.2-.06-.1-.23-.17-.48-.3Z" />
+                              </svg>
+                            </a>
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Subtle soft fade on right edge while scrollable */}
+                <div
+                  aria-hidden="true"
+                  data-strip-fade
+                  className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-ink via-ink/70 to-transparent transition-opacity duration-300 opacity-0 data-[visible=true]:opacity-100 sm:hidden"
+                />
               </div>
             ) : null}
           </div>

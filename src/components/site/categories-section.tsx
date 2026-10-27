@@ -23,13 +23,13 @@ export async function CategoriesSection() {
       <Container>
         {/* Mobile: horizontal scroll-snap scroller (cards ~72vw wide, 3/4 aspect, no scrollbar).
             Desktop (md and up): 3 cols on md, 6 cols on xl grid. */}
-        <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 pt-1 scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0 xl:grid-cols-6">
+        <div className="flex min-w-0 max-w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-4 pt-1 overscroll-x-contain [touch-action:pan-x_pan-y] [-webkit-overflow-scrolling:touch] scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0 xl:grid-cols-6">
           {categories.map((category) => {
             return (
               <Link
                 key={category.slug}
                 href={`/category/${category.slug}`}
-                className="group relative flex aspect-[3/4] w-[72vw] max-w-[280px] shrink-0 snap-start flex-col justify-end overflow-hidden rounded-2xl border border-white/10 p-5 transition-transform duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold md:w-auto md:max-w-none hover:border-gold/60"
+                className="group relative flex aspect-[3/4] w-[72vw] max-w-[280px] flex-none snap-start flex-col justify-end overflow-hidden rounded-2xl border border-white/10 p-5 transition-transform duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold md:w-auto md:max-w-none hover:border-gold/60"
               >
                 {/* Background Image with slight hover scale, or subtle gold radial fallback */}
                 {category.image_url ? (
