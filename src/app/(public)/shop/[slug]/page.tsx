@@ -14,6 +14,7 @@ import {
   getRelatedProducts,
   getAllActiveSlugs,
   getPublicSettings,
+  getBundleSettings,
 } from "@/lib/site/public-data";
 import {
   whatsappNumber as extractWhatsappNumber,
@@ -98,10 +99,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
 
-  const [reviews, relatedProducts, rawSettings] = await Promise.all([
+  const [reviews, relatedProducts, rawSettings, bundleSettings] = await Promise.all([
     getProductReviews(product.id),
     getRelatedProducts(product.category_id, product.id, 4),
     getPublicSettings(),
+    getBundleSettings(),
   ]);
 
   const number = extractWhatsappNumber(rawSettings);
@@ -255,6 +257,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </span>
               ) : null}
             </div>
+
+            {/* Bundle Promotion Line */}
+            {bundleSettings.enabled ? (
+              <p className="mt-2 text-xs text-bone/85 sm:text-sm">
+                Buy any 3 for <Price value={bundleSettings.price} className="font-semibold text-gold" /> -{" "}
+                <Link
+                  href="/bundle"
+                  className="font-medium text-gold underline underline-offset-4 hover:text-white"
+                >
+                  Build your bundle
+                </Link>
+              </p>
+            ) : null}
 
             {/* Product Order Controls: Quantity Stepper, Order now (green), and Add to cart (outlined) */}
             <ProductOrderControls

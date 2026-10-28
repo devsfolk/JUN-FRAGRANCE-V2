@@ -13,11 +13,15 @@ const DynamicCartDrawer = dynamic(
 interface CartDrawerRootProps {
   whatsappNumber: string | null;
   siteUrl: string;
+  bundleEnabled?: boolean;
+  bundlePrice?: number;
 }
 
 export function CartDrawerRoot({
   whatsappNumber,
   siteUrl,
+  bundleEnabled = true,
+  bundlePrice = 4500,
 }: CartDrawerRootProps) {
   const { isOpen } = useCartDrawer();
   const [hasEverOpened, setHasEverOpened] = useState(false);
@@ -35,6 +39,8 @@ export function CartDrawerRoot({
         <DynamicCartDrawer
           whatsappNumber={whatsappNumber}
           siteUrl={siteUrl}
+          bundleEnabled={bundleEnabled}
+          bundlePrice={bundlePrice}
         />
       ) : null}
     </>

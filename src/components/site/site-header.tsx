@@ -9,19 +9,28 @@ import { cartStore } from "@/lib/site/cart-store";
 import { CartBadge } from "./cart-badge";
 import type { SiteLogo } from "@/lib/site/public-data";
 
-const links = [{ label: "Home", href: "/" }, { label: "Shop", href: "/shop" }, { label: "About", href: "/about" }, { label: "Journal", href: "/journal" }, { label: "Contact", href: "/contact" }];
-
 export function SiteHeader({
   whatsappNumber,
   siteLogo,
   logoShowText = false,
+  bundleEnabled = true,
 }: {
   whatsappNumber: string | null;
   siteLogo?: SiteLogo | null;
   logoShowText?: boolean;
+  bundleEnabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
+
+  const navLinks = [
+    { label: "Home", href: "/" },
+    { label: "Shop", href: "/shop" },
+    ...(bundleEnabled ? [{ label: "Bundle", href: "/bundle", isSpecial: true }] : []),
+    { label: "About", href: "/about" },
+    { label: "Journal", href: "/journal" },
+    { label: "Contact", href: "/contact" },
+  ];
   useEffect(() => {
     const update = () => setSolid(window.scrollY > 24);
     update(); window.addEventListener("scroll", update, { passive: true });
@@ -58,7 +67,21 @@ export function SiteHeader({
           )}
         </Link>
         <div className="flex items-center gap-1 sm:gap-2">
-          <nav aria-label="Main navigation" className="hidden items-center gap-8 mr-4 md:flex">{links.map((link) => <Link className="min-h-11 py-3 text-xs font-medium uppercase tracking-[.16em] text-bone/75 transition-colors hover:text-gold" href={link.href} key={link.href}>{link.label}</Link>)}</nav>
+          <nav aria-label="Main navigation" className="hidden items-center gap-8 mr-4 md:flex">
+            {navLinks.map((link) => (
+              <Link
+                className={`min-h-11 py-3 text-xs uppercase tracking-[.16em] transition-colors ${
+                  link.isSpecial
+                    ? "font-semibold text-gold hover:text-white"
+                    : "font-medium text-bone/75 hover:text-gold"
+                }`}
+                href={link.href}
+                key={link.href}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
           {whatsappNumber ? (
             <button
               type="button"
@@ -76,6 +99,33 @@ export function SiteHeader({
         </div>
       </div>
     </header>
-    {open ? <div className="fixed inset-0 z-30 flex min-h-dvh flex-col justify-center bg-ink px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(5.5rem,env(safe-area-inset-top))] md:hidden"><nav aria-label="Mobile navigation" className="container-site flex flex-col">{links.map((link, index) => <Link className="min-h-[4.25rem] border-b border-white/10 py-2 font-serif text-5xl text-bone" href={link.href} key={link.href} onClick={() => setOpen(false)}><span className="mr-3 align-middle font-sans text-[10px] tracking-widest text-gold">0{index + 1}</span>{link.label}</Link>)}</nav>{chat ? <div className="container-site mt-8"><Button href={chat} onClick={() => setOpen(false)}>Chat on WhatsApp <span aria-hidden="true">↗</span></Button></div> : null}</div> : null}
+    {open ? (
+      <div className="fixed inset-0 z-30 flex min-h-dvh flex-col justify-center bg-ink px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(5.5rem,env(safe-area-inset-top))] md:hidden">
+        <nav aria-label="Mobile navigation" className="container-site flex flex-col">
+          {navLinks.map((link, index) => (
+            <Link
+              className={`min-h-[4.25rem] border-b border-white/10 py-2 font-serif text-5xl ${
+                link.isSpecial ? "text-gold" : "text-bone"
+              }`}
+              href={link.href}
+              key={link.href}
+              onClick={() => setOpen(false)}
+            >
+              <span className="mr-3 align-middle font-sans text-[10px] tracking-widest text-gold">
+                0{index + 1}
+              </span>
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        {chat ? (
+          <div className="container-site mt-8">
+            <Button href={chat} onClick={() => setOpen(false)}>
+              Chat on WhatsApp <span aria-hidden="true">↗</span>
+            </Button>
+          </div>
+        ) : null}
+      </div>
+    ) : null}
   </>;
 }
