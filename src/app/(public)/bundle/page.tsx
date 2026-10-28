@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
   ]);
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
-  const defaultPoster = bundleSettings.imageUrl || `${siteUrl}/bundle/bundle-poster.webp`;
+  const defaultPoster = bundleSettings.imageUrl || `${siteUrl}/bundle/bundle-poster-new.webp`;
   const formattedPrice = bundleSettings.price.toLocaleString("en-PK");
 
   const title =
@@ -65,7 +65,7 @@ export default async function BundlePage() {
 
   const number = whatsappNumber(settings);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
-  const posterSrc = bundleSettings.imageUrl || "/bundle/bundle-poster.webp";
+  const posterSrc = bundleSettings.imageUrl || "/bundle/bundle-poster-new.webp";
   const absolutePosterUrl = posterSrc.startsWith("http")
     ? posterSrc
     : `${siteUrl}${posterSrc}`;

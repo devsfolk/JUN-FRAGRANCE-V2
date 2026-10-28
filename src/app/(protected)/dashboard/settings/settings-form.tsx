@@ -504,7 +504,7 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
               Custom Bundle Poster Banner
             </label>
             <p className="text-xs text-slate-500">
-              Optional. When empty, the default poster (/bundle/bundle-poster.webp) is used.
+              Optional. When empty, the default poster (/bundle/bundle-poster-new.webp) is used.
             </p>
             <ImageUploader
               value={data.bundle_image?.url ? [data.bundle_image.url] : []}

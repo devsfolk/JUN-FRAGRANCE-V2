@@ -30,7 +30,7 @@ export async function HomeBundleBanner() {
     }));
   }
 
-  const posterSrc = bundleSettings.imageUrl || "/bundle/bundle-poster.webp";
+  const posterSrc = bundleSettings.imageUrl || "/bundle/bundle-poster-new.webp";
 
   return (
     <section id="bundle-banner" className="border-t border-white/10 bg-ink py-14 md:py-20">
@@ -98,7 +98,7 @@ export async function HomeBundleBanner() {
                   const imageSrc =
                     product.images && product.images.length > 0
                       ? product.images[0]
-                      : "/bundle/bundle-poster.webp";
+                      : "/bundle/bundle-poster-new.webp";
                   const accent = product.accent_color || "#D4AF37";
 
                   // Staggered float animation configs (6s duration, transform only)

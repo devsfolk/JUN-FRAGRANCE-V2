@@ -632,7 +632,7 @@ export function BundlePicker({
                         }}
                       >
                         <Image
-                          src={prod.image || "/bundle/bundle-poster.webp"}
+                          src={prod.image || "/bundle/bundle-poster-new.webp"}
                           alt={prod.title}
                           fill
                           sizes="110px"
@@ -776,7 +776,7 @@ export function BundlePicker({
                         }}
                       >
                         <Image
-                          src={prod.image || "/bundle/bundle-poster.webp"}
+                          src={prod.image || "/bundle/bundle-poster-new.webp"}
                           alt={prod.title}
                           fill
                           sizes="84px"
