@@ -78,6 +78,35 @@ export default async function SettingsPage() {
     return val === true || val === "true" || val === 1 || val === "1";
   };
 
+  const parseBundleEnabled = (val: unknown): boolean => {
+    if (val === undefined || val === null) return true;
+    if (typeof val === "boolean") return val;
+    if (val === "false" || val === "0" || val === 0) return false;
+    return true;
+  };
+
+  const parseBundlePrice = (val: unknown): number => {
+    if (val === undefined || val === null) return 4500;
+    const num = typeof val === "number" ? val : parseInt(String(val), 10);
+    if (!isNaN(num) && num >= 1 && num <= 1000000) return num;
+    return 4500;
+  };
+
+  const parseBundleImage = (val: unknown): SettingsFormData["bundle_image"] => {
+    if (!val) return null;
+    try {
+      const parsed = typeof val === "string" ? JSON.parse(val) : val;
+      if (parsed && typeof parsed === "object" && typeof parsed.url === "string") {
+        return {
+          url: parsed.url,
+        };
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
   const initialData: SettingsFormData = {
     whatsapp_number: parseString(settingsMap.whatsapp_number),
     social_instagram: parseString(settingsMap.social_instagram),
@@ -93,6 +122,9 @@ export default async function SettingsPage() {
     site_logo: parseSiteLogo(settingsMap.site_logo),
     site_favicon: parseSiteFavicon(settingsMap.site_favicon),
     logo_show_text: parseBoolean(settingsMap.logo_show_text),
+    bundle_enabled: parseBundleEnabled(settingsMap.bundle_enabled),
+    bundle_price: parseBundlePrice(settingsMap.bundle_price),
+    bundle_image: parseBundleImage(settingsMap.bundle_image),
   };
 
   return (

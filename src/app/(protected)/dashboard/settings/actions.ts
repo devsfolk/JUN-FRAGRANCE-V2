@@ -94,6 +94,36 @@ function faviconStoragePath(url: string) {
   }
 }
 
+function isProjectBundleMediaUrl(value: string) {
+  try {
+    const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!base) return false;
+    const url = new URL(value);
+    const expectedOrigin = new URL(base).origin;
+    const path = decodeURIComponent(url.pathname);
+    const prefix = "/storage/v1/object/public/jf-media/bundle/";
+    return (
+      url.origin === expectedOrigin &&
+      path.startsWith(prefix) &&
+      path.slice(prefix.length).length > 0 &&
+      !path.split("/").some((part) => part === "..")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function bundleStoragePath(url: string) {
+  if (!isProjectBundleMediaUrl(url)) return null;
+  try {
+    const parsed = new URL(url);
+    const marker = "/storage/v1/object/public/jf-media/";
+    return decodeURIComponent(parsed.pathname.split(marker)[1] ?? "");
+  } catch {
+    return null;
+  }
+}
+
 const heroSceneItemSchema = z.object({
   url: z
     .string()
@@ -131,6 +161,18 @@ const siteFaviconSchema = z
   })
   .nullable();
 
+const bundleImageSchema = z
+  .object({
+    url: z
+      .string()
+      .url()
+      .refine(
+        (val) => isProjectBundleMediaUrl(val),
+        "Bundle image must be a public URL in this project's jf-media bucket under bundle/."
+      ),
+  })
+  .nullable();
+
 const settingsSchema = z.object({
   whatsapp_number: z
     .string()
@@ -164,6 +206,9 @@ const settingsSchema = z.object({
   site_logo: siteLogoSchema.optional().nullable(),
   site_favicon: siteFaviconSchema.optional().nullable(),
   logo_show_text: z.boolean().default(false),
+  bundle_enabled: z.boolean().default(true),
+  bundle_price: z.coerce.number().int().min(1).max(1000000).default(4500),
+  bundle_image: bundleImageSchema.optional().nullable(),
 });
 
 export type SettingsFormData = z.infer<typeof settingsSchema>;
@@ -177,8 +222,8 @@ export async function saveSettings(input: unknown) {
 
   const data = parsed.data;
 
-  // Retrieve existing hero_scenes, site_logo, and site_favicon to detect removed files for safe deletion
-  const [heroRowRes, logoRowRes, faviconRowRes] = await Promise.all([
+  // Retrieve existing hero_scenes, site_logo, site_favicon, and bundle_image to detect removed files for safe deletion
+  const [heroRowRes, logoRowRes, faviconRowRes, bundleRowRes] = await Promise.all([
     supabase
       .from("jf_settings")
       .select("value")
@@ -194,11 +239,17 @@ export async function saveSettings(input: unknown) {
       .select("value")
       .eq("key", "site_favicon")
       .maybeSingle(),
+    supabase
+      .from("jf_settings")
+      .select("value")
+      .eq("key", "bundle_image")
+      .maybeSingle(),
   ]);
 
   const existingHeroRow = heroRowRes.data;
   const existingLogoRow = logoRowRes.data;
   const existingFaviconRow = faviconRowRes.data;
+  const existingBundleRow = bundleRowRes.data;
 
   let existingHeroUrls: string[] = [];
   if (existingHeroRow?.value) {
@@ -242,6 +293,21 @@ export async function saveSettings(input: unknown) {
       }
     } catch {
       existingFaviconUrl = null;
+    }
+  }
+
+  let existingBundleUrl: string | null = null;
+  if (existingBundleRow?.value) {
+    try {
+      const decoded =
+        typeof existingBundleRow.value === "string"
+          ? JSON.parse(existingBundleRow.value)
+          : existingBundleRow.value;
+      if (decoded && typeof decoded === "object" && typeof decoded.url === "string") {
+        existingBundleUrl = decoded.url;
+      }
+    } catch {
+      existingBundleUrl = null;
     }
   }
 
@@ -309,6 +375,26 @@ export async function saveSettings(input: unknown) {
     value: String(Boolean(data.logo_show_text)),
   });
 
+  // Bundle promotion settings
+  keysToUpsert.push({
+    key: "bundle_enabled",
+    value: Boolean(data.bundle_enabled),
+  });
+  keysToUpsert.push({
+    key: "bundle_price",
+    value: Math.round(Number(data.bundle_price)),
+  });
+  if (data.bundle_image && data.bundle_image.url) {
+    keysToUpsert.push({
+      key: "bundle_image",
+      value: {
+        url: data.bundle_image.url,
+      },
+    });
+  } else {
+    keysToDelete.push("bundle_image");
+  }
+
   // Execute Upserts
   if (keysToUpsert.length > 0) {
     const { error: upsertErr } = await supabase
@@ -359,8 +445,18 @@ export async function saveSettings(input: unknown) {
     }
   }
 
-  // Revalidate layout so public site updates immediately
+  // Clean up removed or replaced bundle image from storage safely
+  const currentBundleUrl = data.bundle_image?.url ?? null;
+  if (existingBundleUrl && existingBundleUrl !== currentBundleUrl) {
+    const oldBundlePath = bundleStoragePath(existingBundleUrl);
+    if (oldBundlePath) {
+      await supabase.storage.from("jf-media").remove([oldBundlePath]);
+    }
+  }
+
+  // Revalidate layout and /bundle so public site updates immediately
   revalidatePath("/", "layout");
+  revalidatePath("/bundle");
 
   return { ok: true };
 }

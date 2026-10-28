@@ -18,6 +18,9 @@ export const settingKeys = [
   "site_logo",
   "site_favicon",
   "logo_show_text",
+  "bundle_enabled",
+  "bundle_price",
+  "bundle_image",
 ] as const;
 export type SiteSettings = Partial<Record<(typeof settingKeys)[number], string>>;
 
@@ -103,6 +106,46 @@ export function parseSiteFavicon(val: string | undefined): SiteFavicon | null {
 export function parseLogoShowText(val: string | undefined): boolean {
   if (!val) return false;
   return val === "true" || val === "1";
+}
+
+export type BundleSettings = {
+  enabled: boolean;
+  price: number;
+  imageUrl: string | null;
+};
+
+export function parseBundleSettings(settings: SiteSettings): BundleSettings {
+  let enabled = true;
+  if (settings.bundle_enabled !== undefined) {
+    enabled = settings.bundle_enabled === "true" || settings.bundle_enabled === "1";
+  }
+
+  let price = 4500;
+  if (settings.bundle_price) {
+    const parsed = parseInt(settings.bundle_price, 10);
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= 1000000) {
+      price = parsed;
+    }
+  }
+
+  let imageUrl: string | null = null;
+  if (settings.bundle_image) {
+    try {
+      const parsed = typeof settings.bundle_image === "string" ? JSON.parse(settings.bundle_image) : settings.bundle_image;
+      if (parsed && typeof parsed === "object" && typeof parsed.url === "string" && parsed.url) {
+        imageUrl = parsed.url;
+      }
+    } catch {
+      imageUrl = null;
+    }
+  }
+
+  return { enabled, price, imageUrl };
+}
+
+export async function getBundleSettings(): Promise<BundleSettings> {
+  const settings = await getPublicSettings();
+  return parseBundleSettings(settings);
 }
 
 export type HomeProduct = {
