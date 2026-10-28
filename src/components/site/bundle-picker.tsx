@@ -140,6 +140,7 @@ export function BundlePicker({
     const deltaY = endCenterY - startCenterY;
     const scaleX = endRect.width / startRect.width;
     const scaleY = endRect.height / startRect.height;
+    const targetRadius = Math.round(endRect.width * 0.25);
 
     const anim = clone.animate(
       [
@@ -147,7 +148,7 @@ export function BundlePicker({
         {
           transform: `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`,
           opacity: 0.9,
-          borderRadius: "9999px 9999px 0 0",
+          borderRadius: `${targetRadius}px`,
         },
       ],
       {
@@ -617,16 +618,16 @@ export function BundlePicker({
                     ref={(el) => {
                       desktopSlotRefs.current[slotIdx] = el;
                     }}
-                    className={`relative aspect-[3/4] w-full rounded-t-full transition-transform duration-400 ease-out motion-reduce:transition-none ${
+                    className={`relative aspect-[140/300] w-full [container-type:inline-size] rounded-[35px] [border-radius:25cqw] transition-transform duration-400 ease-out motion-reduce:transition-none ${
                       isComplete ? "-translate-y-1" : "translate-y-0"
                     }`}
                   >
                     {prod ? (
                       <div
-                        className="relative h-full w-full overflow-hidden rounded-t-full border border-gold/60"
+                        className="relative h-full w-full overflow-hidden rounded-[35px] [border-radius:25cqw] border border-[#75552D]"
                         style={{
                           boxShadow: `0 0 16px ${
-                            prod.accent_color ? prod.accent_color + "66" : "rgba(212,175,55,0.4)"
+                            prod.accent_color ? prod.accent_color + "66" : "rgba(201,165,107,0.4)"
                           }`,
                         }}
                       >
@@ -650,8 +651,8 @@ export function BundlePicker({
                         </button>
                       </div>
                     ) : (
-                      <div className="flex h-full w-full flex-col items-center justify-center rounded-t-full border-2 border-dashed border-gold/40 bg-gold/[0.04] animate-pulse">
-                        <span className="font-serif text-sm font-semibold text-gold/60">
+                      <div className="flex h-full w-full flex-col items-center justify-center rounded-[35px] [border-radius:25cqw] border-2 border-dashed border-[#C9A56B] bg-[#C9A56B]/[0.04] animate-pulse">
+                        <span className="font-serif text-sm font-semibold text-[#C9A56B]">
                           {slotIdx + 1}
                         </span>
                       </div>
@@ -761,16 +762,16 @@ export function BundlePicker({
                     ref={(el) => {
                       mobileSlotRefs.current[slotIdx] = el;
                     }}
-                    className={`relative aspect-[3/4] w-12 sm:w-14 shrink-0 rounded-t-full transition-transform duration-400 ease-out motion-reduce:transition-none ${
+                    className={`relative aspect-[140/200] w-14 sm:w-16 max-w-[84px] shrink-0 [container-type:inline-size] rounded-[21px] [border-radius:25cqw] transition-transform duration-400 ease-out motion-reduce:transition-none ${
                       isComplete ? "-translate-y-1" : "translate-y-0"
                     }`}
                   >
                     {prod ? (
                       <div
-                        className="relative h-full w-full overflow-hidden rounded-t-full border border-gold/60"
+                        className="relative h-full w-full overflow-hidden rounded-[21px] [border-radius:25cqw] border border-[#75552D]"
                         style={{
                           boxShadow: `0 0 12px ${
-                            prod.accent_color ? prod.accent_color + "66" : "rgba(212,175,55,0.4)"
+                            prod.accent_color ? prod.accent_color + "66" : "rgba(201,165,107,0.4)"
                           }`,
                         }}
                       >
@@ -778,7 +779,7 @@ export function BundlePicker({
                           src={prod.image || "/bundle/bundle-poster.webp"}
                           alt={prod.title}
                           fill
-                          sizes="56px"
+                          sizes="84px"
                           className="object-cover"
                         />
                         <button
@@ -793,8 +794,8 @@ export function BundlePicker({
                         </button>
                       </div>
                     ) : (
-                      <div className="flex h-full w-full flex-col items-center justify-center rounded-t-full border-2 border-dashed border-gold/40 bg-gold/[0.04] animate-pulse">
-                        <span className="font-serif text-xs font-semibold text-gold/60">
+                      <div className="flex h-full w-full flex-col items-center justify-center rounded-[21px] [border-radius:25cqw] border-2 border-dashed border-[#C9A56B] bg-[#C9A56B]/[0.04] animate-pulse">
+                        <span className="font-serif text-xs font-semibold text-[#C9A56B]">
                           {slotIdx + 1}
                         </span>
                       </div>

@@ -92,7 +92,7 @@ export async function HomeBundleBanner() {
                 />
               </svg>
 
-              {/* 3 Arched Windows with slow staggered float */}
+              {/* 3 Vertical Rounded Rectangles with slow staggered float */}
               <div className="flex items-center justify-center gap-2.5 sm:gap-4 w-full max-w-md">
                 {trio.map((product, idx) => {
                   const imageSrc =
@@ -110,11 +110,11 @@ export async function HomeBundleBanner() {
                   return (
                     <div
                       key={product.id || idx}
-                      className="relative aspect-[3/4] w-24 sm:w-28 md:w-32 flex-1 max-w-[120px] rounded-t-full transition-transform motion-reduce:!animate-none motion-reduce:!transform-none"
+                      className="relative aspect-[140/300] w-24 sm:w-28 md:w-32 flex-1 max-w-[140px] [container-type:inline-size] rounded-[35px] [border-radius:25cqw] transition-transform motion-reduce:!animate-none motion-reduce:!transform-none"
                       style={animationStyle}
                     >
                       <div
-                        className="relative h-full w-full overflow-hidden rounded-t-full border border-gold/50 bg-ink"
+                        className="relative h-full w-full overflow-hidden rounded-[35px] [border-radius:25cqw] border border-[#75552D] bg-ink"
                         style={{
                           boxShadow: `0 8px 24px color-mix(in srgb, ${accent} 35%, rgba(0,0,0,0.5))`,
                         }}
@@ -123,7 +123,7 @@ export async function HomeBundleBanner() {
                           src={imageSrc}
                           alt={product.title}
                           fill
-                          sizes="(max-width: 640px) 96px, 128px"
+                          sizes="(max-width: 640px) 96px, 140px"
                           className="object-cover"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-ink/75 via-transparent to-transparent pointer-events-none" />
