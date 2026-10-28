@@ -337,6 +337,44 @@ const loadApprovedReviews = unstable_cache(
 );
 
 export const getApprovedReviews = () => loadApprovedReviews();
+
+export type BundleProduct = {
+  id: string;
+  title: string;
+  slug: string;
+  price: number;
+  size_ml: number;
+  image: string | null;
+  gender: string | null;
+};
+
+const loadBundleProducts = unstable_cache(
+  async (): Promise<BundleProduct[]> => {
+    const supabase = publicClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("jf_products")
+      .select("id,title,slug,price,size_ml,images,gender,sort_order")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .limit(200);
+
+    if (error || !data) return [];
+    return data.map((item) => ({
+      id: item.id,
+      title: item.title,
+      slug: item.slug,
+      price: Number(item.price) || 0,
+      size_ml: Number(item.size_ml) || 50,
+      image: Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : null,
+      gender: item.gender ?? null,
+    }));
+  },
+  ["jf-bundle-products-v1"],
+  { revalidate: 60, tags: ["bundle-products", "products"] }
+);
+
+export const getBundleProducts = () => loadBundleProducts();
  
 export type ShopProduct = {
    id: string;

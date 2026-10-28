@@ -21,3 +21,19 @@ export function productWhatsAppMessage(title: string, sizeMl: number, siteUrl: s
   const qtySuffix = qty > 1 ? ` x${qty}` : "";
   return `Assalam o Alaikum! I want to order ${title} (${sizeMl}ml)${qtySuffix} - ${new URL(`/shop/${slug}`, siteUrl).toString()}`;
 }
+
+export function bundleWhatsAppMessage(
+  bundlePrice: number,
+  items: Array<{ title: string; size_ml: number; slug: string }>,
+  siteUrl: string
+) {
+  const cleanBase = siteUrl.replace(/\/$/, "");
+  const lines = items
+    .map(
+      (item, idx) =>
+        `${idx + 1}. ${item.title} (${item.size_ml} ml)\n   ${cleanBase}/shop/${item.slug}`
+    )
+    .join("\n");
+  const formattedPrice = bundlePrice.toLocaleString("en-PK");
+  return `Assalam o Alaikum! I would like to order a bundle:\n\nBundle: any 3 perfumes - Rs. ${formattedPrice}\n${lines}\n\nName:\nCity:\nAddress:`;
+}
