@@ -61,9 +61,11 @@ export function ProductCard({
 
   return (
     <div
-      className="group relative flex w-full flex-col justify-between rounded-2xl border bg-ink-2/70 p-3.5 transition-colors duration-300"
+      className="group relative flex w-full flex-col justify-between rounded-2xl border bg-ink-2/70 p-2.5 sm:p-3.5 transition-colors duration-300"
       style={{
         borderColor: `color-mix(in srgb, ${accent} 25%, rgba(255,255,255,0.08))`,
+        contentVisibility: "auto",
+        containIntrinsicSize: "360px",
       }}
     >
       {/* Soft accent glow behind card */}
@@ -87,9 +89,10 @@ export function ProductCard({
               src={thumb}
               alt={product.title}
               fill
+              loading={priority ? "eager" : "lazy"}
               priority={priority}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             />
           ) : (
             <div className="grid h-full w-full place-items-center text-xs text-mute">
@@ -106,8 +109,8 @@ export function ProductCard({
         </div>
 
         {/* Title, Inspired by, and Price */}
-        <div className="mt-3.5 flex flex-col items-start text-left">
-          <h3 className="line-clamp-1 font-serif text-lg font-medium text-bone transition-colors group-hover:text-gold sm:text-xl">
+        <div className="mt-3 flex flex-col items-start text-left sm:mt-3.5">
+          <h3 className="line-clamp-2 font-serif text-base font-medium leading-snug text-bone transition-colors group-hover:text-gold sm:text-lg lg:text-xl">
             {product.title}
           </h3>
 
@@ -134,7 +137,7 @@ export function ProductCard({
 
       {/* Action Buttons: 44px Add to Cart square + Flexible Order now */}
       {whatsappNumber ? (
-        <div className="mt-4 pt-1 flex items-center gap-2">
+        <div className="mt-4 pt-1 flex items-center gap-1.5 sm:gap-2">
           {/* 44px square icon button "Add to cart" with feedback */}
           <button
             type="button"
@@ -170,11 +173,11 @@ export function ProductCard({
               target="_blank"
               rel="noreferrer"
               aria-label={`Order ${product.title} on WhatsApp`}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#155D3A]/40 bg-[#155D3A] px-2 text-xs font-semibold text-white transition-colors hover:bg-[#155D3A]/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-1 rounded-xl border border-[#155D3A]/40 bg-[#155D3A] px-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#155D3A]/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold sm:px-2 sm:text-xs"
             >
               <svg
                 aria-hidden="true"
-                className="h-4 w-4 shrink-0"
+                className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >

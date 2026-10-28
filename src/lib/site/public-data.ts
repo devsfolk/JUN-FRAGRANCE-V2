@@ -306,6 +306,49 @@ const loadFeaturedPicks = unstable_cache(
 
 export const getFeaturedPicks = () => loadFeaturedPicks();
 
+export type CollectionProduct = {
+  id: string;
+  title: string;
+  slug: string;
+  images: string[];
+  inspired_by: string | null;
+  price: number;
+  compare_at_price: number | null;
+  size_ml: number;
+  accent_color: string | null;
+};
+
+const loadCollectionProducts = unstable_cache(
+  async (): Promise<CollectionProduct[]> => {
+    const supabase = publicClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("jf_products")
+      .select("id,title,slug,images,inspired_by,price,compare_at_price,size_ml,accent_color")
+      .eq("is_active", true)
+      .order("is_featured", { ascending: false })
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .limit(60);
+
+    if (error || !data) return [];
+    return data.map((item) => ({
+      id: item.id,
+      title: item.title,
+      slug: item.slug,
+      images: Array.isArray(item.images) ? item.images : [],
+      inspired_by: item.inspired_by,
+      price: Number(item.price) || 0,
+      compare_at_price: item.compare_at_price ? Number(item.compare_at_price) : null,
+      size_ml: Number(item.size_ml) || 50,
+      accent_color: item.accent_color,
+    }));
+  },
+  ["jf-home-collection-products-v1"],
+  { revalidate: 60, tags: ["home-products", "products"] }
+);
+
+export const getCollectionProducts = () => loadCollectionProducts();
+
 export type ApprovedReview = {
   id: string;
   author_name: string;
