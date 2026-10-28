@@ -23,7 +23,7 @@ function isProjectSeoMediaUrl(value: string) {
   }
 }
 
-const pageKeys = ["home", "shop", "about", "contact", "journal", "faq"] as const;
+const pageKeys = ["home", "shop", "bundle", "about", "contact", "journal", "faq"] as const;
 
 const pageSeoItemSchema = z.object({
   page_key: z.enum(pageKeys),
@@ -65,5 +65,6 @@ export async function savePageSEO(input: unknown) {
   }
 
   revalidatePath("/", "layout");
+  revalidatePath("/bundle");
   return { ok: true };
 }
