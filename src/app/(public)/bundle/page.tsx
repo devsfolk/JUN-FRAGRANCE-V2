@@ -106,31 +106,53 @@ export default async function BundlePage() {
           <span className="text-bone">Bundle</span>
         </nav>
 
-        {/* Header Intro */}
-        <div className="mb-6">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[.3em] text-gold">
-            Custom Fragrance Trio
-          </p>
-          <h1 className="font-serif text-3xl font-normal leading-tight text-bone sm:text-4xl md:text-5xl">
-            Build your own bundle
-          </h1>
-          <p className="mt-2 text-sm text-bone/80 sm:text-base">
-            Pick any 3 perfumes for{" "}
-            <Price value={bundleSettings.price} className="font-semibold text-gold" />.
-          </p>
-        </div>
-
-        {/* Compact Banner */}
-        <div className="relative mb-8 overflow-hidden rounded-2xl border border-white/10 bg-surface/50 shadow-xl">
-          <div className="relative aspect-[16/7] sm:aspect-[21/8] w-full">
+        {/* Intro banner: full-bleed poster cover with dark gradient overlay, HTML text */}
+        <div className="relative mb-10 overflow-hidden rounded-3xl border border-white/10 bg-surface shadow-2xl">
+          <div className="relative flex min-h-[340px] w-full flex-col justify-end p-6 sm:min-h-[380px] sm:p-10 md:min-h-[420px] md:p-12">
             <Image
               src={posterSrc}
-              alt="Build your own bundle"
+              alt="Build your own trio"
               fill
               priority
               sizes="(max-width: 768px) 100vw, 1152px"
               className="object-cover object-center"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/80 to-ink/30" />
+
+            <div className="relative z-10 max-w-2xl">
+              <p className="text-[11px] font-semibold uppercase tracking-[.3em] text-gold">
+                BUNDLE
+              </p>
+              <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-bone sm:text-4xl md:text-5xl">
+                Build your own trio
+              </h1>
+              <p className="mt-3 text-base text-bone/90 sm:text-lg">
+                Any 3 perfumes for{" "}
+                <Price value={bundleSettings.price} className="font-semibold text-gold" />
+              </p>
+
+              {/* 3-step pill row */}
+              <div className="mt-6 flex flex-wrap items-center gap-2 sm:gap-3">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-ink/60 px-3.5 py-1.5 text-xs font-medium text-bone/90 backdrop-blur-md">
+                  <span className="grid h-4 w-4 place-items-center rounded-full bg-gold/20 text-[10px] font-bold text-gold">
+                    1
+                  </span>
+                  <span>Pick three</span>
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-ink/60 px-3.5 py-1.5 text-xs font-medium text-bone/90 backdrop-blur-md">
+                  <span className="grid h-4 w-4 place-items-center rounded-full bg-gold/20 text-[10px] font-bold text-gold">
+                    2
+                  </span>
+                  <span>Check your trio</span>
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-ink/60 px-3.5 py-1.5 text-xs font-medium text-bone/90 backdrop-blur-md">
+                  <span className="grid h-4 w-4 place-items-center rounded-full bg-gold/20 text-[10px] font-bold text-gold">
+                    3
+                  </span>
+                  <span>Send on WhatsApp</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

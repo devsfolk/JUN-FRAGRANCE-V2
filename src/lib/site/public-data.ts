@@ -389,6 +389,10 @@ export type BundleProduct = {
   size_ml: number;
   image: string | null;
   gender: string | null;
+  accent_color: string | null;
+  notes_top: string[];
+  notes_heart: string[];
+  notes_base: string[];
 };
 
 const loadBundleProducts = unstable_cache(
@@ -397,7 +401,7 @@ const loadBundleProducts = unstable_cache(
     if (!supabase) return [];
     const { data, error } = await supabase
       .from("jf_products")
-      .select("id,title,slug,price,size_ml,images,gender,sort_order")
+      .select("id,title,slug,price,size_ml,images,gender,accent_color,notes_top,notes_heart,notes_base,sort_order")
       .eq("is_active", true)
       .order("sort_order", { ascending: true, nullsFirst: false })
       .limit(200);
@@ -411,9 +415,13 @@ const loadBundleProducts = unstable_cache(
       size_ml: Number(item.size_ml) || 50,
       image: Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : null,
       gender: item.gender ?? null,
+      accent_color: item.accent_color ?? null,
+      notes_top: Array.isArray(item.notes_top) ? item.notes_top : [],
+      notes_heart: Array.isArray(item.notes_heart) ? item.notes_heart : [],
+      notes_base: Array.isArray(item.notes_base) ? item.notes_base : [],
     }));
   },
-  ["jf-bundle-products-v1"],
+  ["jf-bundle-products-v2"],
   { revalidate: 60, tags: ["bundle-products", "products"] }
 );
 
