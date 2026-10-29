@@ -455,6 +455,81 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
         </div>
       </section>
 
+      {/* 8. Bundle */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="font-serif text-xl font-medium text-slate-900">
+            8. Build Your Own Bundle
+          </h2>
+          <p className="mt-1 text-xs text-slate-500">
+            Promotion allowing customers to pick any 3 perfumes for a single fixed price.
+          </p>
+        </div>
+
+        <div className="mt-5 space-y-5">
+          <div className="max-w-md">
+            <Toggle
+              label="Enable Bundle feature"
+              checked={Boolean(data.bundle_enabled)}
+              onChange={(checked) => setData({ ...data, bundle_enabled: checked })}
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              When disabled, /bundle returns 404 and bundle links across the site are hidden.
+            </p>
+          </div>
+
+          <div className="max-w-xs">
+            <Input
+              label="Bundle Price (PKR)"
+              type="number"
+              min={1}
+              max={1000000}
+              value={data.bundle_price}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                setData({
+                  ...data,
+                  bundle_price: isNaN(val) ? 4500 : val,
+                });
+              }}
+              placeholder="4500"
+            />
+            <p className="mt-1.5 text-xs text-slate-500">
+              Fixed price for any 3 perfumes (1 to 1,000,000 PKR). Default is 4,500.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-xs font-medium text-slate-700">
+              Custom Bundle Poster Banner
+            </label>
+            <p className="text-xs text-slate-500">
+              Optional. When empty, the default poster (/bundle/bundle-poster-new.webp) is used.
+            </p>
+            <ImageUploader
+              value={data.bundle_image?.url ? [data.bundle_image.url] : []}
+              onChange={(urls) => {
+                if (urls[0]) {
+                  setData({
+                    ...data,
+                    bundle_image: {
+                      url: urls[0],
+                    },
+                  });
+                } else {
+                  setData({
+                    ...data,
+                    bundle_image: null,
+                  });
+                }
+              }}
+              kind="bundle"
+              multiple={false}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Sticky Save Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white/95 p-4 backdrop-blur-sm sm:left-64">
         <div className="mx-auto flex max-w-4xl items-center justify-between">

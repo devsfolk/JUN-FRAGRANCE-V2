@@ -21,15 +21,22 @@ export async function CategoriesSection() {
       />
 
       <Container>
-        {/* Mobile: horizontal scroll-snap scroller (cards ~72vw wide, 3/4 aspect, no scrollbar).
+        {/* Mobile: CSS grid in 1 row (up to 3) or rows of 3 (aspect 3/4, gap 8px, rounded-xl).
             Desktop (md and up): 3 cols on md, 6 cols on xl grid. */}
-        <div className="flex min-w-0 max-w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-4 pt-1 overscroll-x-contain [touch-action:pan-x_pan-y] [-webkit-overflow-scrolling:touch] scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0 xl:grid-cols-6">
+        <div
+          className="grid gap-2 [grid-template-columns:var(--mobile-cols)] md:grid-cols-3 md:gap-6 xl:grid-cols-6"
+          style={
+            {
+              "--mobile-cols": `repeat(${Math.min(categories.length, 3)}, minmax(0, 1fr))`,
+            } as React.CSSProperties
+          }
+        >
           {categories.map((category) => {
             return (
               <Link
                 key={category.slug}
                 href={`/category/${category.slug}`}
-                className="group relative flex aspect-[3/4] w-[72vw] max-w-[280px] flex-none snap-start flex-col justify-end overflow-hidden rounded-2xl border border-white/10 p-5 transition-transform duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold md:w-auto md:max-w-none hover:border-gold/60"
+                className="group relative flex aspect-[3/4] w-full flex-col justify-end overflow-hidden rounded-xl border border-white/10 p-2 pb-3 transition-colors hover:border-gold/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold md:rounded-2xl md:p-5"
               >
                 {/* Background Image with slight hover scale, or subtle gold radial fallback */}
                 {category.image_url ? (
@@ -37,8 +44,8 @@ export async function CategoriesSection() {
                     src={category.image_url}
                     alt={category.name}
                     fill
-                    sizes="(max-width: 768px) 72vw, (max-width: 1280px) 33vw, 16vw"
-                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                    sizes="(max-width: 768px) 33vw, (max-width: 1280px) 33vw, 16vw"
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                   />
                 ) : (
                   <div
@@ -51,24 +58,24 @@ export async function CategoriesSection() {
                 )}
 
                 {/* Dark gradient overlay for text readability */}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent transition-opacity duration-300 group-hover:from-black/95" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent transition-opacity duration-300 group-hover:from-black/90" />
 
-                {/* Foreground content: Category name, description, thin gold arrow */}
-                <div className="relative z-10 flex flex-col items-start">
-                  <div className="flex w-full items-center justify-between gap-2">
-                    <h3 className="font-serif text-2xl font-normal text-bone transition-colors group-hover:text-gold sm:text-3xl">
+                {/* Foreground content: Category name (small serif 14-16px, centered on mobile), description & arrow hidden below md */}
+                <div className="relative z-10 flex w-full flex-col items-center md:items-start">
+                  <div className="flex w-full items-center justify-center gap-2 md:justify-between">
+                    <h3 className="font-serif text-sm font-normal text-bone text-center transition-colors group-hover:text-gold sm:text-base md:text-left md:text-2xl lg:text-3xl">
                       {category.name}
                     </h3>
                     <span
                       aria-hidden="true"
-                      className="text-base text-gold transition-transform duration-300 group-hover:translate-x-1"
+                      className="hidden text-base text-gold transition-transform duration-300 group-hover:translate-x-1 md:inline motion-reduce:transition-none"
                     >
                       →
                     </span>
                   </div>
 
                   {category.description ? (
-                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-mute">
+                    <p className="mt-1 hidden text-xs leading-relaxed text-mute md:line-clamp-2">
                       {category.description}
                     </p>
                   ) : null}

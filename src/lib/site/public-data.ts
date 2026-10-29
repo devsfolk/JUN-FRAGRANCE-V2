@@ -18,6 +18,9 @@ export const settingKeys = [
   "site_logo",
   "site_favicon",
   "logo_show_text",
+  "bundle_enabled",
+  "bundle_price",
+  "bundle_image",
 ] as const;
 export type SiteSettings = Partial<Record<(typeof settingKeys)[number], string>>;
 
@@ -103,6 +106,46 @@ export function parseSiteFavicon(val: string | undefined): SiteFavicon | null {
 export function parseLogoShowText(val: string | undefined): boolean {
   if (!val) return false;
   return val === "true" || val === "1";
+}
+
+export type BundleSettings = {
+  enabled: boolean;
+  price: number;
+  imageUrl: string | null;
+};
+
+export function parseBundleSettings(settings: SiteSettings): BundleSettings {
+  let enabled = true;
+  if (settings.bundle_enabled !== undefined) {
+    enabled = settings.bundle_enabled === "true" || settings.bundle_enabled === "1";
+  }
+
+  let price = 4500;
+  if (settings.bundle_price) {
+    const parsed = parseInt(settings.bundle_price, 10);
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= 1000000) {
+      price = parsed;
+    }
+  }
+
+  let imageUrl: string | null = null;
+  if (settings.bundle_image) {
+    try {
+      const parsed = typeof settings.bundle_image === "string" ? JSON.parse(settings.bundle_image) : settings.bundle_image;
+      if (parsed && typeof parsed === "object" && typeof parsed.url === "string" && parsed.url) {
+        imageUrl = parsed.url;
+      }
+    } catch {
+      imageUrl = null;
+    }
+  }
+
+  return { enabled, price, imageUrl };
+}
+
+export async function getBundleSettings(): Promise<BundleSettings> {
+  const settings = await getPublicSettings();
+  return parseBundleSettings(settings);
 }
 
 export type HomeProduct = {
@@ -263,6 +306,49 @@ const loadFeaturedPicks = unstable_cache(
 
 export const getFeaturedPicks = () => loadFeaturedPicks();
 
+export type CollectionProduct = {
+  id: string;
+  title: string;
+  slug: string;
+  images: string[];
+  inspired_by: string | null;
+  price: number;
+  compare_at_price: number | null;
+  size_ml: number;
+  accent_color: string | null;
+};
+
+const loadCollectionProducts = unstable_cache(
+  async (): Promise<CollectionProduct[]> => {
+    const supabase = publicClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("jf_products")
+      .select("id,title,slug,images,inspired_by,price,compare_at_price,size_ml,accent_color")
+      .eq("is_active", true)
+      .order("is_featured", { ascending: false })
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .limit(60);
+
+    if (error || !data) return [];
+    return data.map((item) => ({
+      id: item.id,
+      title: item.title,
+      slug: item.slug,
+      images: Array.isArray(item.images) ? item.images : [],
+      inspired_by: item.inspired_by,
+      price: Number(item.price) || 0,
+      compare_at_price: item.compare_at_price ? Number(item.compare_at_price) : null,
+      size_ml: Number(item.size_ml) || 50,
+      accent_color: item.accent_color,
+    }));
+  },
+  ["jf-home-collection-products-v1"],
+  { revalidate: 60, tags: ["home-products", "products"] }
+);
+
+export const getCollectionProducts = () => loadCollectionProducts();
+
 export type ApprovedReview = {
   id: string;
   author_name: string;
@@ -294,6 +380,52 @@ const loadApprovedReviews = unstable_cache(
 );
 
 export const getApprovedReviews = () => loadApprovedReviews();
+
+export type BundleProduct = {
+  id: string;
+  title: string;
+  slug: string;
+  price: number;
+  size_ml: number;
+  image: string | null;
+  gender: string | null;
+  accent_color: string | null;
+  notes_top: string[];
+  notes_heart: string[];
+  notes_base: string[];
+};
+
+const loadBundleProducts = unstable_cache(
+  async (): Promise<BundleProduct[]> => {
+    const supabase = publicClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("jf_products")
+      .select("id,title,slug,price,size_ml,images,gender,accent_color,notes_top,notes_heart,notes_base,sort_order")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .limit(200);
+
+    if (error || !data) return [];
+    return data.map((item) => ({
+      id: item.id,
+      title: item.title,
+      slug: item.slug,
+      price: Number(item.price) || 0,
+      size_ml: Number(item.size_ml) || 50,
+      image: Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : null,
+      gender: item.gender ?? null,
+      accent_color: item.accent_color ?? null,
+      notes_top: Array.isArray(item.notes_top) ? item.notes_top : [],
+      notes_heart: Array.isArray(item.notes_heart) ? item.notes_heart : [],
+      notes_base: Array.isArray(item.notes_base) ? item.notes_base : [],
+    }));
+  },
+  ["jf-bundle-products-v2"],
+  { revalidate: 60, tags: ["bundle-products", "products"] }
+);
+
+export const getBundleProducts = () => loadBundleProducts();
  
 export type ShopProduct = {
    id: string;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { HeroSection } from "@/components/site/hero-section";
 import { CategoriesSection } from "@/components/site/categories-section";
 import { PicksSection } from "@/components/site/picks-section";
+import { HomeBundleBanner } from "@/components/site/home-bundle-banner";
 import { StorySection } from "@/components/site/story-section";
 import { ReviewsSection } from "@/components/site/reviews-section";
 import { ClosingCtaSection } from "@/components/site/closing-cta-section";
@@ -68,6 +69,7 @@ export default async function HomePage() {
       <HeroSection />
       <CategoriesSection />
       <PicksSection />
+      <HomeBundleBanner />
       <StorySection />
       <ReviewsSection />
       <JournalPlacement placement="home" />

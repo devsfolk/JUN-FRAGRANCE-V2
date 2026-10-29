@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllActiveSlugs, getAllActiveBlogSlugs } from "@/lib/site/public-data";
+import { getAllActiveSlugs, getAllActiveBlogSlugs, getBundleSettings } from "@/lib/site/public-data";
 
 export const revalidate = 3600; // hourly revalidation for dynamic sitemap
 
@@ -60,10 +60,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const [{ products, categories }, blogPosts] = await Promise.all([
+    const [{ products, categories }, blogPosts, bundleSettings] = await Promise.all([
       getAllActiveSlugs(),
       getAllActiveBlogSlugs(),
+      getBundleSettings(),
     ]);
+
+    const bundleEntries: MetadataRoute.Sitemap = bundleSettings.enabled
+      ? [
+          {
+            url: `${siteUrl}/bundle`,
+            lastModified: now,
+            changeFrequency: "weekly",
+            priority: 0.9,
+          },
+        ]
+      : [];
 
     const categoryEntries: MetadataRoute.Sitemap = categories.map((cat) => ({
       url: `${siteUrl}/category/${cat.slug}`,
@@ -86,7 +98,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    return [...staticRoutes, ...categoryEntries, ...productEntries, ...blogEntries];
+    return [...staticRoutes, ...bundleEntries, ...categoryEntries, ...productEntries, ...blogEntries];
   } catch {
     return staticRoutes;
   }

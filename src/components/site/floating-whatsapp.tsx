@@ -19,8 +19,10 @@ export function FloatingWhatsApp({ whatsappNumber }: { whatsappNumber: string | 
     return () => observer.disconnect();
   }, []);
 
-  // Product detail pages (/shop/<slug>) have mobile sticky order bar
+  // Product detail pages (/shop/<slug>) and bundle page (/bundle) have bottom sticky bars
   const isProductPage = pathname?.startsWith("/shop/") && pathname.split("/").filter(Boolean).length === 2;
+  const isBundlePage = pathname === "/bundle";
+  const hasBottomBar = isProductPage || isBundlePage;
 
   const href = whatsappLink(whatsappNumber, "Assalam o Alaikum! I would like to know more about Jun.fragrance.");
   if (!href || !show) return null;
@@ -34,14 +36,14 @@ export function FloatingWhatsApp({ whatsappNumber }: { whatsappNumber: string | 
     }
   };
 
-  const bottomClass = isProductPage
-    ? "bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] md:bottom-[calc(env(safe-area-inset-bottom)+1.5rem)]"
+  const bottomClass = hasBottomBar
+    ? "bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] md:bottom-[calc(env(safe-area-inset-bottom)+5.5rem)]"
     : "bottom-[calc(env(safe-area-inset-bottom)+1rem)] md:bottom-[calc(env(safe-area-inset-bottom)+1.5rem)]";
 
   return (
     <a
       aria-label={hasItems ? "View shopping cart" : "Chat with Jun.fragrance on WhatsApp"}
-      className={`fixed ${bottomClass} right-4 z-30 grid h-14 w-14 place-items-center rounded-full border border-white/20 bg-[#155D3A] text-white shadow-xl transition-all duration-300 hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold md:right-8`}
+      className={`fixed ${bottomClass} right-4 z-50 grid h-14 w-14 place-items-center rounded-full border border-white/20 bg-[#155D3A] text-white shadow-xl transition-all duration-300 hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold md:right-8`}
       href={hasItems ? "#cart" : href}
       onClick={handleClick}
       rel={hasItems ? undefined : "noreferrer"}

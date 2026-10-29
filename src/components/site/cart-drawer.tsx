@@ -16,9 +16,16 @@ import { whatsappLink } from "@/lib/site/whatsapp";
 interface CartDrawerProps {
   whatsappNumber: string | null;
   siteUrl: string;
+  bundleEnabled?: boolean;
+  bundlePrice?: number;
 }
 
-export function CartDrawer({ whatsappNumber, siteUrl }: CartDrawerProps) {
+export function CartDrawer({
+  whatsappNumber,
+  siteUrl,
+  bundleEnabled = true,
+  bundlePrice = 4500,
+}: CartDrawerProps) {
   const { isOpen, close } = useCartDrawer();
   const cart = useCart();
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -341,6 +348,20 @@ export function CartDrawer({ whatsappNumber, siteUrl }: CartDrawerProps) {
         {/* Footer Area */}
         {cart.length > 0 ? (
           <div className="border-t border-white/10 bg-ink-2/95 px-5 py-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-6">
+            {/* Bundle Note when 2 or more items */}
+            {bundleEnabled && cart.reduce((sum, item) => sum + item.qty, 0) >= 2 ? (
+              <div className="mb-3 rounded-xl border border-gold/30 bg-gold/10 p-2.5 text-center text-xs text-bone">
+                <span>Any 3 perfumes are <Price value={bundlePrice} className="font-semibold text-gold" /> as a bundle. </span>
+                <Link
+                  href="/bundle"
+                  onClick={close}
+                  className="inline-block font-semibold text-gold underline underline-offset-2 hover:text-white"
+                >
+                  Build your bundle →
+                </Link>
+              </div>
+            ) : null}
+
             {/* Total Row */}
             <div className="flex items-baseline justify-between">
               <span className="text-xs uppercase tracking-wider text-mute">Estimated Total</span>
