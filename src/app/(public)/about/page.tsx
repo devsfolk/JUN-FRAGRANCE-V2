@@ -103,23 +103,17 @@ export default async function AboutPage() {
 
         {/* Brand narrative */}
         <p className="mt-6 max-w-3xl font-serif text-xl font-normal leading-relaxed text-bone/90 sm:text-2xl md:text-3xl md:leading-[1.4]">
-          Jun.fragrance was born from a simple belief: fragrance is more than a
-          scent, it&apos;s a feeling. We create premium, long-lasting fragrances
-          inspired by the world&apos;s most iconic scents, made for people who
-          want to stand out, not blend in.
+          Jun.fragrance is a perfume brand from Karachi, Pakistan, started in 2026. We are a small, independent business and we are not connected to any famous perfume house.
         </p>
 
         {/* Our Promise */}
         <div className="mt-10 rounded-2xl border border-white/10 bg-ink-2/60 p-7">
           <h2 className="font-serif text-xl font-medium text-bone sm:text-2xl">Our Promise</h2>
           <p className="mt-3 text-sm leading-relaxed text-bone/75 sm:text-base">
-            Every bottle that leaves our hands carries the same care that went into creating it.
-            We are committed to quality ingredients, honest descriptions, and a fragrance experience
-            that feels personal. When you wear Jun.fragrance, you carry something made with intention.
+            Our range is split into men&apos;s, women&apos;s and unisex perfumes. Each one has its own name and a mood to match: some cool and fresh, some warm and spicy, some soft and floral. Where we have the notes, we list them on the product page. Where we do not, we describe the mood and leave the guessing out. Pakistani weather changes how a perfume behaves, so we write with real days in mind: the office, college, weddings and evenings out. Our perfumes last approximately 6 to 8 hours, though skin, heat and the number of sprays can change that.
           </p>
           <p className="mt-3 text-xs text-mute">
-            Jun.fragrance is an independent brand. Names in &ldquo;inspired by&rdquo; lines belong to their
-            respective owners and are not affiliated with Jun.fragrance.
+            Some of our perfumes are made in scent styles that will feel familiar if you know popular fragrances. They are similar in style, not originals, and they do not carry any other brand&apos;s name. Jun.fragrance is independent and has no link to those brands. If you want a designer&apos;s own bottle, buy it from that designer.
           </p>
         </div>
 

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "import:seo-content": "node scripts/import-seo-content.mjs",
+    "import:seo-content:dry": "node scripts/import-seo-content.mjs --dry-run"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
