@@ -55,6 +55,10 @@ const FAQ_ITEMS = [
     question: "How should I store my perfume?",
     answer: "Keep the bottle in a cool, dry place away from direct sunlight and heat, with the cap closed. A drawer or a cupboard is better than a car dashboard or a sunny window.",
   },
+  {
+    question: "When can I message you?",
+    answer: "WhatsApp is open every day, and you can message us at any time.",
+  },
 ]
 
 export async function generateMetadata(): Promise<Metadata> {

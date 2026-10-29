@@ -72,7 +72,7 @@ export default async function ContactPage() {
         <p className="mb-3 text-[10px] font-semibold uppercase tracking-[.3em] text-gold">Get in touch</p>
         <h1 className="font-serif text-3xl font-normal text-bone sm:text-4xl md:text-5xl">Contact</h1>
         <p className="mt-4 text-sm leading-relaxed text-mute sm:text-base">
-          The easiest way to reach us is directly on WhatsApp.
+          The easiest way to reach us is directly on WhatsApp. You can message us on WhatsApp at any time.
         </p>
 
         {/* WhatsApp CTA */}
