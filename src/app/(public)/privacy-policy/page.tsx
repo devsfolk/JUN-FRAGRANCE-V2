@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-const LAST_UPDATED = "26 October 2026";
+const LAST_UPDATED = "29 October 2026";
 
 export default function PrivacyPolicyPage() {
   return (
@@ -28,106 +28,53 @@ export default function PrivacyPolicyPage() {
         <div className="mt-10 space-y-8 text-sm leading-relaxed text-bone/80">
 
           <section>
-            <h2 className="mb-2 font-serif text-xl font-medium text-bone">1. Who We Are</h2>
-            <p>
-              Jun.fragrance is a fragrance brand based in Pakistan. This Privacy Policy explains how we
-              handle information when you interact with our website or contact us on WhatsApp to place an order.
-            </p>
+            <h2 className="mb-2 font-serif text-xl font-medium text-bone">1. What this page covers</h2>
+            <p className="mt-3">This page explains what personal details Jun.fragrance collects when you order from us, why we collect them and what we do with them.</p>
           </section>
 
           <section>
-            <h2 className="mb-2 font-serif text-xl font-medium text-bone">2. Information We Collect</h2>
-            <p>
-              We collect only the information you voluntarily provide to us through WhatsApp conversations
-              when placing or enquiring about an order. This typically includes:
-            </p>
-            <ul className="mt-3 list-inside list-disc space-y-1 text-bone/70">
-              <li>Your name</li>
-              <li>Your phone number (from WhatsApp)</li>
-              <li>Your delivery address</li>
-            </ul>
-            <p className="mt-3">
-              We do not run account registrations and we do not collect payment card data directly.
-            </p>
+            <h2 className="mb-2 font-serif text-xl font-medium text-bone">2. What we collect</h2>
+            <p className="mt-3">When you order on WhatsApp, you give us your name, phone number and delivery address, along with the perfumes you want. We collect only what we need to process your order. The website has no customer accounts and does not take payments.</p>
           </section>
 
           <section>
-            <h2 className="mb-2 font-serif text-xl font-medium text-bone">3. How We Use Your Information</h2>
-            <p>
-              We use the information you share solely to:
-            </p>
-            <ul className="mt-3 list-inside list-disc space-y-1 text-bone/70">
-              <li>Process and fulfil your order</li>
-              <li>Communicate with you about your order through WhatsApp</li>
-              <li>Respond to your enquiries</li>
-            </ul>
-            <p className="mt-3">We do not use your information for marketing without your consent.</p>
+            <h2 className="mb-2 font-serif text-xl font-medium text-bone">3. How we use your details</h2>
+            <p className="mt-3">We use your details only to confirm and process your order, arrange delivery, handle returns and exchanges, and reply to your questions.</p>
           </section>
 
           <section>
-            <h2 className="mb-2 font-serif text-xl font-medium text-bone">4. We Do Not Sell Your Data</h2>
-            <p>
-              We do not sell, rent, or trade your personal information to any third party.
-            </p>
+            <h2 className="mb-2 font-serif text-xl font-medium text-bone">4. Who sees your details</h2>
+            <p className="mt-3">We do not sell your details, and we do not share them for advertising. We share only what a courier needs to deliver your order, such as your name, phone number and address. WhatsApp is run by a third party, so our chats are also covered by WhatsApp&apos;s own terms and privacy policy.</p>
           </section>
 
           <section>
-            <h2 className="mb-2 font-serif text-xl font-medium text-bone">5. Cookies &amp; Analytics</h2>
-            <p>
-              This website may use analytics tools (such as Vercel Analytics) that set cookies or collect
-              anonymous usage data to help us understand how visitors use the site. This data does not
-              personally identify you. You can disable cookies in your browser settings at any time.
-            </p>
+            <h2 className="mb-2 font-serif text-xl font-medium text-bone">5. Online payment</h2>
+            <p className="mt-3">If you choose online payment, we share our account details with you in the WhatsApp chat. Please pay only to details we send you in our own chat.</p>
           </section>
 
           <section>
-            <h2 className="mb-2 font-serif text-xl font-medium text-bone">6. Data Retention</h2>
-            <p>
-              We retain your order-related information in our WhatsApp chat history for as long as
-              necessary to handle your order and any follow-up enquiries. You may request deletion of
-              your information by contacting us on WhatsApp.
-            </p>
+            <h2 className="mb-2 font-serif text-xl font-medium text-bone">6. How long we keep your details</h2>
+            <p className="mt-3">We keep order details only as long as we need them for your order, any return or exchange, and basic business records.</p>
           </section>
 
           <section>
-            <h2 className="mb-2 font-serif text-xl font-medium text-bone">7. Third-Party Services</h2>
-            <p>
-              WhatsApp is operated by Meta Platforms, Inc. When you communicate with us on WhatsApp,
-              Meta&apos;s own privacy policy applies to that communication. We encourage you to review
-              WhatsApp&apos;s privacy policy separately.
-            </p>
+            <h2 className="mb-2 font-serif text-xl font-medium text-bone">7. Your choices</h2>
+            <p className="mt-3">You can message us on WhatsApp to ask what details we hold about you, to correct them, or to ask us to delete them. We will do this unless we still need the details for an order that is not complete or for our records.</p>
           </section>
 
           <section>
-            <h2 className="mb-2 font-serif text-xl font-medium text-bone">8. Your Rights</h2>
-            <p>
-              You have the right to access, correct, or request deletion of any personal information
-              we hold about you. To exercise these rights, please contact us on WhatsApp via our{" "}
-              <Link href="/contact" className="text-gold underline underline-offset-4 hover:text-gold/80">
-                Contact page
-              </Link>
-              .
-            </p>
+            <h2 className="mb-2 font-serif text-xl font-medium text-bone">8. Website data</h2>
+            <p className="mt-3">The website may record basic technical information, such as which pages are visited and what type of device is used, through our hosting or analytics tools. We use this to keep the site working and to understand which pages are useful. This information does not include your name or phone number.</p>
           </section>
 
           <section>
-            <h2 className="mb-2 font-serif text-xl font-medium text-bone">9. Changes to This Policy</h2>
-            <p>
-              We may update this Privacy Policy from time to time. The &ldquo;Last updated&rdquo; date at
-              the top of this page will reflect any changes. Continued use of this website after changes
-              constitutes your acceptance of the updated policy.
-            </p>
+            <h2 className="mb-2 font-serif text-xl font-medium text-bone">9. Changes to this page</h2>
+            <p className="mt-3">We may update this page from time to time. The date at the top shows when it last changed.</p>
           </section>
 
           <section>
             <h2 className="mb-2 font-serif text-xl font-medium text-bone">10. Contact</h2>
-            <p>
-              If you have any questions about this Privacy Policy, please{" "}
-              <Link href="/contact" className="text-gold underline underline-offset-4 hover:text-gold/80">
-                contact us
-              </Link>
-              .
-            </p>
+            <p className="mt-3">For any question about your details, message us on WhatsApp at +92 305 1856667.</p>
           </section>
         </div>
       </Container>

@@ -8,46 +8,54 @@ export const revalidate = 60;
 
 const FAQ_ITEMS = [
   {
-    question: "How do I place an order?",
-    answer:
-      "All orders are placed through WhatsApp. Simply tap the WhatsApp button on any product page or visit our Contact page, send us a message with the product name and size, and we will guide you through the process.",
+    question: "How do I order from Jun.fragrance?",
+    answer: "All orders go through WhatsApp. Pick a perfume on the shop page, then tap Order now for one bottle or Add to cart to collect several. Review your cart and send the order summary to us on WhatsApp. You can also build a three-perfume bundle on the bundle page.",
   },
   {
-    question: "What sizes are available?",
-    answer:
-      "Sizes vary by product and are displayed on each individual product page. We recommend checking the product page directly for the exact volume available.",
+    question: "What payment methods do you accept?",
+    answer: "You can pay by cash on delivery or online. The website itself does not take payments.",
   },
   {
-    question: "How can I reach Jun.fragrance?",
-    answer:
-      "The best way to reach us is on WhatsApp. You can find the chat link on our Contact page or on any product page. We aim to respond within a few hours.",
+    question: "Order karne ke baad online payment kaise karun?",
+    answer: "Choose online payment when you chat with us on WhatsApp. We share our account details there, and you pay from your own bank or wallet app. You can also choose cash on delivery instead.",
   },
   {
-    question: "Are your fragrances suitable for both men and women?",
-    answer:
-      "Our fragrances are crafted to be enjoyed by anyone regardless of gender. Each product description provides notes and character to help you choose the right scent.",
+    question: "Where do you deliver and how long does it take?",
+    answer: "We deliver across Pakistan. Delivery takes 3 to 5 days, and deliveries are made between 12 PM and 9 PM.",
   },
   {
-    question: "What does \"inspired by\" mean?",
-    answer:
-      "An \"inspired by\" fragrance captures the character and spirit of a well-known scent using our own formulation. It is an independent creation by Jun.fragrance and is not affiliated with or produced by the original brand.",
+    question: "Karachi se bahar delivery charges kitne hain?",
+    answer: "Delivery is free within Karachi. For orders outside Karachi, the charge is between Rs. 200 and Rs. 250.",
   },
   {
-    question: "Can I get a sample before buying a full bottle?",
-    answer:
-      "Please contact us on WhatsApp to ask about current sample availability. Details are confirmed when you place your enquiry.",
+    question: "What size are your perfumes and how much do they cost?",
+    answer: "Every perfume is a 50 ml bottle and costs Rs. 1,999, whether it is a men's, women's or unisex scent.",
   },
   {
-    question: "How long does shipping take?",
-    answer:
-      "Shipping timeframes and coverage details are confirmed on WhatsApp when you place an order, as they may vary.",
+    question: "How does the 3-perfume bundle work?",
+    answer: "Choose any three perfumes on the bundle page and the total is Rs. 4,500. Bought separately, three bottles would cost Rs. 5,997. You send the bundle to us on WhatsApp, like any other order.",
   },
   {
-    question: "How should I store my fragrance?",
-    answer:
-      "Store your fragrance away from direct sunlight and heat, ideally in a cool, dark place such as a drawer or cabinet. Keep the cap on when not in use to preserve the scent.",
+    question: "What is your return policy?",
+    answer: "We have a 7-day return policy. Message us on WhatsApp as soon as there is a problem, and we will confirm the conditions and next steps with you there.",
   },
-];
+  {
+    question: "Can I exchange a perfume?",
+    answer: "Yes, exchanges are available. The customer pays the delivery charges for an exchange, even within Karachi. Message us on WhatsApp to arrange it.",
+  },
+  {
+    question: "Perfume kitni der tak rehta hai?",
+    answer: "Our perfumes last approximately 6 to 8 hours. Your skin, the heat and the number of sprays can make that shorter or longer.",
+  },
+  {
+    question: "What does 'inspired by' mean? Are these the same as famous brands?",
+    answer: "No. Our perfumes are made in scent styles that may feel familiar if you know popular fragrances, which is what 'inspired by' means. They are similar styles, not originals, and they are not made or sold by those brands. Jun.fragrance is independent, and our product names are our own.",
+  },
+  {
+    question: "How should I store my perfume?",
+    answer: "Keep the bottle in a cool, dry place away from direct sunlight and heat, with the cap closed. A drawer or a cupboard is better than a car dashboard or a sunny window.",
+  },
+]
 
 export async function generateMetadata(): Promise<Metadata> {
   const pageSeo = await getPageSEO("faq");
