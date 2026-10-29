@@ -10,7 +10,7 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
   const pageSeo = await getPageSEO("about");
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
-  const title = pageSeo?.seo_title?.trim() || "Our Story | Jun.fragrance";
+  const title = pageSeo?.seo_title?.trim() || "Our Story";
   const description =
     pageSeo?.seo_description?.trim() ||
     "Learn about Jun.fragrance — a Pakistani fragrance brand crafting premium, long-lasting inspired scents for people who want to stand out.";

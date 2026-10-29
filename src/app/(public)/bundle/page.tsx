@@ -28,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const title =
     pageSeo?.seo_title?.trim() ||
-    `Build Your Own 3 Perfume Bundle, Rs. ${formattedPrice} | Jun.fragrance`;
+    `Build Your Own 3 Perfume Bundle, Rs. ${formattedPrice}`;
 
   const description =
     pageSeo?.seo_description?.trim() ||

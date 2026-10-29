@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/site/ui/container";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Jun.fragrance",
+  title: "Privacy Policy",
   description:
     "Jun.fragrance privacy policy. We collect only the information you share with us on WhatsApp to process your order. We do not sell your data.",
   robots: { index: true, follow: true },

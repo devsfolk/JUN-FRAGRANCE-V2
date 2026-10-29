@@ -37,12 +37,12 @@ export async function generateMetadata({
 
   if (!category) {
     return {
-      title: "Category Not Found | Jun.fragrance",
+      title: "Category Not Found",
     };
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
-  const title = category.seo_title?.trim() || `${category.name} Perfumes | Jun.fragrance`;
+  const title = category.seo_title?.trim() || `${category.name} Perfumes`;
   const description =
     category.seo_description?.trim() ||
     category.description?.trim() ||

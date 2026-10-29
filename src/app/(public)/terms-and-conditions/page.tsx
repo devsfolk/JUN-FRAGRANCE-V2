@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/site/ui/container";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions | Jun.fragrance",
+  title: "Terms & Conditions",
   description:
     "Terms and conditions for Jun.fragrance. Orders are placed through WhatsApp. Read our usage terms, intellectual property notice, and disclaimers.",
   robots: { index: true, follow: true },

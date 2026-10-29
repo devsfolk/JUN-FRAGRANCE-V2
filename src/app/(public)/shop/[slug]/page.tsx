@@ -47,12 +47,12 @@ export async function generateMetadata({
 
   if (!product) {
     return {
-      title: "Perfume Not Found | Jun.fragrance",
+      title: "Perfume Not Found",
     };
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
-  const title = product.seo_title?.trim() || `${product.title} | Jun.fragrance`;
+  const title = product.seo_title?.trim() || product.title;
   const description =
     product.seo_description?.trim() ||
     product.short_description?.trim() ||

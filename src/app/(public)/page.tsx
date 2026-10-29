@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const [pageSeo] = await Promise.all([getPageSEO("home")]);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
 
-  const title = pageSeo?.seo_title?.trim() || "Jun.fragrance | Premium Perfumes in Pakistan";
+  const title = pageSeo?.seo_title?.trim() || "Premium Perfumes in Pakistan";
   const description =
     pageSeo?.seo_description?.trim() ||
     "Premium fragrances crafted for the modern you. Long-lasting, inspired scents made for people who want to stand out.";

@@ -39,11 +39,11 @@ export async function generateMetadata({
   const post = await getBlogPostBySlug(slug);
 
   if (!post) {
-    return { title: "Article Not Found | Jun.fragrance" };
+    return { title: "Article Not Found" };
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
-  const title = post.seo_title?.trim() || `${post.title} | Jun.fragrance Journal`;
+  const title = post.seo_title?.trim() || post.title;
   const description =
     post.seo_description?.trim() ||
     post.excerpt?.trim() ||

@@ -60,7 +60,7 @@ const FAQ_ITEMS = [
 export async function generateMetadata(): Promise<Metadata> {
   const pageSeo = await getPageSEO("faq");
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
-  const title = pageSeo?.seo_title?.trim() || "FAQ | Jun.fragrance";
+  const title = pageSeo?.seo_title?.trim() || "FAQ";
   const description =
     pageSeo?.seo_description?.trim() ||
     "Frequently asked questions about ordering Jun.fragrance perfumes on WhatsApp, available sizes, and how to get in touch.";

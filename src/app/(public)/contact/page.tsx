@@ -10,7 +10,7 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
   const pageSeo = await getPageSEO("contact");
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
-  const title = pageSeo?.seo_title?.trim() || "Contact Us | Jun.fragrance";
+  const title = pageSeo?.seo_title?.trim() || "Contact Us";
   const description =
     pageSeo?.seo_description?.trim() ||
     "Reach out to Jun.fragrance on WhatsApp for orders, questions, or anything else. We're here to help.";
