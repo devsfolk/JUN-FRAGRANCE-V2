@@ -25,7 +25,7 @@ const trustPoints = [
   },
   {
     title: "Long lasting performance",
-    description: "Rich concentration that lasts 10+ hours",
+    description: "Lasts about 6 to 8 hours (our estimate)",
     icon: (
       <svg
         aria-hidden="true"

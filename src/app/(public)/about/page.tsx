@@ -43,7 +43,7 @@ const trustPoints = [
   },
   {
     title: "Long lasting performance",
-    description: "Rich concentration that lasts 10+ hours",
+    description: "Lasts about 6 to 8 hours (our estimate)",
     icon: (
       <svg aria-hidden="true" className="h-6 w-6 text-gold" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
