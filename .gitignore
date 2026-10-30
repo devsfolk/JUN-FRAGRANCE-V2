@@ -43,3 +43,6 @@ next-env.d.ts
 
 # import script DB backups (contain data snapshots)
 /backups/
+
+# Local analysis scratch files
+/scratch/
