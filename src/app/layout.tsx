@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { preconnect } from "react-dom";
 import { Cormorant_Garamond, Manrope, Pinyon_Script } from "next/font/google";
 import { getPublicSettings, parseSiteFavicon } from "@/lib/site/public-data";
 import "./globals.css";
@@ -88,6 +89,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (supabaseUrl) {
+    preconnect(new URL(supabaseUrl).origin, { crossOrigin: "anonymous" });
+  }
+
   return (
     <html
       className={`${cormorant.variable} ${manrope.variable} ${pinyon.variable}`}

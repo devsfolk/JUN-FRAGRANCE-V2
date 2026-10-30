@@ -52,7 +52,7 @@ export function SiteHeader({
                 alt={siteLogo.alt || "Jun.fragrance"}
                 width={0}
                 height={0}
-                sizes="(max-width: 768px) 160px, 220px"
+                sizes="(max-width: 639px) 120px, 200px"
                 priority
                 className="h-[28px] md:h-[36px] w-auto max-w-[120px] sm:max-w-[200px] object-contain shrink-0"
               />
