@@ -59,6 +59,7 @@ export function homeJsonLd({
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Jun.fragrance",
+    alternateName: ["Jun Fragrance", "Jun.fragrance", "junfragrance"],
     url: siteUrl,
     areaServed: "PK",
   };
@@ -88,6 +89,7 @@ export function homeJsonLd({
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Jun.fragrance",
+    alternateName: ["Jun Fragrance", "Jun.fragrance", "junfragrance"],
     url: siteUrl,
   };
 
