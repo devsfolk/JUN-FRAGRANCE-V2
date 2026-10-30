@@ -5,6 +5,15 @@ import type { NextConfig } from "next";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseUrlParts = supabaseUrl ? new URL(supabaseUrl) : null;
 
+const legacySeoRedirects = [
+  { source: "/categories", destination: "/shop", permanent: true },
+  { source: "/categories/:slug", destination: "/category/:slug", permanent: true },
+  { source: "/products", destination: "/shop", permanent: true },
+  { source: "/product/:slug", destination: "/shop/:slug", permanent: true },
+  { source: "/collections", destination: "/shop", permanent: true },
+  { source: "/collections/:slug", destination: "/category/:slug", permanent: true },
+];
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: supabaseUrlParts ? [{ protocol: supabaseUrlParts.protocol.slice(0, -1) as "https" | "http", hostname: supabaseUrlParts.hostname, port: supabaseUrlParts.port, pathname: "/storage/v1/object/public/jf-media/**" }] : [],
@@ -19,6 +28,7 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      ...legacySeoRedirects,
       {
         source: "/shop",
         has: [
