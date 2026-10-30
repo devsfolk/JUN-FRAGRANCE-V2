@@ -12,7 +12,7 @@ Pakistani weather changes how a perfume behaves, so we write with real days in m
 
 ## What "inspired by" means
 
-Some of our perfumes are made in scent styles that will feel familiar if you know popular fragrances. They are similar in style, not originals, and they do not carry any other brand's name. Jun.fragrance is independent and has no link to those brands. If you want a designer's own bottle, buy it from that designer.
+These are perfumes with a similar scent style, not the original perfumes. Jun.fragrance is an independent brand and is not affiliated with those brands.
 
 ## How ordering works
 

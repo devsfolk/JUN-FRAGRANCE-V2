@@ -10,9 +10,6 @@ export const metadata: Metadata = {
 };
 
 const LAST_UPDATED = "29 October 2026";
-const TRADEMARK_NOTICE =
-  'Jun.fragrance is an independent brand. Names in "inspired by" lines belong to their respective owners and are not affiliated with Jun.fragrance.';
-
 export default function TermsPage() {
   return (
     <div className="bg-ink pb-24 pt-10 md:pt-14">
@@ -66,7 +63,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="mb-2 font-serif text-xl font-medium text-bone">8. About our perfumes</h2>
-            <p className="mt-3">Our perfumes are independent products made in scent styles that may feel familiar. They are not originals from other brands, and Jun.fragrance has no link to those brands. Product pages describe the mood of each perfume and, where we know them, its notes.</p>
+            <p className="mt-3">These are perfumes with a similar scent style, not the original perfumes. Jun.fragrance is an independent brand and is not affiliated with those brands. Product pages describe the mood of each perfume and, where we know them, its notes.</p>
             <p className="mt-3">Scent is personal. How a perfume smells and how long it lasts can vary with skin, weather and how it is applied. We estimate that our perfumes last approximately 6 to 8 hours, but this is an estimate, not a promise. If you have sensitive skin or allergies, test a small amount first and stop using the perfume if you feel irritation.</p>
           </section>
 

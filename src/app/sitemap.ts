@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllActiveSlugs, getAllActiveBlogSlugs, getBundleSettings } from "@/lib/site/public-data";
 
-export const revalidate = 3600; // hourly revalidation for dynamic sitemap
+export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";

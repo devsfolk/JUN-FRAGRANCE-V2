@@ -49,7 +49,7 @@ const FAQ_ITEMS = [
   },
   {
     question: "What does 'inspired by' mean? Are these the same as famous brands?",
-    answer: "No. Our perfumes are made in scent styles that may feel familiar if you know popular fragrances, which is what 'inspired by' means. They are similar styles, not originals, and they are not made or sold by those brands. Jun.fragrance is independent, and our product names are our own.",
+    answer: "They are perfumes with a similar scent style, not the original perfumes. Jun.fragrance is an independent brand and is not affiliated with those brands.",
   },
   {
     question: "How should I store my perfume?",

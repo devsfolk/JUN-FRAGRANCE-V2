@@ -30,7 +30,7 @@ Exchanges are available. For any exchange, the customer pays the delivery charge
 
 ## About our perfumes
 
-Our perfumes are independent products made in scent styles that may feel familiar. They are not originals from other brands, and Jun.fragrance has no link to those brands. Product pages describe the mood of each perfume and, where we know them, its notes.
+These are perfumes with a similar scent style, not the original perfumes. Jun.fragrance is an independent brand and is not affiliated with those brands. Product pages describe the mood of each perfume and, where we know them, its notes.
 
 Scent is personal. How a perfume smells and how long it lasts can vary with skin, weather and how it is applied. We estimate that our perfumes last approximately 6 to 8 hours, but this is an estimate, not a promise. If you have sensitive skin or allergies, test a small amount first and stop using the perfume if you feel irritation.
 

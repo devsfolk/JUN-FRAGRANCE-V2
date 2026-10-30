@@ -113,7 +113,7 @@ export default async function AboutPage() {
             Our range is split into men&apos;s, women&apos;s and unisex perfumes. Each one has its own name and a mood to match: some cool and fresh, some warm and spicy, some soft and floral. Where we have the notes, we list them on the product page. Where we do not, we describe the mood and leave the guessing out. Pakistani weather changes how a perfume behaves, so we write with real days in mind: the office, college, weddings and evenings out. Our perfumes last approximately 6 to 8 hours, though skin, heat and the number of sprays can change that.
           </p>
           <p className="mt-3 text-xs text-mute">
-            Some of our perfumes are made in scent styles that will feel familiar if you know popular fragrances. They are similar in style, not originals, and they do not carry any other brand&apos;s name. Jun.fragrance is independent and has no link to those brands. If you want a designer&apos;s own bottle, buy it from that designer.
+            These are perfumes with a similar scent style, not the original perfumes. Jun.fragrance is an independent brand and is not affiliated with those brands.
           </p>
         </div>
 
