@@ -67,7 +67,8 @@ export function ProductGallery({
                 src={src}
                 alt={`${title} - view ${i + 1}`}
                 fill
-                priority={i === 0}
+                loading={i === 0 ? "eager" : "lazy"}
+                fetchPriority={i === 0 ? "high" : undefined}
                 sizes="(max-width: 767px) calc(100vw - 2rem), (max-width: 1279px) 46vw, 37rem"
                 className="object-cover"
               />
@@ -81,7 +82,8 @@ export function ProductGallery({
             src={displayImages[activeIndex] || displayImages[0]}
             alt={`${title} - view ${activeIndex + 1}`}
             fill
-            priority={activeIndex === 0}
+            loading={activeIndex === 0 ? "eager" : "lazy"}
+            fetchPriority={activeIndex === 0 ? "high" : undefined}
             sizes="(max-width: 767px) calc(100vw - 2rem), (max-width: 1279px) 46vw, 37rem"
             className="object-cover transition-opacity duration-300"
           />

@@ -114,8 +114,9 @@ export default async function BundlePage() {
               src={posterSrc}
               alt="Build your own trio"
               fill
-              priority
-              sizes="(max-width: 768px) 100vw, 1152px"
+              loading="eager"
+              fetchPriority="high"
+              sizes="(max-width: 767px) calc(100vw - 2rem), (max-width: 1279px) calc(100vw - 4rem), 78rem"
               className="object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/80 to-ink/30" />

@@ -79,7 +79,7 @@ export function ShopCatalog({
                 product={product}
                 whatsappNumber={whatsappNumber}
                 siteUrl={siteUrl}
-                priority={idx < 4}
+                priority={idx === 0}
               />
             </div>
           ))}

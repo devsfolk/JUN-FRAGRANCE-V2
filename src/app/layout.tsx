@@ -15,6 +15,7 @@ const cormorant = Cormorant_Garamond({
 const manrope = Manrope({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  preload: false,
   display: "swap",
   variable: "--font-manrope",
 });
@@ -22,6 +23,7 @@ const manrope = Manrope({
 const pinyon = Pinyon_Script({
   subsets: ["latin"],
   weight: "400",
+  preload: false,
   display: "swap",
   variable: "--font-pinyon",
 });

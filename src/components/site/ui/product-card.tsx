@@ -90,8 +90,8 @@ export function ProductCard({
               alt={product.title}
               fill
               loading={priority ? "eager" : "lazy"}
-              priority={priority}
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              fetchPriority={priority ? "high" : undefined}
+              sizes="(max-width: 767px) calc((100vw - 5.5rem) / 2), (max-width: 1279px) calc((100vw - 17.5rem) / 3), calc((min(100vw - 4rem, 78rem) - 18.5rem) / 4)"
               className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             />
           ) : (
