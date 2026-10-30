@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/site/ui/container";
 import { Price } from "@/components/site/ui/price";
 import { BundlePicker } from "@/components/site/bundle-picker";
+import { JournalPlacement } from "@/components/site/journal-placement";
 import { JsonLd, breadcrumbJsonLd } from "@/lib/site/json-ld";
 import {
   getBundleProducts,
@@ -14,7 +15,7 @@ import {
 } from "@/lib/site/public-data";
 import { whatsappNumber } from "@/lib/site/whatsapp";
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   const [bundleSettings, pageSeo] = await Promise.all([
@@ -164,6 +165,7 @@ export default async function BundlePage() {
           siteUrl={siteUrl}
         />
       </Container>
+      <JournalPlacement placement="bundle" title="Perfume guides" />
     </div>
   );
 }

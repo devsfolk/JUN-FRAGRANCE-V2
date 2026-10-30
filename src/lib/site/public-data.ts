@@ -675,14 +675,14 @@ export async function getRelatedProducts(
  }
  
 export async function getAllActiveSlugs(): Promise<{
-   products: Array<{ slug: string; updated_at: string }>;
-   categories: Array<{ slug: string; updated_at: string }>;
+   products: Array<{ slug: string; updated_at: string; images: string[] }>;
+   categories: Array<{ slug: string; updated_at: string; image_url: string | null }>;
  }> {
    const supabase = publicClient();
    if (!supabase) return { products: [], categories: [] };
    const [prodRes, catRes] = await Promise.all([
-     supabase.from("jf_products").select("slug,updated_at").eq("is_active", true),
-     supabase.from("jf_categories").select("slug,updated_at").eq("is_active", true),
+     supabase.from("jf_products").select("slug,updated_at,images").eq("is_active", true),
+     supabase.from("jf_categories").select("slug,updated_at,image_url").eq("is_active", true),
    ]);
    return {
      products: prodRes.data ?? [],
@@ -748,6 +748,7 @@ const loadPublishedBlogPosts = unstable_cache(
       .from("jf_blog_posts")
       .select("id,title,slug,excerpt,cover_image_url,published_at,created_at,content,status,show_on_page,faq,seo_title,seo_description,updated_at")
       .eq("status", "published")
+      .lte("published_at", new Date().toISOString())
       .order("published_at", { ascending: false, nullsFirst: false });
 
     if (error || !data) return [];
@@ -757,7 +758,7 @@ const loadPublishedBlogPosts = unstable_cache(
     }));
   },
   ["jf-published-blog-posts-v1"],
-  { revalidate: 60, tags: ["blog-posts"] }
+  { revalidate: 300, tags: ["blog-posts"] }
 );
 
 export const getPublishedBlogPosts = () => loadPublishedBlogPosts();
@@ -770,6 +771,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPostItem | nu
     .select("id,title,slug,excerpt,cover_image_url,published_at,created_at,content,status,show_on_page,faq,seo_title,seo_description,updated_at")
     .eq("slug", slug)
     .eq("status", "published")
+    .lte("published_at", new Date().toISOString())
     .maybeSingle();
 
   if (error || !data) return null;
@@ -781,7 +783,16 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPostItem | nu
 
 export async function getPlacementPosts(placement: string, limit = 3): Promise<BlogPostItem[]> {
   const all = await getPublishedBlogPosts();
-  return all.filter((p) => p.show_on_page === placement).slice(0, limit);
+  if (placement.startsWith("product:")) {
+    const productSlug = placement.slice("product:".length);
+    const related = all.filter((post) => post.show_on_page === placement || (post.content ?? "").includes(productSlug));
+    return (related.length ? related : all).slice(0, limit);
+  }
+  if (placement.startsWith("category:")) {
+    const preferred = all.filter((post) => post.show_on_page === placement);
+    return (preferred.length ? preferred : all).slice(0, limit);
+  }
+  return all.slice(0, limit);
 }
 
 export async function getAllActiveBlogSlugs(): Promise<Array<{ slug: string; updated_at: string }>> {
@@ -790,6 +801,7 @@ export async function getAllActiveBlogSlugs(): Promise<Array<{ slug: string; upd
   const { data } = await supabase
     .from("jf_blog_posts")
     .select("slug,updated_at")
-    .eq("status", "published");
+    .eq("status", "published")
+    .lte("published_at", new Date().toISOString());
   return data ?? [];
 }

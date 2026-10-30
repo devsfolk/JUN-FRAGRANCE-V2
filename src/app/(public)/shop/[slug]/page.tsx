@@ -23,7 +23,7 @@ import {
 } from "@/lib/site/whatsapp";
 import { JsonLd, productJsonLd, breadcrumbJsonLd } from "@/lib/site/json-ld";
 
-export const revalidate = 60;
+export const revalidate = 300;
 export const dynamicParams = true;
 
 interface ProductPageProps {
@@ -151,6 +151,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const pJsonLd = productJsonLd({
     name: product.title,
+    slug: product.slug,
     images: product.images,
     description:
       product.description ||
@@ -158,6 +159,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
       `Premium perfume ${product.title} in Pakistan`,
     price: product.price,
     url: `${siteUrl}/shop/${product.slug}`,
+    sizeMl: product.size_ml,
+    gender: product.gender,
     reviews: reviews.map((r) => ({
       author_name: r.author_name,
       rating: r.rating,

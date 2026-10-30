@@ -68,7 +68,7 @@ export function ProductGallery({
                 alt={`${title} - view ${i + 1}`}
                 fill
                 priority={i === 0}
-                sizes="(max-width: 768px) 100vw, 50vw"
+                sizes="(max-width: 767px) calc(100vw - 2rem), (max-width: 1279px) 46vw, 37rem"
                 className="object-cover"
               />
             </div>
@@ -82,7 +82,7 @@ export function ProductGallery({
             alt={`${title} - view ${activeIndex + 1}`}
             fill
             priority={activeIndex === 0}
-            sizes="(max-width: 1024px) 50vw, 42vw"
+            sizes="(max-width: 767px) calc(100vw - 2rem), (max-width: 1279px) 46vw, 37rem"
             className="object-cover transition-opacity duration-300"
           />
         </div>

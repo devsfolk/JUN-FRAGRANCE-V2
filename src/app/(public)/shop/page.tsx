@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/site/ui/container";
 import { ShopCatalog } from "@/components/site/shop-catalog";
+import { JournalPlacement } from "@/components/site/journal-placement";
 import {
   getAllShopProducts,
   getActiveCategories,
@@ -10,7 +11,7 @@ import {
 } from "@/lib/site/public-data";
 import { whatsappNumber as extractWhatsappNumber } from "@/lib/site/whatsapp";
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   const [pageSeo] = await Promise.all([getPageSEO("shop")]);
@@ -100,6 +101,7 @@ export default async function ShopPage() {
           siteUrl={siteUrl}
         />
       </Container>
+      <JournalPlacement placement="shop" title="Perfume guides" />
     </div>
   );
 }

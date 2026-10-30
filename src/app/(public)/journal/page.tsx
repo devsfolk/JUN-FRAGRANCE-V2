@@ -5,7 +5,7 @@ import { Container } from "@/components/site/ui/container";
 import { getPublishedBlogPosts, getPageSEO } from "@/lib/site/public-data";
 import { JsonLd, breadcrumbJsonLd } from "@/lib/site/json-ld";
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   const [pageSeo] = await Promise.all([getPageSEO("journal")]);

@@ -13,7 +13,7 @@ import {
 import { whatsappNumber as extractWhatsappNumber } from "@/lib/site/whatsapp";
 import { JsonLd, breadcrumbJsonLd } from "@/lib/site/json-ld";
 
-export const revalidate = 60;
+export const revalidate = 300;
 export const dynamicParams = true;
 
 interface CategoryPageProps {
@@ -150,7 +150,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </div>
         )}
       </Container>
-      <JournalPlacement placement={`category:${category.slug}`} />
+      <JournalPlacement placement={`category:${category.slug}`} title="Perfume guides" />
     </div>
   );
 }

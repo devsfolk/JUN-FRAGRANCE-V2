@@ -16,7 +16,7 @@ import {
   faqPageJsonLd,
 } from "@/lib/site/json-ld";
 
-export const revalidate = 60;
+export const revalidate = 300;
 export const dynamicParams = true;
 
 interface JournalPostPageProps {

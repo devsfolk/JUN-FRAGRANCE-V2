@@ -124,10 +124,13 @@ export function homeJsonLd({
 
 export interface ProductJsonLdOptions {
   name: string;
+  slug: string;
   images: string[];
   description: string;
   price: number;
   url: string;
+  sizeMl: number;
+  gender: string | null;
   reviews?: Array<{
     author_name: string;
     rating: number;
@@ -137,16 +140,21 @@ export interface ProductJsonLdOptions {
 
 export function productJsonLd({
   name,
+  slug,
   images,
   description,
   price,
   url,
+  sizeMl,
+  gender,
   reviews = [],
 }: ProductJsonLdOptions) {
   const product: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
     name,
+    sku: slug,
+    size: `${sizeMl} ml`,
     image: images,
     description,
     brand: {
@@ -160,8 +168,37 @@ export function productJsonLd({
       availability: "https://schema.org/InStock",
       url,
       itemCondition: "https://schema.org/NewCondition",
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "PK",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 3,
+            maxValue: 5,
+            unitCode: "DAY",
+          },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "PK",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 7,
+      },
     },
   };
+
+  if (gender === "men" || gender === "women") {
+    product.audience = {
+      "@type": "PeopleAudience",
+      suggestedGender: gender === "men" ? "male" : "female",
+    };
+  }
 
   // Add aggregateRating ONLY if real approved reviews with a valid rating exist for that product
   const ratedReviews = reviews.filter(

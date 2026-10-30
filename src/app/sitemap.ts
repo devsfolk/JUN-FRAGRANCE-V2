@@ -82,6 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: cat.updated_at ? new Date(cat.updated_at) : now,
       changeFrequency: "weekly",
       priority: 0.8,
+      images: cat.image_url ? [cat.image_url] : undefined,
     }));
 
     const productEntries: MetadataRoute.Sitemap = products.map((prod) => ({
@@ -89,6 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: prod.updated_at ? new Date(prod.updated_at) : now,
       changeFrequency: "weekly",
       priority: 0.8,
+      images: prod.images?.length ? prod.images : undefined,
     }));
 
     const blogEntries: MetadataRoute.Sitemap = blogPosts.map((post) => ({

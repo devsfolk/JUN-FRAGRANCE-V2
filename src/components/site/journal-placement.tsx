@@ -11,7 +11,7 @@ interface JournalPlacementProps {
 
 export async function JournalPlacement({
   placement,
-  title = "From the journal",
+  title = placement.startsWith("product:") ? "From the journal" : "Perfume guides",
   eyebrow = "STORIES & CRAFT",
 }: JournalPlacementProps) {
   const posts = await getPlacementPosts(placement, 3);
