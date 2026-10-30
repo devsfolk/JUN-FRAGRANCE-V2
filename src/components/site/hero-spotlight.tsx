@@ -487,7 +487,7 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
           {/* Top: Eyebrow */}
           <div className="pt-2">
             <p className="text-[10px] font-semibold uppercase tracking-[.32em] text-gold md:text-xs">
-              JUN.FRAGRANCE
+              Jun.fragrance
             </p>
           </div>
 
