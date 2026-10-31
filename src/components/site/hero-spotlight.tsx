@@ -66,7 +66,7 @@ function HeroStripOrderLink({ product, whatsappNumber, siteUrl }: { product: Her
   const fallbackHref = whatsappNumber ? whatsappLink(whatsappNumber, productWhatsAppMessage(product.title, product.size_ml, siteUrl, product.slug)) : null;
   const href = useIntlProductHref({ title: product.title, sizeMl: product.size_ml, slug: product.slug, price: product.price, qty: 1, siteUrl, whatsappNumber, fallbackHref });
   if (!href) return null;
-  return <a href={href} target="_blank" rel="noreferrer" aria-label={`Order ${product.title} on WhatsApp`} className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full bg-[#155D3A] text-white transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"><span aria-hidden="true">â†—</span></a>;
+  return <a href={href} target="_blank" rel="noreferrer" aria-label={`Order ${product.title} on WhatsApp`} className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full bg-[#155D3A] text-white transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"><span aria-hidden="true">↗</span></a>;
 }
 
 export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotlightProps) {
@@ -557,7 +557,7 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
                       aria-label="Previous scene"
                       className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/15 text-bone transition-colors hover:border-gold hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
                     >
-                      <span aria-hidden="true" className="text-sm">â†</span>
+                      <span aria-hidden="true" className="text-sm">←</span>
                     </button>
 
                     <button
@@ -566,7 +566,7 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
                       aria-label="Next scene"
                       className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/15 text-bone transition-colors hover:border-gold hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
                     >
-                      <span aria-hidden="true" className="text-sm">â†’</span>
+                      <span aria-hidden="true" className="text-sm">→</span>
                     </button>
                   </div>
                 </div>
