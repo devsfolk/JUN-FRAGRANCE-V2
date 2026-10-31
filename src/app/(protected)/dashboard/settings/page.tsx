@@ -107,6 +107,28 @@ export default async function SettingsPage() {
     }
   };
 
+  const seededCountries: SettingsFormData["intl_countries"] = [
+    ["AE", "United Arab Emirates", "AED"], ["SA", "Saudi Arabia", "SAR"], ["QA", "Qatar", "QAR"],
+    ["KW", "Kuwait", "KWD"], ["OM", "Oman", "OMR"], ["BH", "Bahrain", "BHD"],
+    ["GB", "United Kingdom", "GBP"], ["US", "United States", "USD"], ["CA", "Canada", "CAD"],
+    ["AU", "Australia", "AUD"], ["MY", "Malaysia", "MYR"], ["DE", "Germany", "EUR"],
+    ["FR", "France", "EUR"], ["NL", "Netherlands", "EUR"],
+  ].map(([code, name, currency]) => ({ code, name, currency: currency as SettingsFormData["intl_countries"][number]["currency"], enabled: false, shipping_pkr: null, delivery_days_text: "", note: "" }));
+
+  const parseCountries = (val: unknown): SettingsFormData["intl_countries"] => {
+    if (val === undefined || val === null || val === "") return seededCountries;
+    try {
+      const parsed = typeof val === "string" ? JSON.parse(val) : val;
+      if (!Array.isArray(parsed)) return seededCountries;
+      return parsed as SettingsFormData["intl_countries"];
+    } catch { return seededCountries; }
+  };
+
+  const parseNumber = (val: unknown, fallback: number) => {
+    const n = Number(val);
+    return Number.isFinite(n) ? n : fallback;
+  };
+
   const initialData: SettingsFormData = {
     whatsapp_number: parseString(settingsMap.whatsapp_number),
     social_instagram: parseString(settingsMap.social_instagram),
@@ -125,6 +147,14 @@ export default async function SettingsPage() {
     bundle_enabled: parseBundleEnabled(settingsMap.bundle_enabled),
     bundle_price: parseBundlePrice(settingsMap.bundle_price),
     bundle_image: parseBundleImage(settingsMap.bundle_image),
+    intl_enabled: parseBoolean(settingsMap.intl_enabled),
+    intl_multiplier: parseNumber(settingsMap.intl_multiplier, 10),
+    intl_fx_buffer_percent: parseNumber(settingsMap.intl_fx_buffer_percent, 3),
+    intl_countries: parseCountries(settingsMap.intl_countries),
+    gift_enabled: settingsMap.gift_enabled === undefined ? true : parseBoolean(settingsMap.gift_enabled),
+    gift_wrap_price_pkr: settingsMap.gift_wrap_price_pkr == null || settingsMap.gift_wrap_price_pkr === "" ? null : parseNumber(settingsMap.gift_wrap_price_pkr, 0) || null,
+    gift_includes_card: parseBoolean(settingsMap.gift_includes_card),
+    gift_includes_bag: parseBoolean(settingsMap.gift_includes_bag),
   };
 
   return (

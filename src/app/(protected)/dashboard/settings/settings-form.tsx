@@ -530,6 +530,33 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
         </div>
       </section>
 
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="font-serif text-xl font-medium text-slate-900">International and gifting</h2>
+        <p className="mt-1 text-xs text-slate-500">Set international delivery charges from your courier quotes. Enabled countries require a shipping charge.</p>
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+          <Toggle label="Enable international delivery" checked={data.intl_enabled} onChange={(checked) => setData({ ...data, intl_enabled: checked })} />
+          <Input label="International price multiplier" type="number" min={1} max={50} value={data.intl_multiplier} onChange={(e) => setData({ ...data, intl_multiplier: Number(e.target.value) || 1 })} />
+          <Input label="Exchange-rate buffer (%)" type="number" min={0} max={15} value={data.intl_fx_buffer_percent} onChange={(e) => setData({ ...data, intl_fx_buffer_percent: Number(e.target.value) || 0 })} />
+        </div>
+        <div className="mt-6 space-y-3">
+          {data.intl_countries.map((country, index) => <div key={country.code} className="grid gap-3 rounded-xl border border-slate-200 p-4 sm:grid-cols-[1fr_1fr_1fr_1.4fr] sm:items-center">
+            <div><p className="text-sm font-medium text-slate-900">{country.name} · {country.currency}</p><p className="text-xs text-slate-500">{country.code}</p><Toggle label="Enabled" checked={country.enabled} onChange={(checked) => { const rows = [...data.intl_countries]; rows[index] = { ...country, enabled: checked && country.shipping_pkr !== null }; setData({ ...data, intl_countries: rows }); }} /></div>
+            <Input label="Shipping (PKR)" type="number" min={1} max={1000000} value={country.shipping_pkr ?? ""} onChange={(e) => { const rows = [...data.intl_countries]; const value = e.target.value ? Number(e.target.value) : null; rows[index] = { ...country, shipping_pkr: value, enabled: value !== null && country.enabled }; setData({ ...data, intl_countries: rows }); }} />
+            <Input label="Delivery estimate text" type="text" maxLength={30} value={country.delivery_days_text} onChange={(e) => { const rows = [...data.intl_countries]; rows[index] = { ...country, delivery_days_text: e.target.value }; setData({ ...data, intl_countries: rows }); }} />
+            <Input label="Note" type="text" maxLength={120} value={country.note} onChange={(e) => { const rows = [...data.intl_countries]; rows[index] = { ...country, note: e.target.value }; setData({ ...data, intl_countries: rows }); }} />
+          </div>)}
+        </div>
+        <div className="mt-8 border-t border-slate-200 pt-6">
+          <h3 className="font-medium text-slate-900">Gifting</h3>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <Toggle label="Enable gift option and page" checked={data.gift_enabled} onChange={(checked) => setData({ ...data, gift_enabled: checked })} />
+            <Input label="Gift packaging price (PKR, optional)" type="number" min={1} max={1000000} value={data.gift_wrap_price_pkr ?? ""} onChange={(e) => setData({ ...data, gift_wrap_price_pkr: e.target.value ? Number(e.target.value) : null })} />
+            <Toggle label="Gift message card included" checked={data.gift_includes_card} onChange={(checked) => setData({ ...data, gift_includes_card: checked })} />
+            <Toggle label="Gift bag included" checked={data.gift_includes_bag} onChange={(checked) => setData({ ...data, gift_includes_bag: checked })} />
+          </div>
+        </div>
+      </section>
+
       {/* Sticky Save Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white/95 p-4 backdrop-blur-sm sm:left-64">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
