@@ -25,7 +25,8 @@ export function productWhatsAppMessage(title: string, sizeMl: number, siteUrl: s
 export function bundleWhatsAppMessage(
   bundlePrice: number,
   items: Array<{ title: string; size_ml: number; slug: string }>,
-  siteUrl: string
+  siteUrl: string,
+  gift?: { details: GiftOrderDetails; includesCard: boolean; wrapPricePkr: number | null }
 ) {
   const cleanBase = siteUrl.replace(/\/$/, "");
   const lines = items
@@ -35,5 +36,15 @@ export function bundleWhatsAppMessage(
     )
     .join("\n");
   const formattedPrice = bundlePrice.toLocaleString("en-PK");
-  return `Assalam o Alaikum! I would like to order a bundle:\n\nBundle: any 3 perfumes - Rs. ${formattedPrice}\n${lines}\n\nName:\nCity:\nAddress:`;
+  const giftActive = gift?.details.gift === true;
+  const giftLines = giftActive ? [
+    `Estimated total: Rs. ${(bundlePrice + (gift.wrapPricePkr ?? 0)).toLocaleString("en-PK")}`,
+    ...(gift.wrapPricePkr !== null ? [`Gift packaging: Rs. ${gift.wrapPricePkr.toLocaleString("en-PK")}`] : []),
+    ...giftOrderLines(gift.details, gift.includesCard),
+  ] : [];
+  const contactLines = giftActive ? giftLines : ["Name:", "City:", "Address:"];
+  return `Assalam o Alaikum! I would like to order a bundle:\n\nBundle: any 3 perfumes - Rs. ${formattedPrice}\n${lines}\n\n${contactLines.join("\n")}`;
 }
+
+import { giftOrderLines, type GiftOrderDetails } from "./intl-order-message";
+

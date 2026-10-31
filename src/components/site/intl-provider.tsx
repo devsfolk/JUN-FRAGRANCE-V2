@@ -59,17 +59,17 @@ export function IntlProvider({ enabled, countries, children }: { enabled: boolea
 
 export function useIntlStore() { const value = useContext(Context); if (!value) throw new Error("IntlProvider is missing"); return value; }
 
-export function useIntlProductHref(input: { title: string; sizeMl: number; slug: string; price: number; qty: number; siteUrl: string; whatsappNumber: string | null; fallbackHref: string | null }) {
+export function useIntlProductHref(input: { title: string; sizeMl: number; slug: string; price: number; qty: number; siteUrl: string; whatsappNumber: string | null; fallbackHref: string | null; gift?: { gift: boolean; message: string; recipient: string }; giftIncludesCard?: boolean; giftWrapPricePkr?: number | null }) {
   const { enabled, country, quoteMany } = useIntlStore();
   const [result, setResult] = useState<{ key: string; href: string | null } | null>(null);
-  const key = `${country.code}:${input.qty}:${input.price}:${input.slug}`;
+  const key = JSON.stringify([country.code, input.qty, input.price, input.slug, input.gift, input.giftIncludesCard, input.giftWrapPricePkr]);
   useEffect(() => {
     let active = true;
     if (!enabled || country.code === "PK" || !country.shipping_pkr || !input.whatsappNumber) return;
-    createInternationalOrderMessage({ country: country.name, currency: country.currency, items: [{ title: input.title, quantity: input.qty, pkrAmount: input.price * input.qty, url: `${input.siteUrl.endsWith("/") ? input.siteUrl.slice(0, -1) : input.siteUrl}/shop/${input.slug}` }], shippingPkr: country.shipping_pkr, quoteMany })
+    createInternationalOrderMessage({ country: country.name, currency: country.currency, items: [{ title: input.title, quantity: input.qty, pkrAmount: input.price * input.qty, url: `${input.siteUrl.endsWith("/") ? input.siteUrl.slice(0, -1) : input.siteUrl}/shop/${input.slug}` }], shippingPkr: country.shipping_pkr, quoteMany, gift: input.gift, includesCard: input.giftIncludesCard, giftWrapPricePkr: input.giftWrapPricePkr })
       .then((message) => { if (active) setResult({ key, href: message ? whatsappLink(input.whatsappNumber, message) : null }); });
     return () => { active = false; };
-  }, [enabled, country.code, country.name, country.currency, country.shipping_pkr, input.title, input.qty, input.price, input.slug, input.siteUrl, input.whatsappNumber, quoteMany, key]);
+  }, [enabled, country.code, country.name, country.currency, country.shipping_pkr, input.title, input.qty, input.price, input.slug, input.siteUrl, input.whatsappNumber, input.gift, input.gift?.gift, input.gift?.message, input.gift?.recipient, input.giftIncludesCard, input.giftWrapPricePkr, quoteMany, key]);
   if (!enabled || country.code === "PK") return input.fallbackHref;
   return result?.key === key ? result.href : null;
 }

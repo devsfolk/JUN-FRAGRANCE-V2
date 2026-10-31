@@ -15,6 +15,10 @@ interface CartDrawerRootProps {
   siteUrl: string;
   bundleEnabled?: boolean;
   bundlePrice?: number;
+  giftEnabled?: boolean;
+  giftWrapPrice?: number | null;
+  giftIncludesCard?: boolean;
+  giftIncludesBag?: boolean;
 }
 
 export function CartDrawerRoot({
@@ -22,6 +26,10 @@ export function CartDrawerRoot({
   siteUrl,
   bundleEnabled = true,
   bundlePrice = 4500,
+  giftEnabled = true,
+  giftWrapPrice = null,
+  giftIncludesCard = false,
+  giftIncludesBag = false,
 }: CartDrawerRootProps) {
   const { isOpen } = useCartDrawer();
   const [hasEverOpened, setHasEverOpened] = useState(false);
@@ -41,6 +49,10 @@ export function CartDrawerRoot({
           siteUrl={siteUrl}
           bundleEnabled={bundleEnabled}
           bundlePrice={bundlePrice}
+          giftEnabled={giftEnabled}
+          giftWrapPrice={giftWrapPrice}
+          giftIncludesCard={giftIncludesCard}
+          giftIncludesBag={giftIncludesBag}
         />
       ) : null}
     </>

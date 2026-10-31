@@ -7,12 +7,18 @@ import { bundleWhatsAppMessage, whatsappLink } from "@/lib/site/whatsapp";
 import { Price } from "./ui/price";
 import { useIntlStore } from "./intl-provider";
 import { createInternationalOrderMessage } from "@/lib/site/intl-order-message";
+import { GiftOption } from "./gift-option";
+import { EMPTY_GIFT, useGift } from "@/lib/site/gift-store";
 
 interface BundlePickerProps {
   products: BundleProduct[];
   bundlePrice: number;
   whatsappNumber: string | null;
   siteUrl: string;
+  giftEnabled?: boolean;
+  giftWrapPrice?: number | null;
+  giftIncludesCard?: boolean;
+  giftIncludesBag?: boolean;
 }
 
 const STORAGE_KEY = "jf_bundle_v1";
@@ -24,10 +30,16 @@ export function BundlePicker({
   bundlePrice,
   whatsappNumber,
   siteUrl,
+  giftEnabled = true,
+  giftWrapPrice = null,
+  giftIncludesCard = false,
+  giftIncludesBag = false,
 }: BundlePickerProps) {
   const { enabled: intlEnabled, country } = useIntlStore();
   const international = intlEnabled && country.code !== "PK";
   const { quoteMany } = useIntlStore();
+  const storedGift = useGift();
+  const gift = giftEnabled ? storedGift : EMPTY_GIFT;
   const [internationalOrderResult, setInternationalOrderResult] = useState<{ key: string; message: string | null } | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -203,7 +215,7 @@ export function BundlePicker({
       .map((id) => productsById.get(id))
       .filter((p): p is BundleProduct => Boolean(p));
   }, [selectedIds, productsById]);
-  const internationalOrderKey = `${country.code}:${bundlePrice}:${selectedProducts.map((product) => product.id).join(",")}`;
+  const internationalOrderKey = JSON.stringify([country.code, bundlePrice, selectedProducts.map((product) => product.id), gift, giftWrapPrice, giftIncludesCard]);
 
   const isComplete = selectedIds.length === 3;
 
@@ -269,9 +281,10 @@ export function BundlePicker({
         size_ml: p.size_ml,
         slug: p.slug,
       })),
-      siteUrl
+      siteUrl,
+      { details: gift, includesCard: giftIncludesCard, wrapPricePkr: giftWrapPrice }
     );
-  }, [selectedProducts, bundlePrice, siteUrl]);
+  }, [selectedProducts, bundlePrice, siteUrl, gift, giftIncludesCard, giftWrapPrice]);
 
   useEffect(() => {
     let active = true;
@@ -282,9 +295,12 @@ export function BundlePicker({
       items: selectedProducts.map((product) => ({ title: product.title, quantity: 1, pkrAmount: bundlePrice / 3, url: `${siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl}/shop/${product.slug}` })),
       shippingPkr: country.shipping_pkr,
       quoteMany,
+      gift,
+      includesCard: giftIncludesCard,
+      giftWrapPricePkr: giftWrapPrice,
     }).then((message) => { if (active) setInternationalOrderResult({ key: internationalOrderKey, message }); });
     return () => { active = false; };
-  }, [international, country.code, country.name, country.currency, country.shipping_pkr, selectedProducts, bundlePrice, siteUrl, quoteMany, internationalOrderKey]);
+  }, [international, country.code, country.name, country.currency, country.shipping_pkr, selectedProducts, bundlePrice, siteUrl, quoteMany, internationalOrderKey, gift, giftIncludesCard, giftWrapPrice]);
 
   const waOrderUrl = useMemo(() => {
     if (!whatsappNumber || !orderMessage) return null;
@@ -706,11 +722,13 @@ export function BundlePicker({
 
           {/* Pricing & Savings */}
           <div className="mt-5 border-t border-white/10 pt-4">
+            <div className="mb-4"><GiftOption enabled={giftEnabled} includesCard={giftIncludesCard} includesBag={giftIncludesBag} wrapPrice={giftWrapPrice} /></div>
             <div className="flex items-baseline justify-between">
               <span className="text-xs text-mute">Trio bundle price</span>
               <Price value={bundlePrice} className="font-serif text-xl font-semibold text-gold" />
             </div>
-            {international && country.shipping_pkr ? <><div className="mt-2 flex items-baseline justify-between text-xs text-mute"><span>Delivery estimate</span><Price value={country.shipping_pkr} /></div><div className="mt-2 flex items-baseline justify-between text-sm text-bone"><span>Total estimate</span><Price value={bundlePrice + country.shipping_pkr} className="font-semibold text-gold" /></div></> : null}
+            {gift.gift && giftWrapPrice !== null && !international ? <div className="mt-2 flex items-baseline justify-between text-sm text-bone"><span>Total estimate</span><Price value={bundlePrice + giftWrapPrice} className="font-semibold text-gold" /></div> : null}
+            {international && country.shipping_pkr ? <><div className="mt-2 flex items-baseline justify-between text-xs text-mute"><span>Delivery estimate</span><Price value={country.shipping_pkr} /></div><div className="mt-2 flex items-baseline justify-between text-sm text-bone"><span>Total estimate</span><Price value={bundlePrice + country.shipping_pkr + (gift.gift ? giftWrapPrice ?? 0 : 0)} className="font-semibold text-gold" /></div></> : null}
             {showSavings && !international ? (
               <p className="mt-1 text-right text-xs font-medium text-emerald-400">
                 Regular Rs. {regularTotal.toLocaleString()}, you save Rs. {savings.toLocaleString()}

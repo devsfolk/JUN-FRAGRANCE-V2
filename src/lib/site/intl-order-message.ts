@@ -14,6 +14,12 @@ export function giftOrderLines(gift: GiftOrderDetails, includesCard: boolean): s
   ];
 }
 
+export function appendGiftToOrderMessage(message: string, gift: GiftOrderDetails, includesCard: boolean, wrapPricePkr: number | null, itemsSubtotalPkr = 0): string {
+  if (!gift.gift) return message;
+  const packaging = wrapPricePkr !== null ? `Gift packaging: ${formatMoney(wrapPricePkr, "PKR")}` : null;
+  return [message, `Estimated total: ${formatMoney(itemsSubtotalPkr + (wrapPricePkr ?? 0), "PKR")}`, ...(packaging ? [packaging] : []), ...giftOrderLines(gift, includesCard)].join("\n");
+}
+
 export function buildInternationalOrderMessage(input: {
   country: string;
   currency: string;
@@ -67,12 +73,15 @@ export async function createInternationalOrderMessage(input: {
   quoteMany: (amounts: number[]) => Promise<number[] | null>;
   gift?: GiftOrderDetails;
   includesCard?: boolean;
+  giftWrapPricePkr?: number | null;
 }): Promise<string | null> {
-  const amounts = [...input.items.map((item) => item.pkrAmount), input.shippingPkr];
+  const items = [...input.items];
+  if (input.gift?.gift && input.giftWrapPricePkr != null) items.push({ title: "Gift packaging", quantity: 1, pkrAmount: input.giftWrapPricePkr });
+  const amounts = [...items.map((item) => item.pkrAmount), input.shippingPkr];
   const prices = await convertOrderAmounts(amounts, input.quoteMany);
   if (!prices) return null;
   const delivery = prices[prices.length - 1];
-  const lines = input.items.map((item, index) => ({ title: item.title, quantity: item.quantity, localAmount: prices[index], url: item.url }));
-  const subtotal = prices.slice(0, input.items.length).reduce((sum, amount) => sum + amount, 0);
+  const lines = items.map((item, index) => ({ title: item.title, quantity: item.quantity, localAmount: prices[index], url: item.url }));
+  const subtotal = prices.slice(0, items.length).reduce((sum, amount) => sum + amount, 0);
   return buildInternationalOrderMessage({ country: input.country, currency: input.currency, lines, subtotal, delivery, gift: input.gift, includesCard: input.includesCard });
 }

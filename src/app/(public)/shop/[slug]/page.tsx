@@ -18,8 +18,6 @@ import {
 } from "@/lib/site/public-data";
 import {
   whatsappNumber as extractWhatsappNumber,
-  whatsappLink,
-  productWhatsAppMessage,
 } from "@/lib/site/whatsapp";
 import { JsonLd, productJsonLd, breadcrumbJsonLd } from "@/lib/site/json-ld";
 
@@ -107,6 +105,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
   ]);
 
   const number = extractWhatsappNumber(rawSettings);
+  const giftEnabled = rawSettings.gift_enabled !== "false" && rawSettings.gift_enabled !== "0";
+  const giftWrapPrice = rawSettings.gift_wrap_price_pkr ? Number(rawSettings.gift_wrap_price_pkr) || null : null;
+  const giftIncludesCard = rawSettings.gift_includes_card === "true" || rawSettings.gift_includes_card === "1";
+  const giftIncludesBag = rawSettings.gift_includes_bag === "true" || rawSettings.gift_includes_bag === "1";
   const accent = product.accent_color?.trim() || "#C9A66B";
 
   const discountPercent =
@@ -117,18 +119,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
             100
         )
       : null;
-
-  const orderUrl = number
-    ? whatsappLink(
-        number,
-        productWhatsAppMessage(
-          product.title,
-          product.size_ml,
-          siteUrl,
-          product.slug
-        )
-      )
-    : null;
 
   const hasNotes =
     product.notes_top.length > 0 ||
@@ -283,6 +273,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
               price={product.price}
               whatsappNumber={number}
               siteUrl={siteUrl}
+              giftEnabled={giftEnabled}
+              giftWrapPrice={giftWrapPrice}
+              giftIncludesCard={giftIncludesCard}
+              giftIncludesBag={giftIncludesBag}
             />
 
             {/* Notes Pyramid (Top, Heart, Base) */}
@@ -437,8 +431,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
         productId={product.id}
         title={product.title}
         price={product.price}
-        orderUrl={orderUrl}
         whatsappNumber={number}
+        slug={product.slug}
+        sizeMl={product.size_ml}
+        siteUrl={siteUrl}
+        giftEnabled={giftEnabled}
+        giftWrapPrice={giftWrapPrice}
+        giftIncludesCard={giftIncludesCard}
       />
     </div>
   );

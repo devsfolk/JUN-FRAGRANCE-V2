@@ -14,7 +14,7 @@ try {
   }
   const require = createRequire(import.meta.url);
   const { intlPrice, formatMoney } = require(join(temporary, "intl-pricing.js"));
-  const { buildInternationalOrderMessage, giftOrderLines, convertOrderAmounts } = require(join(temporary, "intl-order-message.js"));
+  const { buildInternationalOrderMessage, giftOrderLines, convertOrderAmounts, createInternationalOrderMessage } = require(join(temporary, "intl-order-message.js"));
   assert.equal(intlPrice(1999, "AED", { AED: 0.013 }, 10, 3), 268);
   assert.equal(intlPrice(1999, "KWD", { KWD: 0.0042 }, 10, 3), 86.5);
   assert.equal(formatMoney(268, "AED"), "AED 268.00");
@@ -26,6 +26,10 @@ try {
   assert.deepEqual(requestSizes, [20, 2]);
   assert.equal(converted.length, 22);
   assert.deepEqual(giftOrderLines({ gift: true, message: "hidden", recipient: "" }, false), ["GIFT: yes. Please do not show any prices on the parcel or on any paperwork inside it.", "Recipient address:", "Buyer name:"]);
+  const giftedOrder = await createInternationalOrderMessage({ country: "UAE", currency: "AED", items: [{ title: "Perfume", quantity: 1, pkrAmount: 2000 }], shippingPkr: 500, quoteMany: async (amounts) => amounts.map((amount) => amount / 100), gift: { gift: true, message: "", recipient: "Amina" }, includesCard: false, giftWrapPricePkr: 300 });
+  assert.ok(giftedOrder?.includes("Gift packaging x1"));
+  assert.ok(giftedOrder?.includes("Recipient name: Amina"));
+  assert.ok(giftedOrder?.includes("Total (estimate): AED 28.00"));
   console.log("international price and order-message checks passed");
 } finally {
   await rm(temporary, { recursive: true, force: true });
