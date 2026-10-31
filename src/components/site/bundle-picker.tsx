@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { BundleProduct } from "@/lib/site/public-data";
 import { bundleWhatsAppMessage, whatsappLink } from "@/lib/site/whatsapp";
 import { Price } from "./ui/price";
+import { useIntlStore } from "./intl-provider";
 
 interface BundlePickerProps {
   products: BundleProduct[];
@@ -23,6 +24,8 @@ export function BundlePicker({
   whatsappNumber,
   siteUrl,
 }: BundlePickerProps) {
+  const { enabled: intlEnabled, country } = useIntlStore();
+  const international = intlEnabled && country.code !== "PK";
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
   const [genderFilter, setGenderFilter] = useState<GenderFilter>("all");
@@ -688,7 +691,7 @@ export function BundlePicker({
               <span className="text-xs text-mute">Trio bundle price</span>
               <Price value={bundlePrice} className="font-serif text-xl font-semibold text-gold" />
             </div>
-            {showSavings ? (
+            {showSavings && !international ? (
               <p className="mt-1 text-right text-xs font-medium text-emerald-400">
                 Regular Rs. {regularTotal.toLocaleString()}, you save Rs. {savings.toLocaleString()}
               </p>

@@ -250,7 +250,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {product.compare_at_price &&
               product.compare_at_price > product.price ? (
                 <span className="text-sm text-mute line-through sm:text-base">
-                  <Price value={product.compare_at_price} />
+                  <Price value={product.compare_at_price} hideInternational />
                 </span>
               ) : null}
 

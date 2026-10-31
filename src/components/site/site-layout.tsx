@@ -5,6 +5,7 @@ import { SiteHeader } from "./site-header";
 import { ScrollEnhancer } from "./scroll-enhancer";
 import { FloatingWhatsApp } from "./floating-whatsapp";
 import { CartDrawerRoot } from "./cart-drawer-root";
+import { IntlProvider, type IntlCountry } from "./intl-provider";
 
 export async function SiteLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const rawSettings = await getPublicSettings();
@@ -14,11 +15,15 @@ export async function SiteLayout({ children }: Readonly<{ children: React.ReactN
   const logoShowText = parseLogoShowText(rawSettings.logo_show_text);
   const bundleSettings = parseBundleSettings(rawSettings);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
+  let countries: IntlCountry[] = [];
+  try { countries = rawSettings.intl_countries ? JSON.parse(rawSettings.intl_countries) as IntlCountry[] : []; } catch { countries = []; }
+  const intlEnabled = rawSettings.intl_enabled === "true" || rawSettings.intl_enabled === "1";
   return (
-    <>
+    <IntlProvider enabled={intlEnabled} countries={countries}>
       <ScrollEnhancer />
       <SiteHeader
         bundleEnabled={bundleSettings.enabled}
+        giftsEnabled={rawSettings.gift_enabled !== "false" && rawSettings.gift_enabled !== "0"}
         logoShowText={logoShowText}
         siteLogo={siteLogo}
         whatsappNumber={number}
@@ -26,6 +31,7 @@ export async function SiteLayout({ children }: Readonly<{ children: React.ReactN
       <main>{children}</main>
       <SiteFooter
         bundleEnabled={bundleSettings.enabled}
+        giftsEnabled={rawSettings.gift_enabled !== "false" && rawSettings.gift_enabled !== "0"}
         logoShowText={logoShowText}
         settings={settings}
         siteLogo={siteLogo}
@@ -38,6 +44,6 @@ export async function SiteLayout({ children }: Readonly<{ children: React.ReactN
         siteUrl={siteUrl}
         whatsappNumber={number}
       />
-    </>
+    </IntlProvider>
   );
 }
