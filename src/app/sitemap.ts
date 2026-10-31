@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllActiveSlugs, getAllActiveBlogSlugs, getBundleSettings } from "@/lib/site/public-data";
+import { getAllActiveSlugs, getAllActiveBlogSlugs, getBundleSettings, getPublicSettings } from "@/lib/site/public-data";
 
 export const revalidate = 300;
 
@@ -60,10 +60,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const [{ products, categories }, blogPosts, bundleSettings] = await Promise.all([
+    const [{ products, categories }, blogPosts, bundleSettings, settings] = await Promise.all([
       getAllActiveSlugs(),
       getAllActiveBlogSlugs(),
       getBundleSettings(),
+      getPublicSettings(),
     ]);
 
     const bundleEntries: MetadataRoute.Sitemap = bundleSettings.enabled
@@ -75,6 +76,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.9,
           },
         ]
+      : [];
+    const giftEntries: MetadataRoute.Sitemap = settings.gift_enabled !== "false" && settings.gift_enabled !== "0"
+      ? [{ url: `${siteUrl}/gifts`, lastModified: now, changeFrequency: "monthly", priority: 0.7 }]
       : [];
 
     const categoryEntries: MetadataRoute.Sitemap = categories.map((cat) => ({
@@ -100,7 +104,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    return [...staticRoutes, ...bundleEntries, ...categoryEntries, ...productEntries, ...blogEntries];
+    return [...staticRoutes, ...bundleEntries, ...giftEntries, ...categoryEntries, ...productEntries, ...blogEntries];
   } catch {
     return staticRoutes;
   }
