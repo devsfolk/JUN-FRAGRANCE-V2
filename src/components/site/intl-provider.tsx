@@ -2,9 +2,11 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { formatMoney } from "@/lib/site/intl-pricing";
+import { createInternationalOrderMessage } from "@/lib/site/intl-order-message";
+import { whatsappLink } from "@/lib/site/whatsapp";
 
 export type IntlCountry = { code: string; name: string; currency: string; enabled: boolean; shipping_pkr: number | null; delivery_days_text: string; note: string };
-type IntlContextValue = { enabled: boolean; country: IntlCountry; countries: IntlCountry[]; selectCountry: (code: string) => void; quote: (amount: number) => Promise<number | null>; money: (amount: number) => string };
+type IntlContextValue = { enabled: boolean; country: IntlCountry; countries: IntlCountry[]; selectCountry: (code: string) => void; quote: (amount: number) => Promise<number | null>; quoteMany: (amounts: number[]) => Promise<number[] | null>; money: (amount: number) => string };
 const Context = createContext<IntlContextValue | null>(null);
 const quoteCache = new Map<string, Promise<number | null>>();
 const pakistan: IntlCountry = { code: "PK", name: "Pakistan", currency: "PKR", enabled: true, shipping_pkr: null, delivery_days_text: "", note: "" };
@@ -41,11 +43,36 @@ export function IntlProvider({ enabled, countries, children }: { enabled: boolea
     quoteCache.set(key, request);
     return request;
   }, [country.currency]);
-  const value = useMemo(() => ({ enabled, country, countries: countries.filter((c) => c.enabled), selectCountry, quote, money: (amount: number) => formatMoney(amount, country.currency) }), [enabled, country, countries, selectCountry, quote]);
+  const quoteMany = useCallback(async (amounts: number[]) => {
+    if (amounts.length < 1 || amounts.length > 20) return null;
+    try {
+      const query = new URLSearchParams({ currency: country.currency, amounts: amounts.join(",") });
+      const response = await fetch(`/api/fx?${query}`);
+      if (!response.ok) return null;
+      const result = await response.json() as { amounts?: number[] };
+      return Array.isArray(result.amounts) && result.amounts.length === amounts.length ? result.amounts : null;
+    } catch { return null; }
+  }, [country.currency]);
+  const value = useMemo(() => ({ enabled, country, countries: countries.filter((c) => c.enabled), selectCountry, quote, quoteMany, money: (amount: number) => formatMoney(amount, country.currency) }), [enabled, country, countries, selectCountry, quote, quoteMany]);
   return <Context.Provider value={value}>{children}{suggestion ? <aside className="fixed bottom-3 left-3 right-3 z-[60] mx-auto max-w-lg rounded-xl border border-white/15 bg-ink p-4 text-bone shadow-xl"><p className="text-sm">Looks like you are in {suggestion.name}. Show prices for delivery to {suggestion.name} in {suggestion.currency}?</p><div className="mt-3 flex gap-2"><button className="min-h-11 rounded-full bg-gold px-4 text-xs font-semibold text-ink" onClick={() => dismissSuggestion(true)} type="button">Switch</button><button className="min-h-11 rounded-full border border-white/25 px-4 text-xs" onClick={() => dismissSuggestion(false)} type="button">Stay in Pakistan</button></div></aside> : null}</Context.Provider>;
 }
 
 export function useIntlStore() { const value = useContext(Context); if (!value) throw new Error("IntlProvider is missing"); return value; }
+
+export function useIntlProductHref(input: { title: string; sizeMl: number; slug: string; price: number; qty: number; siteUrl: string; whatsappNumber: string | null; fallbackHref: string | null }) {
+  const { enabled, country, quoteMany } = useIntlStore();
+  const [result, setResult] = useState<{ key: string; href: string | null } | null>(null);
+  const key = `${country.code}:${input.qty}:${input.price}:${input.slug}`;
+  useEffect(() => {
+    let active = true;
+    if (!enabled || country.code === "PK" || !country.shipping_pkr || !input.whatsappNumber) return;
+    createInternationalOrderMessage({ country: country.name, currency: country.currency, items: [{ title: input.title, quantity: input.qty, pkrAmount: input.price * input.qty, url: `${input.siteUrl.endsWith("/") ? input.siteUrl.slice(0, -1) : input.siteUrl}/shop/${input.slug}` }], shippingPkr: country.shipping_pkr, quoteMany })
+      .then((message) => { if (active) setResult({ key, href: message ? whatsappLink(input.whatsappNumber, message) : null }); });
+    return () => { active = false; };
+  }, [enabled, country.code, country.name, country.currency, country.shipping_pkr, input.title, input.qty, input.price, input.slug, input.siteUrl, input.whatsappNumber, quoteMany, key]);
+  if (!enabled || country.code === "PK") return input.fallbackHref;
+  return result?.key === key ? result.href : null;
+}
 
 export function CountrySelector() {
   const { enabled, country, countries, selectCountry } = useIntlStore();

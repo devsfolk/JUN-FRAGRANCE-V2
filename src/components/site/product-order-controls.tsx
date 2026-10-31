@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { whatsappLink, productWhatsAppMessage } from "@/lib/site/whatsapp";
 import { cartStore } from "@/lib/site/cart-store";
+import { useIntlProductHref, useIntlStore } from "./intl-provider";
+import { Price } from "./ui/price";
 
 interface ProductOrderControlsProps {
   productId: string;
@@ -18,19 +20,22 @@ export function ProductOrderControls({
   productId,
   title,
   sizeMl,
+  price,
   slug,
   whatsappNumber,
   siteUrl,
 }: ProductOrderControlsProps) {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const { enabled, country } = useIntlStore();
 
-  if (!whatsappNumber) return null;
-
-  const orderUrl = whatsappLink(
+  const pakistanOrderUrl = whatsappLink(
     whatsappNumber,
     productWhatsAppMessage(title, sizeMl, siteUrl, slug, qty)
   );
+  const orderUrl = useIntlProductHref({ title, sizeMl, slug, price, qty, siteUrl, whatsappNumber, fallbackHref: pakistanOrderUrl });
+
+  if (!whatsappNumber) return null;
 
   const handleAddToCart = () => {
     cartStore.addItem(productId, qty);
@@ -40,6 +45,7 @@ export function ProductOrderControls({
 
   return (
     <div className="mt-6 flex flex-col gap-4">
+      {enabled && country.code !== "PK" && country.shipping_pkr ? <div className="space-y-1 text-xs text-mute"><p>Delivery estimate: <Price value={country.shipping_pkr} /></p><p>Total estimate: <Price value={price * qty + country.shipping_pkr} /></p><p>Final amount and delivery details are confirmed on WhatsApp.</p></div> : null}
       {/* Quantity Stepper (1 to 10) above buttons */}
       <div className="flex items-center gap-3">
         <span className="text-xs uppercase tracking-wider text-mute">Quantity:</span>

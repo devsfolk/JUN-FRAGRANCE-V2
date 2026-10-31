@@ -12,6 +12,8 @@ import {
   type CartProductDetail,
 } from "@/lib/site/cart-store";
 import { whatsappLink } from "@/lib/site/whatsapp";
+import { useIntlStore } from "./intl-provider";
+import { createInternationalOrderMessage } from "@/lib/site/intl-order-message";
 
 interface CartDrawerProps {
   whatsappNumber: string | null;
@@ -35,6 +37,9 @@ export function CartDrawer({
   const [removedNote, setRemovedNote] = useState(false);
   const [fetchError, setFetchError] = useState(false);
   const [fetchTick, setFetchTick] = useState(0);
+  const { enabled: intlEnabled, country, quoteMany } = useIntlStore();
+  const [intlResult, setIntlResult] = useState<{ key: string; message: string | null } | null>(null);
+  const intlOrderKey = `${country.code}:${cart.map((item) => `${item.id}-${item.qty}-${products[item.id]?.price ?? 0}`).join(",")}`;
 
   // Fetch fresh product details when drawer opens with items
   useEffect(() => {
@@ -78,6 +83,19 @@ export function CartDrawer({
       ignore = true;
     };
   }, [isOpen, cart, fetchTick]);
+
+  useEffect(() => {
+    let active = true;
+    if (!intlEnabled || country.code === "PK" || cart.length === 0 || !country.shipping_pkr) return;
+    const items = cart.flatMap((item) => {
+      const product = products[item.id];
+      return product ? [{ title: product.title, quantity: item.qty, pkrAmount: product.price * item.qty, url: `${siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl}/shop/${product.slug}` }] : [];
+    });
+    if (items.length !== cart.length) return;
+    createInternationalOrderMessage({ country: country.name, currency: country.currency, items, shippingPkr: country.shipping_pkr, quoteMany })
+      .then((message) => { if (active) setIntlResult({ key: intlOrderKey, message }); });
+    return () => { active = false; };
+  }, [intlEnabled, country.code, country.name, country.currency, country.shipping_pkr, cart, products, siteUrl, quoteMany, intlOrderKey]);
 
   // Focus trap, ESC key, body scroll lock
   useEffect(() => {
@@ -146,7 +164,9 @@ export function CartDrawer({
   });
 
   const orderHref = whatsappNumber
-    ? whatsappLink(whatsappNumber, whatsappMessage)
+    ? intlEnabled && country.code !== "PK"
+      ? intlResult?.key === intlOrderKey && intlResult.message ? whatsappLink(whatsappNumber, intlResult.message) : null
+      : whatsappLink(whatsappNumber, whatsappMessage)
     : null;
 
   const plainChatHref = whatsappLink(
@@ -366,9 +386,10 @@ export function CartDrawer({
             <div className="flex items-baseline justify-between">
               <span className="text-xs uppercase tracking-wider text-mute">Estimated Total</span>
               <span className="font-serif text-2xl font-semibold text-gold">
-                <Price value={estimatedTotal} />
+                <Price value={estimatedTotal + (intlEnabled && country.code !== "PK" ? country.shipping_pkr ?? 0 : 0)} />
               </span>
             </div>
+            {intlEnabled && country.code !== "PK" && country.shipping_pkr ? <p className="mt-1 text-right text-xs text-mute">Includes delivery estimate: <Price value={country.shipping_pkr} /></p> : null}
 
             <p className="mt-1 text-[11px] leading-relaxed text-mute">
               Delivery and payment are confirmed with you on WhatsApp.

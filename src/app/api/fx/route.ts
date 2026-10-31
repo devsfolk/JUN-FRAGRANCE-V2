@@ -11,10 +11,10 @@ export async function GET(request: Request) {
   };
   const query = new URL(request.url).searchParams;
   const currency = query.get("currency") ?? "";
-  const amount = Number(query.get("amount"));
-  if (!Number.isFinite(amount) || amount < 0 || amount > 10_000_000) {
-    return NextResponse.json({ error: "Price unavailable" }, { status: 400, headers });
-  }
+  const rawAmounts = query.get("amounts") ?? query.get("amount");
+  if (!rawAmounts || rawAmounts.split(",").some((value) => value.trim() === "")) return NextResponse.json({ error: "Price unavailable" }, { status: 400, headers });
+  const amounts = rawAmounts.split(",").map(Number);
+  if (amounts.length < 1 || amounts.length > 20 || amounts.some((amount) => !Number.isFinite(amount) || amount < 0 || amount > 10_000_000)) return NextResponse.json({ error: "Price unavailable" }, { status: 400, headers });
 
   const settings = await getPublicSettings();
   const parse = (key: string, fallback: unknown) => {
@@ -36,9 +36,9 @@ export async function GET(request: Request) {
     if (!Number.isFinite(rate) || !rate) throw new Error("rate missing");
     const multiplier = Number(settings.intl_multiplier) || 10;
     const buffer = Number(settings.intl_fx_buffer_percent) || 0;
-    const price = intlPrice(amount, currency, { [currency]: rate }, multiplier, buffer);
-    if (price === null) throw new Error("price unavailable");
-    return NextResponse.json({ currency, amount: price, updated: data.time_last_update_utc ?? null }, { headers });
+    const prices = amounts.map((amount) => intlPrice(amount, currency, { [currency]: rate }, multiplier, buffer));
+    if (prices.some((price) => price === null)) throw new Error("price unavailable");
+    return NextResponse.json({ currency, amounts: prices, ...(amounts.length === 1 ? { amount: prices[0] } : {}), updated: data.time_last_update_utc ?? null }, { headers });
   } catch {
     return NextResponse.json({ error: "Price confirmed on WhatsApp" }, { status: 503, headers });
   }

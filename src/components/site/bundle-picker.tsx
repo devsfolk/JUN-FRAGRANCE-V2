@@ -6,6 +6,7 @@ import type { BundleProduct } from "@/lib/site/public-data";
 import { bundleWhatsAppMessage, whatsappLink } from "@/lib/site/whatsapp";
 import { Price } from "./ui/price";
 import { useIntlStore } from "./intl-provider";
+import { createInternationalOrderMessage } from "@/lib/site/intl-order-message";
 
 interface BundlePickerProps {
   products: BundleProduct[];
@@ -26,6 +27,8 @@ export function BundlePicker({
 }: BundlePickerProps) {
   const { enabled: intlEnabled, country } = useIntlStore();
   const international = intlEnabled && country.code !== "PK";
+  const { quoteMany } = useIntlStore();
+  const [internationalOrderResult, setInternationalOrderResult] = useState<{ key: string; message: string | null } | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
   const [genderFilter, setGenderFilter] = useState<GenderFilter>("all");
@@ -200,6 +203,7 @@ export function BundlePicker({
       .map((id) => productsById.get(id))
       .filter((p): p is BundleProduct => Boolean(p));
   }, [selectedIds, productsById]);
+  const internationalOrderKey = `${country.code}:${bundlePrice}:${selectedProducts.map((product) => product.id).join(",")}`;
 
   const isComplete = selectedIds.length === 3;
 
@@ -269,10 +273,25 @@ export function BundlePicker({
     );
   }, [selectedProducts, bundlePrice, siteUrl]);
 
+  useEffect(() => {
+    let active = true;
+    if (!international || !country.shipping_pkr || selectedProducts.length !== 3) return;
+    createInternationalOrderMessage({
+      country: country.name,
+      currency: country.currency,
+      items: selectedProducts.map((product) => ({ title: product.title, quantity: 1, pkrAmount: bundlePrice / 3, url: `${siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl}/shop/${product.slug}` })),
+      shippingPkr: country.shipping_pkr,
+      quoteMany,
+    }).then((message) => { if (active) setInternationalOrderResult({ key: internationalOrderKey, message }); });
+    return () => { active = false; };
+  }, [international, country.code, country.name, country.currency, country.shipping_pkr, selectedProducts, bundlePrice, siteUrl, quoteMany, internationalOrderKey]);
+
   const waOrderUrl = useMemo(() => {
     if (!whatsappNumber || !orderMessage) return null;
-    return whatsappLink(whatsappNumber, orderMessage);
-  }, [whatsappNumber, orderMessage]);
+    const internationalMessage = internationalOrderResult?.key === internationalOrderKey ? internationalOrderResult.message : null;
+    if (international && !internationalMessage) return null;
+    return whatsappLink(whatsappNumber, international ? internationalMessage! : orderMessage);
+  }, [whatsappNumber, orderMessage, international, internationalOrderResult, internationalOrderKey]);
 
   const countsByProduct = useMemo(() => {
     const map = new Map<string, number>();
@@ -691,6 +710,7 @@ export function BundlePicker({
               <span className="text-xs text-mute">Trio bundle price</span>
               <Price value={bundlePrice} className="font-serif text-xl font-semibold text-gold" />
             </div>
+            {international && country.shipping_pkr ? <><div className="mt-2 flex items-baseline justify-between text-xs text-mute"><span>Delivery estimate</span><Price value={country.shipping_pkr} /></div><div className="mt-2 flex items-baseline justify-between text-sm text-bone"><span>Total estimate</span><Price value={bundlePrice + country.shipping_pkr} className="font-semibold text-gold" /></div></> : null}
             {showSavings && !international ? (
               <p className="mt-1 text-right text-xs font-medium text-emerald-400">
                 Regular Rs. {regularTotal.toLocaleString()}, you save Rs. {savings.toLocaleString()}

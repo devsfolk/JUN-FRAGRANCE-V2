@@ -9,7 +9,7 @@ import {
   productWhatsAppMessage,
 } from "@/lib/site/whatsapp";
 import { cartStore } from "@/lib/site/cart-store";
-import { useIntlStore } from "../intl-provider";
+import { useIntlProductHref, useIntlStore } from "../intl-provider";
 
 export type ProductCardItem = {
   id: string;
@@ -50,7 +50,7 @@ export function ProductCard({
         )
       : null;
 
-  const orderUrl = whatsappNumber
+  const fallbackOrderUrl = whatsappNumber
     ? whatsappLink(
         whatsappNumber,
         productWhatsAppMessage(
@@ -61,6 +61,7 @@ export function ProductCard({
         )
       )
     : null;
+  const orderUrl = useIntlProductHref({ title: product.title, sizeMl: product.size_ml, slug: product.slug, price: product.price, qty: 1, siteUrl, whatsappNumber, fallbackHref: fallbackOrderUrl });
 
   return (
     <div
