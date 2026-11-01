@@ -2,6 +2,7 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { hasScentProfileData, type ScentProfile } from "@/lib/site/scent-profile";
 
 export const settingKeys = [
   "whatsapp_number",
@@ -479,6 +480,21 @@ const loadAllShopProducts = unstable_cache(
  );
  
 export const getAllShopProducts = () => loadAllShopProducts();
+
+export type FinderProduct = ShopProduct & { gender: "men" | "women" | "unisex" | null; scent_profile: ScentProfile };
+const loadFinderProducts = unstable_cache(async (): Promise<FinderProduct[]> => {
+  const supabase = publicClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase.from("jf_products").select("id,title,slug,images,inspired_by,price,compare_at_price,size_ml,accent_color,category_id,gender,scent_profile").eq("is_active", true).order("sort_order", { ascending: true, nullsFirst: false }).limit(200);
+  if (error || !data) return [];
+  return data.filter((item) => hasScentProfileData(item.scent_profile as ScentProfile | null)).map((item) => ({
+    id: item.id, title: item.title, slug: item.slug, images: Array.isArray(item.images) ? item.images : [], inspired_by: item.inspired_by,
+    price: Number(item.price) || 0, compare_at_price: item.compare_at_price ? Number(item.compare_at_price) : null, size_ml: Number(item.size_ml) || 50,
+    accent_color: item.accent_color, category_id: item.category_id, gender: item.gender as FinderProduct["gender"], scent_profile: item.scent_profile as ScentProfile,
+  }));
+}, ["jf-finder-products-v1"], { revalidate: 60, tags: ["scent-profiles", "products"] });
+export const getFinderProducts = () => loadFinderProducts();
+export async function isFinderEnabled() { return (await getFinderProducts()).length >= 6; }
  
 export type CategoryWithSEO = {
    id: string;
