@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { pingIndexNow } from "@/lib/site/indexnow";
@@ -107,6 +107,7 @@ export async function saveProduct(input: unknown) {
     } catch { cleanupFailed = true; }
   }
   revalidatePath("/dashboard/products"); revalidatePath("/dashboard"); revalidatePath("/perfume-finder");
+  revalidateTag("scent-profiles", "max");
   revalidatePath("/", "layout");
   if (row.is_active) {
     void pingIndexNow([`/shop/${row.slug}`, "/shop"]);
@@ -155,6 +156,7 @@ export async function deleteProduct(input: unknown) {
     }
   }
   revalidatePath("/dashboard/products"); revalidatePath("/dashboard");
+  revalidateTag("scent-profiles", "max");
   revalidatePath("/", "layout");
   if (product?.is_active && product.slug) {
     void pingIndexNow([`/shop/${product.slug}`, "/shop"]);
