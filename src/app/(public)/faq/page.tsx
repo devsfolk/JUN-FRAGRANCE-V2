@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/site/ui/container";
 import { JsonLd, breadcrumbJsonLd, faqPageJsonLd } from "@/lib/site/json-ld";
 import { getPageSEO } from "@/lib/site/public-data";
+import { pageAlternates } from "@/lib/site/metadata";
 
 export const revalidate = 60;
 
@@ -72,7 +73,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: `${siteUrl}/faq` },
+    alternates: pageAlternates("/faq"),
     openGraph: {
       title,
       description,

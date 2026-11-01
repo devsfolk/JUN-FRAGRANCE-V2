@@ -15,6 +15,7 @@ import {
   articleJsonLd,
   faqPageJsonLd,
 } from "@/lib/site/json-ld";
+import { pageAlternates } from "@/lib/site/metadata";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -53,9 +54,7 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: {
-      canonical: `${siteUrl}/journal/${post.slug}`,
-    },
+    alternates: pageAlternates(`/journal/${post.slug}`, { types: { "application/rss+xml": `${siteUrl}/journal/rss.xml` } }),
     openGraph: {
       title,
       description,

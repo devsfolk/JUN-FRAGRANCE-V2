@@ -202,12 +202,12 @@ export function productJsonLd({
     };
   }
 
-  // Add aggregateRating ONLY if real approved reviews with a valid rating exist for that product
+  // Add aggregateRating only after at least three real approved reviews exist for that product.
   const ratedReviews = reviews.filter(
     (r) => typeof r.rating === "number" && !isNaN(r.rating) && r.rating > 0
   );
 
-  if (ratedReviews.length > 0) {
+  if (ratedReviews.length >= 3) {
     const sum = ratedReviews.reduce((acc, r) => acc + r.rating, 0);
     const avg = (sum / ratedReviews.length).toFixed(1);
     product.aggregateRating = {

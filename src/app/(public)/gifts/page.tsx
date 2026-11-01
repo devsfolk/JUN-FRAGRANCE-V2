@@ -9,9 +9,11 @@ import { ProductCard } from "@/components/site/ui/product-card";
 import { getFeaturedPicks, getPageSEO, getPublicSettings } from "@/lib/site/public-data";
 import { JsonLd, breadcrumbJsonLd } from "@/lib/site/json-ld";
 import { whatsappNumber } from "@/lib/site/whatsapp";
+import { pageAlternates } from "@/lib/site/metadata";
 
 export const revalidate = 60;
 const questions = [
+  { question: "Can I send a perfume gift to family in Pakistan from abroad?", answer: "Yes. Choose a perfume or bundle, switch on the gift option, and send the recipient's name and Pakistan address with your order on WhatsApp. Payment options for orders placed from abroad are confirmed on WhatsApp." },
   { question: "Can I send a perfume as a gift?", answer: "Yes. Switch on ‘This is a gift’ before sending your order on WhatsApp." },
   { question: "Will the price be shown on the parcel?", answer: "Prices are not shown on the parcel or paperwork." },
   { question: "Can I add recipient details?", answer: "Send the recipient details in the WhatsApp order chat." },
@@ -23,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
   const title = seo?.seo_title?.trim() || "Perfume Gift Delivered in Pakistan";
   const description = seo?.seo_description?.trim() || "Send a Jun.fragrance perfume as a gift. Choose a perfume or bundle, add recipient details on WhatsApp, and request dispatch without prices on the parcel.";
-  return { title, description, alternates: { canonical: `${siteUrl}/gifts` }, openGraph: { title, description, url: `${siteUrl}/gifts`, siteName: "Jun.fragrance", locale: "en_PK", type: "website", ...(seo?.og_image_url ? { images: [seo.og_image_url] } : {}) }, robots: settings.gift_enabled === "false" || settings.gift_enabled === "0" ? { index: false, follow: false } : undefined };
+  return { title, description, alternates: pageAlternates("/gifts"), openGraph: { title, description, url: `${siteUrl}/gifts`, siteName: "Jun.fragrance", locale: "en_PK", type: "website", ...(seo?.og_image_url ? { images: [seo.og_image_url] } : {}) }, robots: settings.gift_enabled === "false" || settings.gift_enabled === "0" ? { index: false, follow: false } : undefined };
 }
 
 export default async function GiftsPage() {
@@ -42,6 +44,17 @@ export default async function GiftsPage() {
       <h1 className="max-w-3xl font-serif text-4xl leading-tight md:text-6xl">Send perfume as a gift</h1>
       <p className="mt-5 max-w-2xl text-sm leading-7 text-bone/70">Choose a Jun.fragrance perfume or bundle, then send the order and recipient details on WhatsApp.</p>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{images.map((file) => <div className="relative aspect-[4/3] overflow-hidden rounded-xl" key={file}><Image src={`/gifts/${file}`} alt="Jun.fragrance gifting" fill sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw" className="object-cover" /></div>)}</div>
+    </Container></section>
+    <section className="bg-bone py-14 text-ink md:py-20"><Container>
+      <h2 className="font-serif text-3xl">Sending a gift to family in Pakistan?</h2>
+      <ol className="mt-5 grid gap-4 sm:grid-cols-2">
+        <li className="rounded-xl border border-ink/10 p-5"><span className="text-xs text-gold">01</span><p className="mt-2 text-sm">Choose a perfume from the <Link className="underline underline-offset-4" href="/shop">shop</Link> or a three-perfume <Link className="underline underline-offset-4" href="/bundle">bundle</Link>.</p></li>
+        <li className="rounded-xl border border-ink/10 p-5"><span className="text-xs text-gold">02</span><p className="mt-2 text-sm">Switch on “This is a gift” before placing the order.</p></li>
+        <li className="rounded-xl border border-ink/10 p-5"><span className="text-xs text-gold">03</span><p className="mt-2 text-sm">Send the order on WhatsApp with the recipient’s name and address in Pakistan.</p></li>
+        <li className="rounded-xl border border-ink/10 p-5"><span className="text-xs text-gold">04</span><p className="mt-2 text-sm">We dispatch the parcel without prices shown on it.</p></li>
+      </ol>
+      <p className="mt-6 text-sm">The parcel is sent to the Pakistan address you provide, so you do not need to arrange an international courier.</p>
+      <p className="mt-6 text-sm">Delivery across Pakistan takes 3 to 5 days, with deliveries between 12 PM and 9 PM. Delivery is free in Karachi and Rs. 200 to 250 elsewhere. Payment options for orders placed from abroad are confirmed on WhatsApp.</p>
     </Container></section>
     <section className="bg-bone py-14 text-ink md:py-20"><Container>
       <h2 className="font-serif text-3xl">How it works</h2><ol className="mt-5 grid gap-4 sm:grid-cols-2">{["Choose a perfume or a bundle.", "Switch on ‘This is a gift’.", "Send the order on WhatsApp with the recipient details.", "We dispatch without prices on the parcel."].map((step, i) => <li className="rounded-xl border border-ink/10 p-5" key={step}><span className="text-xs text-gold">0{i + 1}</span><p className="mt-2 text-sm">{step}</p></li>)}</ol>

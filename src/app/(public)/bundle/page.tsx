@@ -14,6 +14,7 @@ import {
   getPublicSettings,
 } from "@/lib/site/public-data";
 import { whatsappNumber } from "@/lib/site/whatsapp";
+import { pageAlternates } from "@/lib/site/metadata";
 
 export const revalidate = 300;
 
@@ -40,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: `${siteUrl}/bundle` },
+    alternates: pageAlternates("/bundle"),
     openGraph: {
       title,
       description,
