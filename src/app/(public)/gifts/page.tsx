@@ -9,6 +9,7 @@ import { ProductCard } from "@/components/site/ui/product-card";
 import { getFeaturedPicks, getPageSEO, getPublicSettings } from "@/lib/site/public-data";
 import { JsonLd, breadcrumbJsonLd } from "@/lib/site/json-ld";
 import { whatsappNumber } from "@/lib/site/whatsapp";
+import { pageAlternates } from "@/lib/site/metadata";
 
 export const revalidate = 60;
 const questions = [
@@ -23,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
   const title = seo?.seo_title?.trim() || "Perfume Gift Delivered in Pakistan";
   const description = seo?.seo_description?.trim() || "Send a Jun.fragrance perfume as a gift. Choose a perfume or bundle, add recipient details on WhatsApp, and request dispatch without prices on the parcel.";
-  return { title, description, alternates: { canonical: `${siteUrl}/gifts` }, openGraph: { title, description, url: `${siteUrl}/gifts`, siteName: "Jun.fragrance", locale: "en_PK", type: "website", ...(seo?.og_image_url ? { images: [seo.og_image_url] } : {}) }, robots: settings.gift_enabled === "false" || settings.gift_enabled === "0" ? { index: false, follow: false } : undefined };
+  return { title, description, alternates: pageAlternates("/gifts"), openGraph: { title, description, url: `${siteUrl}/gifts`, siteName: "Jun.fragrance", locale: "en_PK", type: "website", ...(seo?.og_image_url ? { images: [seo.og_image_url] } : {}) }, robots: settings.gift_enabled === "false" || settings.gift_enabled === "0" ? { index: false, follow: false } : undefined };
 }
 
 export default async function GiftsPage() {

@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/site/ui/container";
+import { pageAlternates } from "@/lib/site/metadata";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
   description:
     "Terms and conditions for Jun.fragrance. Orders are placed through WhatsApp. Read our usage terms, intellectual property notice, and disclaimers.",
   robots: { index: true, follow: true },
+  alternates: pageAlternates("/terms-and-conditions"),
 };
 
 const LAST_UPDATED = "29 October 2026";

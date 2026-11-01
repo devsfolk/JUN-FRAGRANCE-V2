@@ -20,6 +20,7 @@ import {
   whatsappNumber as extractWhatsappNumber,
 } from "@/lib/site/whatsapp";
 import { JsonLd, productJsonLd, breadcrumbJsonLd } from "@/lib/site/json-ld";
+import { pageAlternates } from "@/lib/site/metadata";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -61,9 +62,7 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: {
-      canonical: `${siteUrl}/shop/${product.slug}`,
-    },
+    alternates: pageAlternates(`/shop/${product.slug}`),
     openGraph: {
       title,
       description,

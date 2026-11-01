@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Container } from "@/components/site/ui/container";
 import { getPublishedBlogPosts, getPageSEO } from "@/lib/site/public-data";
 import { JsonLd, breadcrumbJsonLd } from "@/lib/site/json-ld";
+import { pageAlternates } from "@/lib/site/metadata";
 
 export const revalidate = 300;
 
@@ -20,9 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: {
-      canonical: `${siteUrl}/journal`,
-    },
+    alternates: pageAlternates("/journal"),
     openGraph: {
       title,
       description,

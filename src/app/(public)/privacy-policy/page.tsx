@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/site/ui/container";
+import { pageAlternates } from "@/lib/site/metadata";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
     "Jun.fragrance privacy policy. We collect only the information you share with us on WhatsApp to process your order. We do not sell your data.",
   robots: { index: true, follow: true },
+  alternates: pageAlternates("/privacy-policy"),
 };
 
 const LAST_UPDATED = "29 October 2026";

@@ -60,6 +60,7 @@ export function SiteFooter({
         </Link>
         <p className="mt-3 font-script text-2xl text-gold">More than just a fragrance.</p>
         <p className="mt-6 text-xs uppercase tracking-[.18em] text-mute">Crafted in Pakistan</p>
+        <p className="mt-2 text-xs text-mute">Delivering across Pakistan.</p>
       </div>
       <nav aria-label="Footer navigation">
         <h2 className="mb-4 text-[10px] font-semibold uppercase tracking-[.22em] text-gold">Explore</h2>

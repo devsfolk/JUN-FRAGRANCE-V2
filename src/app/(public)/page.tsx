@@ -10,6 +10,7 @@ import { JournalPlacement } from "@/components/site/journal-placement";
 import { JsonLd, homeJsonLd } from "@/lib/site/json-ld";
 import { getPublicSettings, getPageSEO, parseSiteLogo, parseSiteFavicon } from "@/lib/site/public-data";
 import { whatsappNumber as extractWhatsappNumber, socialUrl } from "@/lib/site/whatsapp";
+import { pageAlternates } from "@/lib/site/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [pageSeo] = await Promise.all([getPageSEO("home")]);
@@ -24,9 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: {
-      canonical: siteUrl,
-    },
+    alternates: pageAlternates("/"),
     openGraph: {
       title,
       description,
