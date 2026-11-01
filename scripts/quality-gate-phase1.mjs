@@ -1,0 +1,57 @@
+import { createClient } from "@supabase/supabase-js";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const root = resolve(import.meta.dirname, "..");
+const env = Object.fromEntries(readFileSync(resolve(root, ".env.local"), "utf8").split(/\r?\n/).filter((line) => line.includes("=")).map((line) => [line.slice(0, line.indexOf("=")).trim(), line.slice(line.indexOf("=") + 1).trim().replace(/^['"]|['"]$/g, "")]));
+if (!env.NEXT_PUBLIC_SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) throw new Error("Missing database configuration.");
+const db = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+const source = readFileSync(resolve(root, "seo-content/posts-phase1.md"), "utf8");
+const block = source.split(/^=== POST ===\s*$/m)[1]?.split(/^=== END ===/m)[0]?.trim();
+if (!block) throw new Error("Expected one post block.");
+const [header, rest = ""] = block.split(/^--- content ---\s*$/m);
+const [content, faqText = ""] = rest.split(/^--- faq ---\s*$/m);
+const fields = Object.fromEntries([...header.matchAll(/^([\w_]+):\s*(.+)$/gm)].map((match) => [match[1], match[2].trim()]));
+const faq = [...faqText.matchAll(/^Q:\s*(.+)\s*\nA:\s*(.+)$/gm)].map(([, question, answer]) => ({ question, answer }));
+const post = { ...fields, content: content.trim(), faq, faqText: faqText.trim() };
+const { data: existing, error } = await db.from("jf_blog_posts").select("slug,title,excerpt,seo_title,seo_description,content,faq,status,published_at");
+if (error) throw error;
+const errors = [];
+const count = (text) => (text.match(/\b[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*\b/gu) ?? []).length;
+const normalize = (text) => text.toLowerCase().replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/[^\p{L}\p{N}]+/gu, " ").trim().split(/\s+/).filter(Boolean);
+const shingles = (text) => { const words = normalize(text); return new Set(Array.from({ length: Math.max(0, words.length - 5) }, (_, index) => words.slice(index, index + 6).join(" "))); };
+const opening = (text) => normalize(text.split(/[.!?]/, 1)[0] ?? "").slice(0, 7).join(" ");
+const banned = ["authentic", "genuine", "guaranteed", "certified", "best perfume", "number one", "eau de parfum", "extrait", "original", "ysl", "yves", "saint laurent", "creed", "aventus", "dior", "sauvage", "chanel", "bleu de", "tom ford", "lattafa", "yara", "armani", "issey", "miyake", "rabanne", "versace", "hugo boss", "gucci", "herrera", "gaultier", "montale", "xerjoff", "amouage"];
+const fullText = [post.title, post.excerpt, post.seo_title, post.seo_description, post.content, post.faqText].join("\n").toLowerCase();
+if (existing.some((row) => row.slug === post.slug)) errors.push("Slug already exists.");
+if (count(post.content) < 700 || count(post.content) > 1000) errors.push(`Body length ${count(post.content)} is outside 700–1000 words.`);
+if (post.excerpt.length > 160 || post.seo_title.length > 45 || post.seo_description.length > 155) errors.push("Metadata length limit exceeded.");
+if (post.show_on !== "journal" || Date.parse(post.published_at) <= Date.now()) errors.push("Invalid placement or schedule is not in the future.");
+if (/^#(?!#)\s/m.test(post.content) || /^#{4,}\s/m.test(post.content)) errors.push("Heading level must be H2 or H3.");
+if (faq.length < 3 || faq.length > 4) errors.push(`FAQ count ${faq.length} is outside 3–4.`);
+const links = [...post.content.matchAll(/\]\((\/[^)]+)\)/g)].map((match) => match[1]);
+if (links.length < 2 || links.length > 4 || !links.includes("/gifts") || !links.includes("/bundle")) errors.push("Internal links must number 2–4 and include /gifts and /bundle.");
+for (const href of links) if (!/^\/(shop(?:\/[a-z0-9-]+)?|category\/(men|women|unisex)|bundle|gifts)$/.test(href)) errors.push(`Unsupported internal link: ${href}`);
+for (const word of banned) if (fullText.includes(word)) errors.push(`Banned term: ${word}`);
+for (const term of ["elevate", "unleash", "game-changer", "delve", "tapestry", "symphony", "journey", "in today's world", "look no further", "in conclusion", "whether you're"]) if (fullText.includes(term)) errors.push(`Stock phrase: ${term}`);
+const questionSections = [...post.content.matchAll(/^## .+\?\s*\n\n([^\n]+)/gm)];
+if (questionSections.length < 3) errors.push("At least 3 answer-first question headings are required.");
+for (const [, answer] of questionSections) if (count(answer) < 40 || count(answer) > 60) errors.push(`Question answer has ${count(answer)} words; required 40–60.`);
+const rows = (existing ?? []).map((row) => ({ slug: row.slug, body: row.content ?? "", text: [row.title, row.excerpt, row.seo_title, row.seo_description, row.content, JSON.stringify(row.faq ?? [])].join("\n") }));
+const newText = [post.title, post.excerpt, post.seo_title, post.seo_description, post.content, post.faqText].join("\n");
+const newSet = shingles(newText);
+const overlapFlags = [];
+for (const row of rows) {
+  const oldSet = shingles(row.text);
+  if (!oldSet.size || !newSet.size) continue;
+  let common = 0;
+  for (const value of newSet) if (oldSet.has(value)) common++;
+  const percent = common / Math.min(newSet.size, oldSet.size);
+  if (percent >= 0.1) overlapFlags.push({ slug: row.slug, percent: `${(percent * 100).toFixed(1)}%` });
+  if (opening(post.content) && opening(row.body) === opening(post.content)) errors.push(`Opening pattern repeats ${row.slug}.`);
+}
+for (const match of post.content.matchAll(/\b(?:fresh|clean|light|airy|watery|woody|floral|sweet|smoky|warm|spicy|oud|citrus|musky|amber|powdery|fruity|creamy|sharp|bright|green|marine|aquatic|bergamot|rose|vanilla|jasmine|lavender|patchouli|cedarwood|tobacco|sandalwood|saffron|leather|mint)\b/gi)) errors.push(`Scent descriptor needs a product-specific notes source: ${match[0]}`);
+for (const overlap of overlapFlags) errors.push(`6-word shingle overlap with ${overlap.slug}: ${overlap.percent}`);
+console.log(`${post.slug} | ${count(post.content)} words | scheduled ${post.published_at} | ${faq.length} FAQ pairs | compared ${rows.length} existing rows | overlap flags ${overlapFlags.length}`);
+if (errors.length) { console.error("QUALITY GATE FAILED"); for (const error of errors) console.error(`- ${error}`); process.exit(1); }
+console.log("QUALITY GATE PASSED");
