@@ -9,6 +9,7 @@ import {
   productWhatsAppMessage,
 } from "@/lib/site/whatsapp";
 import { cartStore } from "@/lib/site/cart-store";
+import { useIntlProductHref, useIntlStore } from "../intl-provider";
 
 export type ProductCardItem = {
   id: string;
@@ -36,6 +37,8 @@ export function ProductCard({
   priority = false,
 }: ProductCardProps) {
   const [added, setAdded] = useState(false);
+  const { enabled, country } = useIntlStore();
+  const international = enabled && country.code !== "PK";
   const thumb = product.images?.[0];
   const accent = product.accent_color?.trim() || "#C9A66B";
   const discountPercent =
@@ -47,7 +50,7 @@ export function ProductCard({
         )
       : null;
 
-  const orderUrl = whatsappNumber
+  const fallbackOrderUrl = whatsappNumber
     ? whatsappLink(
         whatsappNumber,
         productWhatsAppMessage(
@@ -58,6 +61,7 @@ export function ProductCard({
         )
       )
     : null;
+  const orderUrl = useIntlProductHref({ title: product.title, sizeMl: product.size_ml, slug: product.slug, price: product.price, qty: 1, siteUrl, whatsappNumber, fallbackHref: fallbackOrderUrl });
 
   return (
     <div
@@ -101,7 +105,7 @@ export function ProductCard({
           )}
 
           {/* Gold Save X% badge calculated from compare_at_price */}
-          {discountPercent ? (
+          {discountPercent && !international ? (
             <span className="absolute left-2.5 top-2.5 rounded-full border border-gold/40 bg-ink/90 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-gold backdrop-blur-sm">
               Save {discountPercent}%
             </span>
@@ -125,10 +129,10 @@ export function ProductCard({
               <Price value={product.price} />
             </span>
 
-            {product.compare_at_price &&
+            {product.compare_at_price && !international &&
             product.compare_at_price > product.price ? (
               <span className="text-xs text-mute line-through">
-                <Price value={product.compare_at_price} />
+                <Price value={product.compare_at_price} hideInternational />
               </span>
             ) : null}
           </div>

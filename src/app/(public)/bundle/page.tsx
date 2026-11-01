@@ -65,6 +65,10 @@ export default async function BundlePage() {
   ]);
 
   const number = whatsappNumber(settings);
+  const giftEnabled = settings.gift_enabled !== "false" && settings.gift_enabled !== "0";
+  const giftWrapPrice = settings.gift_wrap_price_pkr ? Number(settings.gift_wrap_price_pkr) || null : null;
+  const giftIncludesCard = settings.gift_includes_card === "true" || settings.gift_includes_card === "1";
+  const giftIncludesBag = settings.gift_includes_bag === "true" || settings.gift_includes_bag === "1";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
   const posterSrc = bundleSettings.imageUrl || "/bundle/bundle-poster-new.webp";
   const absolutePosterUrl = posterSrc.startsWith("http")
@@ -163,6 +167,10 @@ export default async function BundlePage() {
           bundlePrice={bundleSettings.price}
           whatsappNumber={number}
           siteUrl={siteUrl}
+          giftEnabled={giftEnabled}
+          giftWrapPrice={giftWrapPrice}
+          giftIncludesCard={giftIncludesCard}
+          giftIncludesBag={giftIncludesBag}
         />
       </Container>
       <JournalPlacement placement="bundle" title="Perfume guides" />

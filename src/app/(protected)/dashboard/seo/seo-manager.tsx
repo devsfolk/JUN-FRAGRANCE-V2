@@ -10,7 +10,7 @@ import { Toast } from "@/components/dashboard/ui/toast";
 import { savePageSEO } from "./actions";
 
 export interface PageSeoItem {
-  page_key: "home" | "shop" | "bundle" | "about" | "contact" | "journal" | "faq";
+  page_key: "home" | "shop" | "bundle" | "custom" | "gifts" | "about" | "contact" | "journal" | "faq";
   seo_title: string;
   seo_description: string;
   og_image_url: string;
@@ -36,6 +36,8 @@ const pageLabels: Record<PageSeoItem["page_key"], string> = {
   home: "Home Page (/)",
   shop: "Shop Page (/shop)",
   bundle: "Bundle Page (/bundle)",
+  custom: "Custom Page (/custom)",
+  gifts: "Gifts Page (/gifts)",
   about: "About Page (/about)",
   contact: "Contact Page (/contact)",
   journal: "Journal Page (/journal)",

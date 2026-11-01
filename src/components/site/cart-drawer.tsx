@@ -12,12 +12,20 @@ import {
   type CartProductDetail,
 } from "@/lib/site/cart-store";
 import { whatsappLink } from "@/lib/site/whatsapp";
+import { useIntlStore } from "./intl-provider";
+import { createInternationalOrderMessage } from "@/lib/site/intl-order-message";
+import { GiftOption } from "./gift-option";
+import { EMPTY_GIFT, useGift } from "@/lib/site/gift-store";
 
 interface CartDrawerProps {
   whatsappNumber: string | null;
   siteUrl: string;
   bundleEnabled?: boolean;
   bundlePrice?: number;
+  giftEnabled?: boolean;
+  giftWrapPrice?: number | null;
+  giftIncludesCard?: boolean;
+  giftIncludesBag?: boolean;
 }
 
 export function CartDrawer({
@@ -25,9 +33,15 @@ export function CartDrawer({
   siteUrl,
   bundleEnabled = true,
   bundlePrice = 4500,
+  giftEnabled = true,
+  giftWrapPrice = null,
+  giftIncludesCard = false,
+  giftIncludesBag = false,
 }: CartDrawerProps) {
   const { isOpen, close } = useCartDrawer();
   const cart = useCart();
+  const storedGift = useGift();
+  const gift = giftEnabled ? storedGift : EMPTY_GIFT;
   const dialogRef = useRef<HTMLDivElement>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
 
@@ -35,6 +49,9 @@ export function CartDrawer({
   const [removedNote, setRemovedNote] = useState(false);
   const [fetchError, setFetchError] = useState(false);
   const [fetchTick, setFetchTick] = useState(0);
+  const { enabled: intlEnabled, country, quoteMany } = useIntlStore();
+  const [intlResult, setIntlResult] = useState<{ key: string; message: string | null } | null>(null);
+  const intlOrderKey = JSON.stringify([country.code, cart.map((item) => [item.id, item.qty, products[item.id]?.price ?? 0]), gift, giftWrapPrice, giftIncludesCard]);
 
   // Fetch fresh product details when drawer opens with items
   useEffect(() => {
@@ -78,6 +95,19 @@ export function CartDrawer({
       ignore = true;
     };
   }, [isOpen, cart, fetchTick]);
+
+  useEffect(() => {
+    let active = true;
+    if (!intlEnabled || country.code === "PK" || cart.length === 0 || !country.shipping_pkr) return;
+    const items = cart.flatMap((item) => {
+      const product = products[item.id];
+      return product ? [{ title: product.title, quantity: item.qty, pkrAmount: product.price * item.qty, url: `${siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl}/shop/${product.slug}` }] : [];
+    });
+    if (items.length !== cart.length) return;
+    createInternationalOrderMessage({ country: country.name, currency: country.currency, items, shippingPkr: country.shipping_pkr, quoteMany, gift, includesCard: giftIncludesCard, giftWrapPricePkr: giftWrapPrice })
+      .then((message) => { if (active) setIntlResult({ key: intlOrderKey, message }); });
+    return () => { active = false; };
+  }, [intlEnabled, country.code, country.name, country.currency, country.shipping_pkr, cart, products, siteUrl, quoteMany, intlOrderKey, gift, giftIncludesCard, giftWrapPrice]);
 
   // Focus trap, ESC key, body scroll lock
   useEffect(() => {
@@ -138,15 +168,21 @@ export function CartDrawer({
       estimatedTotal += p.price * item.qty;
     }
   }
+  if (gift.gift && giftWrapPrice !== null) estimatedTotal += giftWrapPrice;
 
   const whatsappMessage = buildCartWhatsAppMessage({
     items: cart,
     products,
     siteUrl,
+    gift,
+    giftWrapPricePkr: giftWrapPrice,
+    giftIncludesCard,
   });
 
   const orderHref = whatsappNumber
-    ? whatsappLink(whatsappNumber, whatsappMessage)
+    ? intlEnabled && country.code !== "PK"
+      ? intlResult?.key === intlOrderKey && intlResult.message ? whatsappLink(whatsappNumber, intlResult.message) : null
+      : whatsappLink(whatsappNumber, whatsappMessage)
     : null;
 
   const plainChatHref = whatsappLink(
@@ -348,6 +384,7 @@ export function CartDrawer({
         {/* Footer Area */}
         {cart.length > 0 ? (
           <div className="border-t border-white/10 bg-ink-2/95 px-5 py-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-6">
+            <div className="mb-3"><GiftOption enabled={giftEnabled} includesCard={giftIncludesCard} includesBag={giftIncludesBag} wrapPrice={giftWrapPrice} /></div>
             {/* Bundle Note when 2 or more items */}
             {bundleEnabled && cart.reduce((sum, item) => sum + item.qty, 0) >= 2 ? (
               <div className="mb-3 rounded-xl border border-gold/30 bg-gold/10 p-2.5 text-center text-xs text-bone">
@@ -366,9 +403,10 @@ export function CartDrawer({
             <div className="flex items-baseline justify-between">
               <span className="text-xs uppercase tracking-wider text-mute">Estimated Total</span>
               <span className="font-serif text-2xl font-semibold text-gold">
-                <Price value={estimatedTotal} />
+                <Price value={estimatedTotal + (intlEnabled && country.code !== "PK" ? country.shipping_pkr ?? 0 : 0)} />
               </span>
             </div>
+            {intlEnabled && country.code !== "PK" && country.shipping_pkr ? <p className="mt-1 text-right text-xs text-mute">Includes delivery estimate: <Price value={country.shipping_pkr} /></p> : null}
 
             <p className="mt-1 text-[11px] leading-relaxed text-mute">
               Delivery and payment are confirmed with you on WhatsApp.

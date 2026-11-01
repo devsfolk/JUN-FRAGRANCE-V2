@@ -12,16 +12,19 @@ export function SiteFooter({
   siteLogo,
   logoShowText = false,
   bundleEnabled = true,
+  giftsEnabled = true,
 }: {
   settings: Record<string, string | undefined>;
   whatsappNumber: string | null;
   siteLogo?: SiteLogo | null;
   logoShowText?: boolean;
   bundleEnabled?: boolean;
+  giftsEnabled?: boolean;
 }) {
   const links = [
     { label: "Shop", href: "/shop" },
     ...(bundleEnabled ? [{ label: "Bundle", href: "/bundle", isSpecial: true }] : []),
+    ...(giftsEnabled ? [{ label: "Gifts", href: "/gifts" }] : []),
     { label: "About", href: "/about" },
     { label: "Journal", href: "/journal" },
     { label: "Contact", href: "/contact" },

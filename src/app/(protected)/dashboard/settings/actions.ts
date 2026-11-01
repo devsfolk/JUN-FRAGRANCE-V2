@@ -173,6 +173,19 @@ const bundleImageSchema = z
   })
   .nullable();
 
+const currencyCodes = ["AED", "SAR", "QAR", "KWD", "OMR", "BHD", "GBP", "USD", "CAD", "AUD", "MYR", "EUR"] as const;
+const intlCountrySchema = z.object({
+  code: z.string().regex(/^[A-Z]{2}$/),
+  name: z.string().trim().min(1).max(80),
+  currency: z.enum(currencyCodes),
+  enabled: z.boolean(),
+  shipping_pkr: z.number().int().min(1).max(1_000_000).nullable(),
+  delivery_days_text: z.string().max(30),
+  note: z.string().max(120),
+}).refine((country) => !country.enabled || country.shipping_pkr !== null, {
+  message: "Set a shipping charge before enabling a country.",
+});
+
 const settingsSchema = z.object({
   whatsapp_number: z
     .string()
@@ -209,6 +222,14 @@ const settingsSchema = z.object({
   bundle_enabled: z.boolean().default(true),
   bundle_price: z.coerce.number().int().min(1).max(1000000).default(4500),
   bundle_image: bundleImageSchema.optional().nullable(),
+  intl_enabled: z.boolean().default(false),
+  intl_multiplier: z.coerce.number().min(1).max(50).default(10),
+  intl_fx_buffer_percent: z.coerce.number().min(0).max(15).default(3),
+  intl_countries: z.array(intlCountrySchema).max(20).default([]),
+  gift_enabled: z.boolean().default(true),
+  gift_wrap_price_pkr: z.coerce.number().int().min(1).max(1_000_000).nullable().default(null),
+  gift_includes_card: z.boolean().default(false),
+  gift_includes_bag: z.boolean().default(false),
 });
 
 export type SettingsFormData = z.infer<typeof settingsSchema>;
@@ -384,6 +405,16 @@ export async function saveSettings(input: unknown) {
     key: "bundle_price",
     value: Math.round(Number(data.bundle_price)),
   });
+  for (const [key, value] of Object.entries({
+    intl_enabled: data.intl_enabled,
+    intl_multiplier: data.intl_multiplier,
+    intl_fx_buffer_percent: data.intl_fx_buffer_percent,
+    intl_countries: data.intl_countries,
+    gift_enabled: data.gift_enabled,
+    gift_wrap_price_pkr: data.gift_wrap_price_pkr,
+    gift_includes_card: data.gift_includes_card,
+    gift_includes_bag: data.gift_includes_bag,
+  })) keysToUpsert.push({ key, value });
   if (data.bundle_image && data.bundle_image.url) {
     keysToUpsert.push({
       key: "bundle_image",

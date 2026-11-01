@@ -8,17 +8,20 @@ import { whatsappLink } from "@/lib/site/whatsapp";
 import { cartStore } from "@/lib/site/cart-store";
 import { CartBadge } from "./cart-badge";
 import type { SiteLogo } from "@/lib/site/public-data";
+import { CountrySelector } from "./intl-provider";
 
 export function SiteHeader({
   whatsappNumber,
   siteLogo,
   logoShowText = false,
   bundleEnabled = true,
+  giftsEnabled = true,
 }: {
   whatsappNumber: string | null;
   siteLogo?: SiteLogo | null;
   logoShowText?: boolean;
   bundleEnabled?: boolean;
+  giftsEnabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
@@ -27,6 +30,7 @@ export function SiteHeader({
     { label: "Home", href: "/" },
     { label: "Shop", href: "/shop" },
     ...(bundleEnabled ? [{ label: "Bundle", href: "/bundle", isSpecial: true }] : []),
+    ...(giftsEnabled ? [{ label: "Gifts", href: "/gifts" }] : []),
     { label: "About", href: "/about" },
     { label: "Journal", href: "/journal" },
     { label: "Contact", href: "/contact" },
@@ -67,6 +71,7 @@ export function SiteHeader({
           )}
         </Link>
         <div className="flex items-center gap-1 sm:gap-2">
+          <CountrySelector />
           <nav aria-label="Main navigation" className="hidden items-center gap-8 mr-4 md:flex">
             {navLinks.map((link) => (
               <Link

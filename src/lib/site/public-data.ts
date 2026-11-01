@@ -21,6 +21,14 @@ export const settingKeys = [
   "bundle_enabled",
   "bundle_price",
   "bundle_image",
+  "intl_enabled",
+  "intl_multiplier",
+  "intl_fx_buffer_percent",
+  "intl_countries",
+  "gift_enabled",
+  "gift_wrap_price_pkr",
+  "gift_includes_card",
+  "gift_includes_bag",
 ] as const;
 export type SiteSettings = Partial<Record<(typeof settingKeys)[number], string>>;
 

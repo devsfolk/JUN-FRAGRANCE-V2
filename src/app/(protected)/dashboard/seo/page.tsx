@@ -3,7 +3,7 @@ import { SeoManager, type PageSeoItem, type SeoAuditData } from "./seo-manager";
 
 export const dynamic = "force-dynamic";
 
-const pageKeys = ["home", "shop", "bundle", "about", "contact", "journal", "faq"] as const;
+const pageKeys = ["home", "shop", "bundle", "custom", "gifts", "about", "contact", "journal", "faq"] as const;
 
 export default async function SeoDashboardPage() {
   const { supabase } = await requireAdmin();

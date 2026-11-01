@@ -3,23 +3,41 @@
 import { useState } from "react";
 import { Price } from "./ui/price";
 import { cartStore } from "@/lib/site/cart-store";
+import { useIntlProductHref } from "./intl-provider";
+import { whatsappLink, productWhatsAppMessage } from "@/lib/site/whatsapp";
+import { EMPTY_GIFT, useGift } from "@/lib/site/gift-store";
+import { appendGiftToOrderMessage } from "@/lib/site/intl-order-message";
 
 interface ProductStickyBarProps {
   productId: string;
   title: string;
   price: number;
-  orderUrl: string | null;
   whatsappNumber: string | null;
+  slug: string;
+  sizeMl: number;
+  siteUrl: string;
+  giftEnabled: boolean;
+  giftWrapPrice: number | null;
+  giftIncludesCard: boolean;
 }
 
 export function ProductStickyBar({
   productId,
   title,
   price,
-  orderUrl,
   whatsappNumber,
+  slug,
+  sizeMl,
+  siteUrl,
+  giftEnabled,
+  giftWrapPrice,
+  giftIncludesCard,
 }: ProductStickyBarProps) {
   const [added, setAdded] = useState(false);
+  const storedGift = useGift();
+  const gift = giftEnabled ? storedGift : EMPTY_GIFT;
+  const fallbackHref = whatsappNumber ? whatsappLink(whatsappNumber, appendGiftToOrderMessage(productWhatsAppMessage(title, sizeMl, siteUrl, slug), gift, giftIncludesCard, giftWrapPrice, price)) : null;
+  const currentOrderUrl = useIntlProductHref({ title, sizeMl, slug, price, qty: 1, siteUrl, whatsappNumber, fallbackHref, gift, giftIncludesCard, giftWrapPricePkr: giftWrapPrice });
 
   if (!whatsappNumber) return null;
 
@@ -71,9 +89,9 @@ export function ProductStickyBar({
             )}
           </button>
 
-          {orderUrl ? (
+          {currentOrderUrl ? (
             <a
-              href={orderUrl}
+              href={currentOrderUrl}
               target="_blank"
               rel="noreferrer"
               aria-label={`Order ${title} on WhatsApp`}

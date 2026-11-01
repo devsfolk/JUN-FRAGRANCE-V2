@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { giftOrderLines, type GiftOrderDetails } from "./intl-order-message";
 
 export interface CartItem {
   id: string;
@@ -274,10 +275,16 @@ export function buildCartWhatsAppMessage({
   items,
   products,
   siteUrl,
+  gift,
+  giftWrapPricePkr,
+  giftIncludesCard = false,
 }: {
   items: Array<{ id: string; qty: number }>;
   products: Record<string, CartProductDetail>;
   siteUrl: string;
+  gift?: GiftOrderDetails;
+  giftWrapPricePkr?: number | null;
+  giftIncludesCard?: boolean;
 }): string {
   const lines: string[] = ["Assalam o Alaikum! I would like to order:", ""];
 
@@ -298,6 +305,11 @@ export function buildCartWhatsAppMessage({
 
   lines.push("");
   lines.push(`Estimated total: Rs. ${total.toLocaleString("en-PK")}`);
+  if (gift?.gift && giftWrapPricePkr !== null && giftWrapPricePkr !== undefined) {
+    total += giftWrapPricePkr;
+    lines.splice(lines.length - 1, 1, `Gift packaging: Rs. ${giftWrapPricePkr.toLocaleString("en-PK")}`, `Estimated total: Rs. ${total.toLocaleString("en-PK")}`);
+  }
+  if (gift?.gift) lines.push(...giftOrderLines(gift, giftIncludesCard));
   lines.push("");
   lines.push("Name:");
   lines.push("City:");
@@ -324,6 +336,7 @@ export function buildCartWhatsAppMessage({
     }
     fallbackLines.push("");
     fallbackLines.push(`Estimated total: Rs. ${total.toLocaleString("en-PK")}`);
+    if (gift?.gift) fallbackLines.push(...(giftWrapPricePkr != null ? [`Gift packaging: Rs. ${giftWrapPricePkr.toLocaleString("en-PK")}`] : []), ...giftOrderLines(gift, giftIncludesCard));
     fallbackLines.push("");
     fallbackLines.push("Name:");
     fallbackLines.push("City:");
