@@ -54,7 +54,7 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: pageAlternates(`/journal/${post.slug}`),
+    alternates: pageAlternates(`/journal/${post.slug}`, { types: { "application/rss+xml": `${siteUrl}/journal/rss.xml` } }),
     openGraph: {
       title,
       description,

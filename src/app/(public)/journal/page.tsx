@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: pageAlternates("/journal"),
+    alternates: pageAlternates("/journal", { types: { "application/rss+xml": `${siteUrl}/journal/rss.xml` } }),
     openGraph: {
       title,
       description,
