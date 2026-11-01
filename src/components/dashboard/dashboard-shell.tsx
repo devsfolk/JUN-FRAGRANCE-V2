@@ -9,6 +9,7 @@ const sections = [
   { label: "Overview", href: "/dashboard", ready: true },
   { label: "Categories", href: "/dashboard/categories", ready: true },
   { label: "Products", href: "/dashboard/products", ready: true },
+  { label: "Reviews", href: "/dashboard/reviews", ready: true },
   { label: "Blog", href: "/dashboard/blog", ready: false },
   { label: "SEO", href: "/dashboard/seo", ready: false },
   { label: "Settings", href: "/dashboard/settings", ready: false },
