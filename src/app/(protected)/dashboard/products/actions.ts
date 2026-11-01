@@ -1,9 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { pingIndexNow } from "@/lib/site/indexnow";
+import { scentFamilies, scentOccasions, scentSeasons, scentStrengths } from "@/lib/site/scent-profile";
 
 function isProjectMediaUrl(value: string, folder: "categories" | "products") {
   try {
@@ -23,6 +24,13 @@ const productImageSchema = z.string().url().refine(
   (value) => isProjectMediaUrl(value, "products"),
   "Images must be public jf-media URLs in this project's products folder.",
 );
+const scentProfileSchema = z.object({
+  families: z.array(z.enum(scentFamilies)).max(3),
+  strength: z.enum(scentStrengths).nullable(),
+  occasions: z.array(z.enum(scentOccasions)),
+  seasons: z.array(z.enum(scentSeasons)),
+  heat_ok: z.boolean(),
+}).nullable();
 const productSchema = z.object({
   id: z.string().uuid().optional(),
   title: z.string().trim().min(1).max(180),
@@ -45,6 +53,7 @@ const productSchema = z.object({
   sort_order: z.number().int().min(-100000).max(100000),
   seo_title: z.string().max(120),
   seo_description: z.string().max(300),
+  scent_profile: scentProfileSchema,
 }).refine((item) => item.compare_at_price === null || item.compare_at_price > item.price, { message: "Compare-at price must be higher than price.", path: ["compare_at_price"] });
 const idSchema = z.string().uuid();
 
@@ -79,7 +88,13 @@ export async function saveProduct(input: unknown) {
     if (error) return { ok: false, message: error.message };
     oldImages = existing?.images ?? [];
   }
-  const result = id ? await supabase.from("jf_products").update(row).eq("id", id) : await supabase.from("jf_products").insert(row);
+  let result = id ? await supabase.from("jf_products").update(row).eq("id", id) : await supabase.from("jf_products").insert(row);
+  let profileUnavailable = false;
+  if (result.error && (result.error.code === "42703" || result.error.message.includes("scent_profile"))) {
+    const compatibleRow = Object.fromEntries(Object.entries(row).filter(([key]) => key !== "scent_profile"));
+    result = id ? await supabase.from("jf_products").update(compatibleRow).eq("id", id) : await supabase.from("jf_products").insert(compatibleRow);
+    profileUnavailable = !result.error;
+  }
   if (result.error) return { ok: false, message: result.error.code === "23505" ? "That slug is already in use." : result.error.message };
 
   const removedImages = oldImages.filter((url) => !form.images.includes(url));
@@ -91,12 +106,13 @@ export async function saveProduct(input: unknown) {
       if (error) cleanupFailed = true;
     } catch { cleanupFailed = true; }
   }
-  revalidatePath("/dashboard/products"); revalidatePath("/dashboard");
+  revalidatePath("/dashboard/products"); revalidatePath("/dashboard"); revalidatePath("/perfume-finder");
+  revalidateTag("scent-profiles", "max");
   revalidatePath("/", "layout");
   if (row.is_active) {
     void pingIndexNow([`/shop/${row.slug}`, "/shop"]);
   }
-  const message = cleanupFailed ? "Product saved. Old image cleanup may be incomplete." : id ? "Product updated." : "Product created.";
+  const message = profileUnavailable ? "Product saved. Run the scent profile migration to save its scent profile." : cleanupFailed ? "Product saved. Old image cleanup may be incomplete." : id ? "Product updated." : "Product created.";
   return { ok: true, message };
 }
 
@@ -108,7 +124,13 @@ export async function getProductForEdit(input: unknown) {
   const { supabase } = await requireAdmin();
   const parsed = idSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: "Invalid product." };
-  const { data, error } = await supabase.from("jf_products").select("id,title,slug,category_id,short_description,description,inspired_by,size_ml,price,compare_at_price,gender,accent_color,notes_top,notes_heart,notes_base,images,is_featured,is_active,sort_order,seo_title,seo_description").eq("id", parsed.data).maybeSingle();
+  const fields = "id,title,slug,category_id,short_description,description,inspired_by,size_ml,price,compare_at_price,gender,accent_color,notes_top,notes_heart,notes_base,images,is_featured,is_active,sort_order,seo_title,seo_description";
+  let { data, error } = await supabase.from("jf_products").select(`${fields},scent_profile`).eq("id", parsed.data).maybeSingle();
+  if (error && (error.code === "42703" || error.message.includes("scent_profile"))) {
+    const fallback = await supabase.from("jf_products").select(fields).eq("id", parsed.data).maybeSingle();
+    data = fallback.data ? { ...fallback.data, scent_profile: null } : null;
+    error = fallback.error;
+  }
   if (error || !data) return { ok: false, message: error?.message ?? "Product not found." };
   return { ok: true, product: data };
 }
@@ -134,6 +156,7 @@ export async function deleteProduct(input: unknown) {
     }
   }
   revalidatePath("/dashboard/products"); revalidatePath("/dashboard");
+  revalidateTag("scent-profiles", "max");
   revalidatePath("/", "layout");
   if (product?.is_active && product.slug) {
     void pingIndexNow([`/shop/${product.slug}`, "/shop"]);

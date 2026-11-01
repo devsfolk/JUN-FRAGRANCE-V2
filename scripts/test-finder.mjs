@@ -1,0 +1,28 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { createRequire } from "node:module";
+import { Script } from "node:vm";
+import ts from "typescript";
+
+const source = fs.readFileSync("src/lib/site/finder-scoring.ts", "utf8");
+const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
+const finderExports = {};
+const require = createRequire(import.meta.url);
+new Script(`(function(exports, require) { ${output}\n})`).runInThisContext()(finderExports, require);
+const { scoreFinderProducts } = finderExports;
+const product = (slug, profile, gender = "unisex") => ({ id: slug, title: slug, slug, images: [], inspired_by: null, price: 1999, compare_at_price: null, size_ml: 50, accent_color: null, category_id: null, gender, scent_profile: profile });
+const baseProfile = { families: ["fresh"], strength: "soft", occasions: ["day"], seasons: ["summer"], heat_ok: false };
+const answers = { gender: "men", occasion: "day", city: "Karachi", weather: "hot-dry", sweat: "medium", day: "mixed", styles: ["fresh"], strength: "soft" };
+const strong = product("match", baseProfile, "men");
+const weak = product("weak", { families: ["woody"], strength: "strong", occasions: ["wedding"], seasons: ["winter"], heat_ok: false }, "women");
+assert.equal(scoreFinderProducts([weak, strong], answers)[0].product.slug, "match", "family/strength/occasion/season/gender match ranks first");
+const withoutHeat = scoreFinderProducts([strong], answers)[0].score;
+const withHeat = scoreFinderProducts([product("heat", { ...baseProfile, heat_ok: true }, "men")], answers)[0].score;
+assert.equal(withHeat, withoutHeat + 1, "heat_ok adds a point in hot weather");
+const genderDifference = scoreFinderProducts([product("gender-fit", baseProfile, "men"), product("gender-mismatch", baseProfile, "women")], answers);
+assert.equal(genderDifference[0].score, genderDifference[1].score + 1, "gender fit adds a point");
+assert.equal(scoreFinderProducts([weak], answers).filter((match) => match.score >= 5).length, 0, "low score stays below recommendation threshold");
+console.log("PASS family/strength/occasion/season/gender ranking");
+console.log("PASS hot-weather heat_ok scoring");
+console.log("PASS gender-fit scoring");
+console.log("PASS recommendation threshold");

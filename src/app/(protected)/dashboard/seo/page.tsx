@@ -3,7 +3,7 @@ import { SeoManager, type PageSeoItem, type SeoAuditData } from "./seo-manager";
 
 export const dynamic = "force-dynamic";
 
-const pageKeys = ["home", "shop", "bundle", "custom", "gifts", "about", "contact", "journal", "faq"] as const;
+const pageKeys = ["home", "shop", "bundle", "custom", "gifts", "about", "contact", "journal", "faq", "perfume-finder"] as const;
 
 export default async function SeoDashboardPage() {
   const { supabase } = await requireAdmin();
@@ -23,8 +23,8 @@ export default async function SeoDashboardPage() {
     const found = existingMap.get(key);
     return {
       page_key: key,
-      seo_title: found?.seo_title ?? "",
-      seo_description: found?.seo_description ?? "",
+      seo_title: found?.seo_title ?? (key === "perfume-finder" ? "Perfume Finder for Pakistan's Weather" : ""),
+      seo_description: found?.seo_description ?? (key === "perfume-finder" ? "Explore fragrance styles by your preferences, occasion and Pakistan's weather with Jun.fragrance." : ""),
       og_image_url: found?.og_image_url ?? "",
     };
   });
