@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllActiveSlugs, getAllActiveBlogSlugs, getBundleSettings, getPublicSettings, isFinderEnabled } from "@/lib/site/public-data";
+import { getAllActiveSlugs, getAllActiveBlogSlugs, getBundleSettings, getPublicSettings, isFinderEnabled, parseCustomFragranceSettings } from "@/lib/site/public-data";
 
 export const revalidate = 300;
 
@@ -82,6 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? [{ url: `${siteUrl}/gifts`, lastModified: now, changeFrequency: "monthly", priority: 0.7 }]
       : [];
     const finderEntries: MetadataRoute.Sitemap = finderEnabled ? [{ url: `${siteUrl}/perfume-finder`, lastModified: now, changeFrequency: "monthly", priority: 0.6 }] : [];
+    const customEntries: MetadataRoute.Sitemap = parseCustomFragranceSettings(settings).enabled ? [{ url: `${siteUrl}/custom`, lastModified: now, changeFrequency: "monthly", priority: 0.7 }] : [];
 
     const categoryEntries: MetadataRoute.Sitemap = categories.map((cat) => ({
       url: `${siteUrl}/category/${cat.slug}`,
@@ -106,7 +107,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    return [...staticRoutes, ...bundleEntries, ...giftEntries, ...finderEntries, ...categoryEntries, ...productEntries, ...blogEntries];
+    return [...staticRoutes, ...bundleEntries, ...giftEntries, ...finderEntries, ...customEntries, ...categoryEntries, ...productEntries, ...blogEntries];
   } catch {
     return staticRoutes;
   }

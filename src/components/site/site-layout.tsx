@@ -1,4 +1,4 @@
-import { getPublicSettings, parseSiteLogo, parseLogoShowText, parseBundleSettings, isFinderEnabled } from "@/lib/site/public-data";
+import { getPublicSettings, parseSiteLogo, parseLogoShowText, parseBundleSettings, isFinderEnabled, parseCustomFragranceSettings } from "@/lib/site/public-data";
 import { socialUrl, whatsappNumber as getWhatsappNumber } from "@/lib/site/whatsapp";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
@@ -15,6 +15,7 @@ export async function SiteLayout({ children }: Readonly<{ children: React.ReactN
   const logoShowText = parseLogoShowText(rawSettings.logo_show_text);
   const bundleSettings = parseBundleSettings(rawSettings);
   const finderEnabled = await isFinderEnabled();
+  const customEnabled = parseCustomFragranceSettings(rawSettings).enabled;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
   let countries: IntlCountry[] = [];
   try { countries = rawSettings.intl_countries ? JSON.parse(rawSettings.intl_countries) as IntlCountry[] : []; } catch { countries = []; }
@@ -30,6 +31,7 @@ export async function SiteLayout({ children }: Readonly<{ children: React.ReactN
         bundleEnabled={bundleSettings.enabled}
         giftsEnabled={giftEnabled}
         finderEnabled={finderEnabled}
+        customEnabled={customEnabled}
         logoShowText={logoShowText}
         siteLogo={siteLogo}
         whatsappNumber={number}
@@ -39,6 +41,7 @@ export async function SiteLayout({ children }: Readonly<{ children: React.ReactN
         bundleEnabled={bundleSettings.enabled}
         giftsEnabled={giftEnabled}
         finderEnabled={finderEnabled}
+        customEnabled={customEnabled}
         logoShowText={logoShowText}
         settings={settings}
         siteLogo={siteLogo}

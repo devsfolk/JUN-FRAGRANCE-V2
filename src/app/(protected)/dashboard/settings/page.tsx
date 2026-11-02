@@ -129,6 +129,13 @@ export default async function SettingsPage() {
     return Number.isFinite(n) ? n : fallback;
   };
 
+  const parseCustomNotes = (val: unknown): string[] => {
+    try {
+      const parsed = typeof val === "string" ? JSON.parse(val) : val;
+      return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string" && /^[A-Za-z -]{2,24}$/.test(item)).slice(0, 30) : [];
+    } catch { return []; }
+  };
+
   const initialData: SettingsFormData = {
     whatsapp_number: parseString(settingsMap.whatsapp_number),
     social_instagram: parseString(settingsMap.social_instagram),
@@ -155,6 +162,14 @@ export default async function SettingsPage() {
     gift_wrap_price_pkr: settingsMap.gift_wrap_price_pkr == null || settingsMap.gift_wrap_price_pkr === "" ? null : parseNumber(settingsMap.gift_wrap_price_pkr, 0) || null,
     gift_includes_card: parseBoolean(settingsMap.gift_includes_card),
     gift_includes_bag: parseBoolean(settingsMap.gift_includes_bag),
+    custom_enabled: parseBoolean(settingsMap.custom_enabled),
+    custom_price_from: settingsMap.custom_price_from == null || settingsMap.custom_price_from === "" ? null : parseNumber(settingsMap.custom_price_from, 0) || null,
+    custom_lead_time: parseString(settingsMap.custom_lead_time),
+    custom_return_note: parseString(settingsMap.custom_return_note),
+    custom_bottle_name_enabled: settingsMap.custom_bottle_name_enabled === undefined ? true : parseBoolean(settingsMap.custom_bottle_name_enabled),
+    custom_notes: parseCustomNotes(settingsMap.custom_notes),
+    custom_low_alcohol_enabled: parseBoolean(settingsMap.custom_low_alcohol_enabled),
+    custom_alcohol_free_enabled: parseBoolean(settingsMap.custom_alcohol_free_enabled),
   };
 
   return (
