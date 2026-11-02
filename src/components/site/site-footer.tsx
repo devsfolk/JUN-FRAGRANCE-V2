@@ -14,6 +14,7 @@ export function SiteFooter({
   bundleEnabled = true,
   giftsEnabled = true,
   finderEnabled = false,
+  customEnabled = false,
 }: {
   settings: Record<string, string | undefined>;
   whatsappNumber: string | null;
@@ -22,12 +23,14 @@ export function SiteFooter({
   bundleEnabled?: boolean;
   giftsEnabled?: boolean;
   finderEnabled?: boolean;
+  customEnabled?: boolean;
 }) {
   const links = [
     { label: "Shop", href: "/shop" },
     ...(bundleEnabled ? [{ label: "Bundle", href: "/bundle", isSpecial: true }] : []),
     ...(giftsEnabled ? [{ label: "Gifts", href: "/gifts" }] : []),
     ...(finderEnabled ? [{ label: "Finder", href: "/perfume-finder" }] : []),
+    ...(customEnabled ? [{ label: "Custom", href: "/custom" }] : []),
     { label: "About", href: "/about" },
     { label: "Journal", href: "/journal" },
     { label: "Contact", href: "/contact" },

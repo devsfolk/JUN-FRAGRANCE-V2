@@ -30,6 +30,14 @@ export const settingKeys = [
   "gift_wrap_price_pkr",
   "gift_includes_card",
   "gift_includes_bag",
+  "custom_enabled",
+  "custom_price_from",
+  "custom_lead_time",
+  "custom_return_note",
+  "custom_bottle_name_enabled",
+  "custom_notes",
+  "custom_low_alcohol_enabled",
+  "custom_alcohol_free_enabled",
 ] as const;
 export type SiteSettings = Partial<Record<(typeof settingKeys)[number], string>>;
 
@@ -155,6 +163,38 @@ export function parseBundleSettings(settings: SiteSettings): BundleSettings {
 export async function getBundleSettings(): Promise<BundleSettings> {
   const settings = await getPublicSettings();
   return parseBundleSettings(settings);
+}
+
+export type CustomFragranceSettings = {
+  enabled: boolean;
+  priceFrom: number | null;
+  leadTime: string;
+  returnNote: string;
+  bottleNameEnabled: boolean;
+  notes: string[];
+  lowAlcoholEnabled: boolean;
+  alcoholFreeEnabled: boolean;
+};
+
+function settingBoolean(value: string | undefined, fallback: boolean) {
+  if (value === undefined) return fallback;
+  return value === "true" || value === "1";
+}
+
+export function parseCustomFragranceSettings(settings: SiteSettings): CustomFragranceSettings {
+  const rawPrice = Number(settings.custom_price_from);
+  let notes: unknown = [];
+  try { notes = settings.custom_notes ? JSON.parse(settings.custom_notes) : []; } catch { notes = []; }
+  return {
+    enabled: settingBoolean(settings.custom_enabled, false),
+    priceFrom: Number.isInteger(rawPrice) && rawPrice >= 1 && rawPrice <= 1_000_000 ? rawPrice : null,
+    leadTime: (settings.custom_lead_time ?? "").trim().slice(0, 40),
+    returnNote: (settings.custom_return_note ?? "").trim().slice(0, 200),
+    bottleNameEnabled: settingBoolean(settings.custom_bottle_name_enabled, true),
+    notes: Array.isArray(notes) ? notes.filter((item): item is string => typeof item === "string" && /^[A-Za-z -]{2,24}$/.test(item)).slice(0, 30) : [],
+    lowAlcoholEnabled: settingBoolean(settings.custom_low_alcohol_enabled, false),
+    alcoholFreeEnabled: settingBoolean(settings.custom_alcohol_free_enabled, false),
+  };
 }
 
 export type HomeProduct = {

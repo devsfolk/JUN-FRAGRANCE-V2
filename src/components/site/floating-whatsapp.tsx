@@ -22,7 +22,8 @@ export function FloatingWhatsApp({ whatsappNumber }: { whatsappNumber: string | 
   // Product detail pages (/shop/<slug>) and bundle page (/bundle) have bottom sticky bars
   const isProductPage = pathname?.startsWith("/shop/") && pathname.split("/").filter(Boolean).length === 2;
   const isBundlePage = pathname === "/bundle";
-  const hasBottomBar = isProductPage || isBundlePage;
+  const isCustomPage = pathname === "/custom";
+  const hasBottomBar = isProductPage || isBundlePage || isCustomPage;
 
   const href = whatsappLink(whatsappNumber, "Assalam o Alaikum! I would like to know more about Jun.fragrance.");
   if (!href || !show) return null;

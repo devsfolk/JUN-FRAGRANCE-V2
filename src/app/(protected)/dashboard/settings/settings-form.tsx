@@ -14,6 +14,7 @@ interface SettingsFormProps {
 
 export function SettingsForm({ initialData }: SettingsFormProps) {
   const [data, setData] = useState<SettingsFormData>(initialData);
+  const [customNoteDraft, setCustomNoteDraft] = useState("");
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(null);
 
@@ -554,6 +555,26 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
             <Toggle label="Gift message card included" checked={data.gift_includes_card} onChange={(checked) => setData({ ...data, gift_includes_card: checked })} />
             <Toggle label="Gift bag included" checked={data.gift_includes_bag} onChange={(checked) => setData({ ...data, gift_includes_bag: checked })} />
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="font-serif text-xl font-medium text-slate-900">Custom fragrance</h2>
+        <p className="mt-1 text-xs text-slate-500">Choose which options your team can offer. Requests are sent to WhatsApp.</p>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <Toggle label="Enable custom fragrance requests" checked={data.custom_enabled} onChange={(checked) => setData({ ...data, custom_enabled: checked })} />
+          <Toggle label="Allow a name on the bottle" checked={data.custom_bottle_name_enabled} onChange={(checked) => setData({ ...data, custom_bottle_name_enabled: checked })} />
+          <Input label="Starting price (PKR, optional)" type="number" min={1} max={1000000} value={data.custom_price_from ?? ""} onChange={(e) => setData({ ...data, custom_price_from: e.target.value ? Number(e.target.value) : null })} />
+          <Input label="Usual lead time (optional)" type="text" maxLength={40} placeholder="5 to 7 days" value={data.custom_lead_time} onChange={(e) => setData({ ...data, custom_lead_time: e.target.value })} />
+          <div className="sm:col-span-2"><Input label="Return note (optional)" type="text" maxLength={200} value={data.custom_return_note} onChange={(e) => setData({ ...data, custom_return_note: e.target.value })} /></div>
+          <Toggle label="Offer low alcohol, more oil" checked={data.custom_low_alcohol_enabled} onChange={(checked) => setData({ ...data, custom_low_alcohol_enabled: checked })} />
+          <Toggle label="Offer alcohol-free, oil based" checked={data.custom_alcohol_free_enabled} onChange={(checked) => setData({ ...data, custom_alcohol_free_enabled: checked })} />
+        </div>
+        <div className="mt-6 border-t border-slate-100 pt-5">
+          <h3 className="font-medium text-slate-900">Oils and notes you can offer</h3>
+          <p className="mt-1 text-xs text-slate-500">Up to 30 entries, 2 to 24 letters, spaces or hyphens each.</p>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-end"><div className="w-full sm:max-w-sm"><Input label="Oil or note" maxLength={24} value={customNoteDraft} onChange={(e) => setCustomNoteDraft(e.target.value)} /></div><Button disabled={data.custom_notes.length >= 30 || !/^[A-Za-z -]{2,24}$/.test(customNoteDraft.trim()) || data.custom_notes.includes(customNoteDraft.trim())} onClick={() => { const note = customNoteDraft.trim(); if (/^[A-Za-z -]{2,24}$/.test(note) && !data.custom_notes.includes(note) && data.custom_notes.length < 30) setData({ ...data, custom_notes: [...data.custom_notes, note] }); setCustomNoteDraft(""); }} type="button" variant="secondary">Add note</Button></div>
+          <ul className="mt-3 flex flex-wrap gap-2">{data.custom_notes.map((note) => <li className="inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-300 bg-slate-50 px-3 text-sm" key={note}>{note}<button aria-label={`Remove ${note}`} className="min-h-7 rounded px-2 text-xs text-slate-600 hover:bg-slate-200" onClick={() => setData({ ...data, custom_notes: data.custom_notes.filter((item) => item !== note) })} type="button">Remove</button></li>)}</ul>
         </div>
       </section>
 

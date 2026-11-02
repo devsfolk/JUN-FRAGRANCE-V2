@@ -17,6 +17,7 @@ export function SiteHeader({
   bundleEnabled = true,
   giftsEnabled = true,
   finderEnabled = false,
+  customEnabled = false,
 }: {
   whatsappNumber: string | null;
   siteLogo?: SiteLogo | null;
@@ -24,6 +25,7 @@ export function SiteHeader({
   bundleEnabled?: boolean;
   giftsEnabled?: boolean;
   finderEnabled?: boolean;
+  customEnabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
@@ -34,6 +36,7 @@ export function SiteHeader({
     ...(bundleEnabled ? [{ label: "Bundle", href: "/bundle", isSpecial: true }] : []),
     ...(giftsEnabled ? [{ label: "Gifts", href: "/gifts" }] : []),
     ...(finderEnabled ? [{ label: "Finder", href: "/perfume-finder" }] : []),
+    ...(customEnabled ? [{ label: "Custom", href: "/custom" }] : []),
     { label: "About", href: "/about" },
     { label: "Journal", href: "/journal" },
     { label: "Contact", href: "/contact" },

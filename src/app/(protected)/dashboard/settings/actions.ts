@@ -230,6 +230,14 @@ const settingsSchema = z.object({
   gift_wrap_price_pkr: z.coerce.number().int().min(1).max(1_000_000).nullable().default(null),
   gift_includes_card: z.boolean().default(false),
   gift_includes_bag: z.boolean().default(false),
+  custom_enabled: z.boolean().default(false),
+  custom_price_from: z.number().int().min(1).max(1_000_000).nullable().default(null),
+  custom_lead_time: z.string().trim().max(40).default(""),
+  custom_return_note: z.string().trim().max(200).default(""),
+  custom_bottle_name_enabled: z.boolean().default(true),
+  custom_notes: z.array(z.string().trim().min(2).max(24).regex(/^[A-Za-z -]+$/)).max(30).default([]),
+  custom_low_alcohol_enabled: z.boolean().default(false),
+  custom_alcohol_free_enabled: z.boolean().default(false),
 });
 
 export type SettingsFormData = z.infer<typeof settingsSchema>;
@@ -414,6 +422,14 @@ export async function saveSettings(input: unknown) {
     gift_wrap_price_pkr: data.gift_wrap_price_pkr,
     gift_includes_card: data.gift_includes_card,
     gift_includes_bag: data.gift_includes_bag,
+    custom_enabled: data.custom_enabled,
+    custom_price_from: data.custom_price_from,
+    custom_lead_time: data.custom_lead_time,
+    custom_return_note: data.custom_return_note,
+    custom_bottle_name_enabled: data.custom_bottle_name_enabled,
+    custom_notes: data.custom_notes,
+    custom_low_alcohol_enabled: data.custom_low_alcohol_enabled,
+    custom_alcohol_free_enabled: data.custom_alcohol_free_enabled,
   })) keysToUpsert.push({ key, value });
   if (data.bundle_image && data.bundle_image.url) {
     keysToUpsert.push({
@@ -488,6 +504,7 @@ export async function saveSettings(input: unknown) {
   // Revalidate layout and /bundle so public site updates immediately
   revalidatePath("/", "layout");
   revalidatePath("/bundle");
+  revalidatePath("/custom");
 
   return { ok: true };
 }
