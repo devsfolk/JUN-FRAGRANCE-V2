@@ -160,7 +160,7 @@ export function productJsonLd({
     image: images,
     description,
     brand: {
-      "@type": "Organization",
+      "@type": "Brand",
       name: "Jun.fragrance",
     },
     offers: {
