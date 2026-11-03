@@ -41,13 +41,13 @@ async function processFavicon(file: File) {
   const sy = (bitmap.height - size) / 2;
 
   const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 512;
+  canvas.width = 192;
+  canvas.height = 192;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("This browser could not prepare the favicon.");
 
-  context.clearRect(0, 0, 512, 512);
-  context.drawImage(bitmap, sx, sy, size, size, 0, 0, 512, 512);
+  context.clearRect(0, 0, 192, 192);
+  context.drawImage(bitmap, sx, sy, size, size, 0, 0, 192, 192);
   bitmap.close();
 
   const blob = await new Promise<Blob>((resolve, reject) => {

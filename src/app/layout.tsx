@@ -31,7 +31,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getPublicSettings();
   const favicon = parseSiteFavicon(settings.site_favicon);
-  const iconUrl = favicon?.url || "/fallback-icon.png";
+  const iconUrl = favicon?.url || "/icon-192.png";
   const appleUrl = favicon?.url || "/fallback-apple-icon.png";
 
   const google = settings.google_site_verification?.trim();
@@ -45,9 +45,8 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(siteUrl),
     icons: {
       icon: [
-        { url: iconUrl, sizes: "32x32", type: "image/png" },
+        { url: iconUrl, type: "image/png" },
         { url: iconUrl, sizes: "192x192", type: "image/png" },
-        { url: iconUrl, sizes: "512x512", type: "image/png" },
       ],
       apple: [
         { url: appleUrl, sizes: "180x180", type: "image/png" },
