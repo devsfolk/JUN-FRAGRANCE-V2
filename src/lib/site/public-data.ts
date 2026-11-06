@@ -859,12 +859,12 @@ export async function getPlacementPosts(placement: string, limit = 3): Promise<B
   return all.slice(0, limit);
 }
 
-export async function getAllActiveBlogSlugs(): Promise<Array<{ slug: string; updated_at: string }>> {
+export async function getAllActiveBlogSlugs(): Promise<Array<{ slug: string; published_at: string | null }>> {
   const supabase = publicClient();
   if (!supabase) return [];
   const { data } = await supabase
     .from("jf_blog_posts")
-    .select("slug,updated_at")
+    .select("slug,published_at")
     .eq("status", "published")
     .lte("published_at", new Date().toISOString());
   return data ?? [];

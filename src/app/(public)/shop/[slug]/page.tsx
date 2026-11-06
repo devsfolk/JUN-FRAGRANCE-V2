@@ -94,6 +94,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
+  const genderMatchesCategory = Boolean(
+    product.category &&
+    product.gender &&
+    product.category.name.trim().toLowerCase() === product.gender.trim().toLowerCase()
+  );
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
 
   const [reviews, relatedProducts, rawSettings, bundleSettings] = await Promise.all([
@@ -205,7 +210,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Gender tag & Category */}
             <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider text-mute">
               {product.category ? <span>{product.category.name}</span> : null}
-              {product.gender ? (
+              {product.gender && !genderMatchesCategory ? (
                 <>
                   <span className="text-white/20">•</span>
                   <span className="capitalize">{product.gender}</span>
