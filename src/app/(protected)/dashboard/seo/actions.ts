@@ -23,7 +23,7 @@ function isProjectSeoMediaUrl(value: string) {
   }
 }
 
-const pageKeys = ["home", "shop", "bundle", "custom", "gifts", "about", "contact", "journal", "faq", "perfume-finder"] as const;
+const pageKeys = ["home", "shop", "bundle", "custom", "gifts", "about", "contact", "journal", "faq", "perfume-finder", "delivery"] as const;
 
 const pageSeoItemSchema = z.object({
   page_key: z.enum(pageKeys),

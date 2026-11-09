@@ -10,7 +10,7 @@ The website does not take payments or create customer accounts. You choose your 
 
 ## Prices
 
-All prices are in Pakistani rupees (PKR). A 50 ml perfume costs Rs. 1,999, and any three perfumes together cost Rs. 4,500. We may change prices, but the price confirmed with you on WhatsApp for your order is the price you pay.
+All prices are in Pakistani rupees (PKR). A 50 ml perfume costs Rs. 1,999. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500. The price confirmed with you on WhatsApp for your order is the price you pay.
 
 ## Payment
 

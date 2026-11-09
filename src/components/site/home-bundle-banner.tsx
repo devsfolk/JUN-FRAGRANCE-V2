@@ -58,7 +58,7 @@ export async function HomeBundleBanner() {
                 Create your own trio
               </h2>
               <p className="mt-4 font-serif text-lg text-bone/90 sm:text-xl">
-                Any 3 perfumes for{" "}
+                Any 3 perfumes from the whole collection (men, women or unisex) for{" "}
                 <Price value={bundleSettings.price} className="font-semibold text-gold" />
               </p>
               <p className="mt-3 text-xs sm:text-sm text-mute leading-relaxed max-w-md">

@@ -292,7 +292,7 @@ You are choosing a birthday gift for your brother, and your budget is just under
 
 ## What the budget covers
 
-At Jun.fragrance, each 50 ml perfume costs Rs. 1,999, so one bottle fits within this budget. That is the confirmed single-bottle price; check the product page and current order total before you send your choice. A three-bottle bundle is a separate option priced at Rs. 4,500, so it does not fit a Rs. 2,000 total budget.
+At Jun.fragrance, each 50 ml perfume costs Rs. 1,999, so one bottle fits within this budget. That is the confirmed single-bottle price; check the product page and current order total before you send your choice. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500 on the bundle page.
 
 ## Think about the person first
 
@@ -339,7 +339,7 @@ A: Each Jun.fragrance perfume is Rs. 1,999 for 50 ml. Confirm the full total for
 Q: What is a safe perfume gift when I do not know their taste?
 A: Look at how and when they already wear fragrance, and choose a broad mood instead of a very distinctive guess.
 Q: Does a three-perfume bundle fit a Rs. 2,000 budget?
-A: No. The bundle total is Rs. 4,500, so it is a separate option for a larger budget.
+A: No. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500 on the bundle page.
 === END ===
 
 === POST ===
@@ -670,7 +670,7 @@ You can include different categories if you are buying for more than one person.
 
 ## Check the total and send your selection
 
-The bundle page lists any three perfumes for Rs. 4,500. Use the [bundle page](/bundle) to select the products and review the order before sending it on WhatsApp. Check each bottle name and the final total. If you are ordering as a gift, keep the recipient's preferences in mind while selecting all three.
+The bundle page lists any 3 perfumes from the whole collection (men, women or unisex) for Rs. 4,500. Use the [bundle page](/bundle) to select the products and review the order before sending it on WhatsApp. Check each bottle name and the final total. If you are ordering as a gift, keep the recipient's preferences in mind while selecting all three.
 
 ## Who this plan is not for
 
@@ -681,5 +681,5 @@ A: Choose options for moments you actually have, such as daily wear, evenings an
 Q: Do all three perfumes need to smell very different?
 A: No. Pick the balance that suits your preference and routine.
 Q: How much does the three-perfume bundle cost?
-A: Any three perfumes cost Rs. 4,500 on the bundle page.
+A: Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500 on the bundle page.
 === END ===

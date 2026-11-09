@@ -2,7 +2,7 @@
 
 Jun.fragrance is a perfume brand from Karachi, Pakistan, started in 2026. We are a small, independent business and we are not connected to any famous perfume house.
 
-The setup is simple on purpose. Every perfume comes in a 50 ml bottle and costs Rs. 1,999. Pick any three and the price is Rs. 4,500. You order on WhatsApp, talk to us directly, and get your questions answered before you pay.
+The setup is simple on purpose. Every perfume comes in a 50 ml bottle and costs Rs. 1,999. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500. You order on WhatsApp.
 
 ## What we sell
 

@@ -10,7 +10,7 @@ Rules for everything below: use only real facts, never say "original" or "authen
 
 ### Business description (max 750 characters)
 
-Jun.fragrance is an independent perfume brand from Karachi, started in 2026. We sell 50 ml perfumes for men, women and unisex at Rs. 1,999 each, or any three for Rs. 4,500. Orders are taken on WhatsApp at +92 305 1856667, and you can message us at any time. We deliver across Pakistan in 3 to 5 days, with free delivery in Karachi. Pay by cash on delivery or online. We have a 7-day return policy, and exchanges are available. Our scents are made in familiar styles and are not originals from other brands. Browse the range at junfragrance.com.
+Jun.fragrance sells 50 ml perfumes for men, women and unisex at Rs. 1,999 each. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500. Orders are placed on WhatsApp. Browse the range at junfragrance.com.
 
 ### Suggested categories
 
@@ -33,7 +33,7 @@ These items need an address: creating the profile, verification (Google may ask 
 1. **Men's perfumes**: 50 ml perfumes for men, from clean daily scents to warm evening ones. Rs. 1,999 each.
 2. **Women's perfumes**: 50 ml perfumes for women, from soft floral to bright and modern. Rs. 1,999 each.
 3. **Unisex perfumes**: 50 ml perfumes anyone can wear, from cool and watery to warm and spicy. Rs. 1,999 each.
-4. **3-perfume bundle**: Choose any three perfumes for Rs. 4,500. Build your bundle on our website.
+4. **3-perfume bundle**: Choose any 3 perfumes from the whole collection (men, women or unisex) for Rs. 4,500. Build your bundle on our website.
 5. **Order on WhatsApp**: Pick your perfume on our website and send your order on WhatsApp. Message us any time at +92 305 1856667.
 6. **Delivery across Pakistan**: Delivery takes 3 to 5 days. Free in Karachi, Rs. 200 to Rs. 250 outside Karachi.
 7. **Cash on delivery and online payment**: Pay when your parcel arrives, or pay online. We share account details on WhatsApp.
@@ -43,7 +43,7 @@ These items need an address: creating the profile, verification (Google may ask 
 
 Welcome to Jun.fragrance, a perfume brand from Karachi.
 
-Every perfume in our range is a 50 ml bottle at Rs. 1,999, and any three cost Rs. 4,500. You can choose men's, women's or unisex scents, then order on WhatsApp. We deliver across Pakistan in 3 to 5 days, and delivery is free in Karachi.
+Every perfume in our range is a 50 ml bottle at Rs. 1,999. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500. Order on WhatsApp.
 
 Not sure what to choose? Message us on WhatsApp at +92 305 1856667 and tell us where you will wear it. Browse the range at junfragrance.com.
 
@@ -65,7 +65,7 @@ Delivery all over Pakistan
 Option 2:
 ```
 Apni khushbu chuno | 50 ml, Rs. 1,999 each
-Any 3 for Rs. 4,500 | COD available
+Any 3 perfumes from the whole collection (men, women or unisex) for Rs. 4,500
 WhatsApp: +92 305 1856667
 ```
 
@@ -92,13 +92,13 @@ Khushbu jo yaad rahe | 50 ml | Delivery all Pakistan
 
 Option 3:
 ```
-Men, women, unisex perfumes | 3 for Rs. 4,500
+Men, women, unisex perfumes | any 3 perfumes from the whole collection for Rs. 4,500
 ```
 
 ### 10 caption ideas
 
 1. Rs. 1,999 mein 50 ml khushbu. Order WhatsApp par: +92 305 1856667.
-2. Teen perfumes, Rs. 4,500. Apni pasand ke teen chuno.
+2. Whole collection se any 3 perfumes, Rs. 4,500. Apni pasand ke teen chuno.
 3. Garmi mein halki aur fresh khushbu chuno. Deep Sea ya Arctic Frost dekhein.
 4. Office ke liye saaf aur simple khushbu: Office Rizz. Rs. 1,999.
 5. Perfume lagane ka sahi tareeka: shower ke baad, neck aur chest par 2 se 4 sprays.

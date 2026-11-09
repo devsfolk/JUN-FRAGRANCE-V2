@@ -30,11 +30,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const title =
     pageSeo?.seo_title?.trim() ||
-    `Build Your Own 3 Perfume Bundle, Rs. ${formattedPrice}`;
+    `Any 3 Perfumes, Whole Collection, Rs. ${formattedPrice}`;
 
   const description =
     pageSeo?.seo_description?.trim() ||
-    `Choose any 3 perfumes across Pakistan for Rs. ${formattedPrice} and order instantly via WhatsApp with Jun.fragrance.`;
+    `Choose any 3 perfumes from the whole collection (men, women or unisex) for Rs. ${formattedPrice} and order on WhatsApp.`;
 
   const ogImage = pageSeo?.og_image_url?.trim() || defaultPoster;
 
@@ -85,8 +85,8 @@ export default async function BundlePage() {
   const bundleProductJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: "Any 3 perfumes bundle",
-    description: `Pick any 3 perfumes for Rs. ${bundleSettings.price.toLocaleString("en-PK")}. Crafted in Pakistan, ordered through WhatsApp.`,
+    name: "Any 3 perfumes from the whole collection",
+    description: `Pick any 3 perfumes from the whole collection (men, women or unisex) for Rs. ${bundleSettings.price.toLocaleString("en-PK")}.`,
     image: absolutePosterUrl,
     offers: {
       "@type": "Offer",
@@ -133,7 +133,7 @@ export default async function BundlePage() {
                 Build your own trio
               </h1>
               <p className="mt-3 text-base text-bone/90 sm:text-lg">
-                Any 3 perfumes for{" "}
+                Any 3 perfumes from the whole collection (men, women or unisex) for{" "}
                 <Price value={bundleSettings.price} className="font-semibold text-gold" />
               </p>
 

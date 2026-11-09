@@ -43,7 +43,7 @@ export function bundleWhatsAppMessage(
     ...giftOrderLines(gift.details, gift.includesCard),
   ] : [];
   const contactLines = giftActive ? giftLines : ["Name:", "City:", "Address:"];
-  return `Assalam o Alaikum! I would like to order a bundle:\n\nBundle: any 3 perfumes - Rs. ${formattedPrice}\n${lines}\n\n${contactLines.join("\n")}`;
+  return `Assalam o Alaikum! I would like to order a bundle:\n\nBundle: any 3 perfumes from the whole collection (men, women or unisex) - Rs. ${formattedPrice}\n${lines}\n\n${contactLines.join("\n")}`;
 }
 
 import { giftOrderLines, type GiftOrderDetails } from "./intl-order-message";

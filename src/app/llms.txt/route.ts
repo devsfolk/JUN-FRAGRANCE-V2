@@ -4,7 +4,7 @@ export async function GET() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
   const body = `# Jun.fragrance
 
-Jun.fragrance is an independent Pakistani perfume brand offering 50 ml perfumes in scent styles inspired by well-known fragrances; these are not the original perfumes and Jun.fragrance is not affiliated with those brands. Each perfume is Rs. 1,999, and any three are Rs. 4,500 on the bundle page. Orders are placed through WhatsApp.
+Jun.fragrance is an independent Pakistani perfume brand offering 50 ml perfumes in scent styles inspired by well-known fragrances; these are not the original perfumes and Jun.fragrance is not affiliated with those brands. Each perfume is Rs. 1,999. Any three perfumes from the whole collection, men, women or unisex, are Rs. 4,500 on the bundle page. Orders are placed through WhatsApp.
 
 ## Key pages
 - Shop: ${siteUrl}/shop

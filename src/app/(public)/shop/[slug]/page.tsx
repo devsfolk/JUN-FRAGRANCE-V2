@@ -14,7 +14,6 @@ import {
   getRelatedProducts,
   getAllActiveSlugs,
   getPublicSettings,
-  getBundleSettings,
 } from "@/lib/site/public-data";
 import {
   whatsappNumber as extractWhatsappNumber,
@@ -101,11 +100,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
   );
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
 
-  const [reviews, relatedProducts, rawSettings, bundleSettings] = await Promise.all([
+  const [reviews, relatedProducts, rawSettings] = await Promise.all([
     getProductReviews(product.id),
     getRelatedProducts(product.category_id, product.id, 4),
     getPublicSettings(),
-    getBundleSettings(),
   ]);
 
   const number = extractWhatsappNumber(rawSettings);
@@ -255,18 +253,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
               ) : null}
             </div>
 
-            {/* Bundle Promotion Line */}
-            {bundleSettings.enabled ? (
-              <p className="mt-2 text-xs text-bone/85 sm:text-sm">
-                Buy any 3 for <Price value={bundleSettings.price} className="font-semibold text-gold" /> -{" "}
-                <Link
-                  href="/bundle"
-                  className="font-medium text-gold underline underline-offset-4 hover:text-white"
-                >
-                  Build your bundle
-                </Link>
-              </p>
-            ) : null}
+            <p className="mt-2 text-xs leading-relaxed text-mute">
+              {product.title} perfume price in Pakistan: Rs. {new Intl.NumberFormat("en-PK", { maximumFractionDigits: 0 }).format(product.price)} for {product.size_ml} ml. Delivery: free in Karachi, Rs. 200 to 250 to other cities, usually 3 to 5 days.{" "}
+              <Link href="/delivery" className="text-gold underline underline-offset-4 hover:text-white">Delivery details</Link>
+            </p>
 
             {/* Product Order Controls: Quantity Stepper, Order now (green), and Add to cart (outlined) */}
             <ProductOrderControls

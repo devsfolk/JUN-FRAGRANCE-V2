@@ -388,7 +388,7 @@ export function CartDrawer({
             {/* Bundle Note when 2 or more items */}
             {bundleEnabled && cart.reduce((sum, item) => sum + item.qty, 0) >= 2 ? (
               <div className="mb-3 rounded-xl border border-gold/30 bg-gold/10 p-2.5 text-center text-xs text-bone">
-                <span>Any 3 perfumes are <Price value={bundlePrice} className="font-semibold text-gold" /> as a bundle. </span>
+                <span>Any 3 perfumes from the whole collection (men, women or unisex) are <Price value={bundlePrice} className="font-semibold text-gold" /> as a bundle. </span>
                 <Link
                   href="/bundle"
                   onClick={close}

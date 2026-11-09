@@ -40,7 +40,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="mb-2 font-serif text-xl font-medium text-bone">3. Prices</h2>
-            <p className="mt-3">All prices are in Pakistani rupees (PKR). A 50 ml perfume costs Rs. 1,999, and any three perfumes together cost Rs. 4,500. We may change prices, but the price confirmed with you on WhatsApp for your order is the price you pay.</p>
+            <p className="mt-3">All prices are in Pakistani rupees (PKR). A 50 ml perfume costs Rs. 1,999. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500. The price confirmed with you on WhatsApp for your order is the price you pay.</p>
           </section>
 
           <section>

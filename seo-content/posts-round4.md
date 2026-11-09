@@ -37,7 +37,7 @@ When possible, test one perfume at a time and give it room to develop. A rushed 
 
 ## Price and expectations
 
-Price can help you decide whether a product fits your budget, but it does not prove that two perfumes use the same formula or materials. Compare the actual offer and bottle size rather than using one product as a benchmark for another. Jun.fragrance lists its perfumes at Rs. 1,999 for 50 ml, with any three available for Rs. 4,500 through the [bundle page](/bundle). Orders are placed on WhatsApp.
+Price can help you decide whether a product fits your budget, but it does not prove that two perfumes use the same formula or materials. Compare the actual offer and bottle size rather than using one product as a benchmark for another. Jun.fragrance lists its perfumes at Rs. 1,999 for 50 ml. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500 through the [bundle page](/bundle). Orders are placed on WhatsApp.
 
 The useful question is whether the product’s own information, price and ordering terms work for you. A lower price does not make a separate perfume the same as another maker’s product, and a similar scent direction does not guarantee a matching result.
 
@@ -75,7 +75,7 @@ The distinction is not an insult to either product. Different makers can create 
 
 Price is one practical difference a buyer can compare directly. A bottle’s price and size should be clear before ordering. Other details are not always comparable from a product page: the seller may not know another maker’s formula, production choices or sourcing. Do not treat a lower price as proof that the products are interchangeable, and do not assume a higher price alone means a better personal fit.
 
-For Jun.fragrance, each perfume is 50 ml and Rs. 1,999; any three are Rs. 4,500 through the [bundle page](/bundle). Those are the listed prices, not a claim that the products equal another perfume. Orders are placed through WhatsApp, and the site does not process online payments.
+For Jun.fragrance, each perfume is 50 ml and Rs. 1,999. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500 through the [bundle page](/bundle). Those are the listed prices, not a claim that the products equal another perfume. Orders are placed through WhatsApp, and the site does not process online payments.
 
 ## What you can and cannot expect
 
@@ -125,7 +125,7 @@ You are looking for a birthday gift and have set a firm limit of Rs. 2,000. That
 
 The phrase is a budget filter, not a quality grade. Check whether the amount refers to one bottle, whether the size is stated and whether delivery is included. A low displayed price can look different after delivery or other charges, so ask for the total before confirming. Compare like with like: bottle size and ordering terms should be clear on both pages.
 
-Jun.fragrance lists each perfume at Rs. 1,999 for 50 ml. Any three perfumes cost Rs. 4,500 through the [bundle page](/bundle). Orders are sent through WhatsApp, where payment and delivery details are confirmed. This gives you a concrete price to compare against your budget, without making a claim that every product under the limit has the same profile.
+Jun.fragrance lists each perfume at Rs. 1,999 for 50 ml. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500 through the [bundle page](/bundle). Orders are sent through WhatsApp, where payment and delivery details are confirmed. This gives you a concrete price to compare against your budget, without making a claim that every product under the limit has the same profile.
 
 ## Read the notes instead of guessing
 
@@ -197,7 +197,7 @@ If your plans include a wedding hall or a dinner after work, test the perfume on
 
 Jun.fragrance orders are placed through WhatsApp. Delivery is free in Karachi. The confirmed delivery window across Pakistan is 3 to 5 days, with deliveries between 12 PM and 9 PM. Share your area in the chat and confirm the likely delivery day and time range before arranging a gift or an event. Do not assume a same-day arrival unless the seller confirms it.
 
-Each perfume is 50 ml and Rs. 1,999. Any three are Rs. 4,500 on the [bundle page](/bundle). Cash on delivery and online payment are both possible; account details for an online payment are sent in the WhatsApp chat. The site itself does not take online payments.
+Each perfume is 50 ml and Rs. 1,999. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500 on the [bundle page](/bundle). Cash on delivery and online payment are both possible; account details for an online payment are sent in the WhatsApp chat. The site itself does not take online payments.
 
 ## A Karachi routine that stays manageable
 
@@ -257,7 +257,7 @@ After time outdoors, wash and dry before applying more perfume. Adding a new lay
 
 Orders are placed by WhatsApp. Delivery to Lahore is within the confirmed 3 to 5 day window across Pakistan, and delivery charges outside Karachi are Rs. 200 to 250. Deliveries take place between 12 PM and 9 PM. Share the event date and address in the chat, then confirm what is possible before you rely on a delivery for a wedding.
 
-Each 50 ml perfume is Rs. 1,999; any three are Rs. 4,500 on the [bundle page](/bundle). Cash on delivery and online payment are possible, with account details provided in the WhatsApp conversation. The site does not take payment directly.
+Each 50 ml perfume is Rs. 1,999. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500 on the [bundle page](/bundle). Cash on delivery and online payment are possible, with account details provided in the WhatsApp conversation. The site does not take payment directly.
 
 ## Who this advice may not suit
 
@@ -313,7 +313,7 @@ Keep a small record of the setting rather than rating a perfume in the abstract.
 
 Orders are placed through WhatsApp. Delivery outside Karachi is Rs. 200 to 250, and the confirmed delivery window across Pakistan is 3 to 5 days. Deliveries take place between 12 PM and 9 PM. Share your city and full address in the chat and confirm the expected timing before ordering for a particular work event or gift.
 
-Each perfume is 50 ml and Rs. 1,999. Any three cost Rs. 4,500 through the bundle option. Cash on delivery and online payment are possible; online payment account details are shared in the WhatsApp chat. The website itself does not take payment.
+Each perfume is 50 ml and Rs. 1,999. Any 3 perfumes from the whole collection (men, women or unisex) are Rs. 4,500 through the bundle option. Cash on delivery and online payment are possible; online payment account details are shared in the WhatsApp chat. The website itself does not take payment.
 
 ## Who this advice may not suit
 
@@ -367,7 +367,7 @@ If you are comparing office options, [Office Rizz](/shop/office-rizz) lists Citr
 
 If heat makes you wonder why a perfume feels different later in the day, see the published guide on [making perfume last longer in Pakistan’s summer](/journal/make-perfume-last-longer-pakistan-summer). It explains how to think about application, storage and everyday conditions without promising an exact result. You can also browse the [bundle page](/bundle) if you have several distinct occasions in mind; buying more is useful only when the selection suits your actual plans.
 
-The store lists each perfume at Rs. 1,999 for 50 ml, and any three at Rs. 4,500. Orders are placed through WhatsApp. Delivery is free in Karachi and Rs. 200 to 250 elsewhere, with a 3 to 5 day delivery window and deliveries between 12 PM and 9 PM. Confirm your address, delivery charge and timing in the chat before planning around an event.
+The store lists each perfume at Rs. 1,999 for 50 ml. Orders are placed through WhatsApp. Delivery is free in Karachi and Rs. 200 to 250 elsewhere, with a 3 to 5 day delivery window and deliveries between 12 PM and 9 PM. Confirm your address, delivery charge and timing in the chat before planning around an event.
 
 ## Who this hub may not suit
 
