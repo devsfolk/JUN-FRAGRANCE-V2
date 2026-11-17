@@ -27,6 +27,7 @@ export function SiteFooter({
 }) {
   const links = [
     { label: "Shop", href: "/shop" },
+    { label: "Price list", href: "/perfume-price-list" },
     { label: "Delivery", href: "/delivery" },
     ...(bundleEnabled ? [{ label: "Bundle", href: "/bundle", isSpecial: true }] : []),
     ...(giftsEnabled ? [{ label: "Gifts", href: "/gifts" }] : []),

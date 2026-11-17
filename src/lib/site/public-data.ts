@@ -521,6 +521,49 @@ const loadAllShopProducts = unstable_cache(
  
 export const getAllShopProducts = () => loadAllShopProducts();
 
+export type PriceListProduct = {
+  id: string;
+  title: string;
+  slug: string;
+  gender: "men" | "women" | "unisex" | null;
+  notes_top: string[];
+  notes_heart: string[];
+  notes_base: string[];
+  size_ml: number;
+  price: number;
+};
+
+const loadPriceListProducts = unstable_cache(
+  async (): Promise<PriceListProduct[]> => {
+    const supabase = publicClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("jf_products")
+      .select("id,title,slug,gender,notes_top,notes_heart,notes_base,size_ml,price")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    if (error || !data) return [];
+    return data.map((item) => ({
+      id: item.id,
+      title: item.title,
+      slug: item.slug,
+      gender: item.gender === "men" || item.gender === "women" || item.gender === "unisex" ? item.gender : null,
+      notes_top: Array.isArray(item.notes_top) ? item.notes_top : [],
+      notes_heart: Array.isArray(item.notes_heart) ? item.notes_heart : [],
+      notes_base: Array.isArray(item.notes_base) ? item.notes_base : [],
+      size_ml: Number(item.size_ml) || 0,
+      price: Number(item.price) || 0,
+    }));
+  },
+  ["jf-price-list-products-v1"],
+  { revalidate: 60, tags: ["shop-products"] }
+);
+
+export const getPriceListProducts = () => loadPriceListProducts();
+
 export type FinderProduct = ShopProduct & { gender: "men" | "women" | "unisex" | null; scent_profile: ScentProfile };
 const loadFinderProducts = unstable_cache(async (): Promise<FinderProduct[]> => {
   const supabase = publicClient();

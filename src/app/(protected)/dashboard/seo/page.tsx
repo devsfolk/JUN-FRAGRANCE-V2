@@ -3,7 +3,7 @@ import { SeoManager, type PageSeoItem, type SeoAuditData } from "./seo-manager";
 
 export const dynamic = "force-dynamic";
 
-const pageKeys = ["home", "shop", "bundle", "custom", "gifts", "about", "contact", "journal", "faq", "perfume-finder", "delivery"] as const;
+const pageKeys = ["home", "shop", "bundle", "custom", "gifts", "about", "contact", "journal", "faq", "perfume-finder", "delivery", "price-list"] as const;
 
 export default async function SeoDashboardPage() {
   const { supabase } = await requireAdmin();
@@ -23,8 +23,8 @@ export default async function SeoDashboardPage() {
     const found = existingMap.get(key);
     return {
       page_key: key,
-      seo_title: found?.seo_title ?? (key === "perfume-finder" ? "Perfume Finder for Pakistan's Weather" : key === "delivery" ? "Perfume Delivery Across Pakistan" : ""),
-      seo_description: found?.seo_description ?? (key === "perfume-finder" ? "Explore fragrance styles by your preferences, occasion and Pakistan's weather with Jun.fragrance." : key === "delivery" ? "See delivery charges, timing and ordering details for perfume delivery across Pakistan." : ""),
+      seo_title: found?.seo_title ?? (key === "perfume-finder" ? "Perfume Finder for Pakistan's Weather" : key === "delivery" ? "Perfume Delivery Across Pakistan" : key === "price-list" ? "Perfume Price List in Pakistan, 50 ml" : ""),
+      seo_description: found?.seo_description ?? (key === "perfume-finder" ? "Explore fragrance styles by your preferences, occasion and Pakistan's weather with Jun.fragrance." : key === "delivery" ? "See delivery charges, timing and ordering details for perfume delivery across Pakistan." : key === "price-list" ? "Perfume prices in Pakistan: Rs. 1,999 for 50 ml. Browse the full list and order on WhatsApp." : ""),
       og_image_url: found?.og_image_url ?? "",
     };
   });

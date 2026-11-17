@@ -90,6 +90,9 @@ export default async function JournalPostPage({ params }: JournalPostPageProps) 
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://junfragrance.com";
+  const coverImageUrl = post.cover_image_url
+    ? new URL(post.cover_image_url, siteUrl).toString()
+    : null;
   const allPosts = await getPublishedBlogPosts();
   const relatedPosts = allPosts.filter((p) => p.slug !== post.slug).slice(0, 3);
 
@@ -110,7 +113,7 @@ export default async function JournalPostPage({ params }: JournalPostPageProps) 
 
   const articleLd = articleJsonLd({
     headline: post.title,
-    image: post.cover_image_url,
+    image: coverImageUrl,
     datePublished: post.published_at || post.created_at,
     dateModified: post.updated_at,
     url: `${siteUrl}/journal/${post.slug}`,
@@ -165,10 +168,11 @@ export default async function JournalPostPage({ params }: JournalPostPageProps) 
               <Image
                 src={post.cover_image_url}
                 alt={post.title}
-                fill
-                priority
+                width={1200}
+                height={675}
+                loading="eager"
                 sizes="(max-width: 1024px) 100vw, 896px"
-                className="object-cover"
+                className="h-full w-full object-cover"
               />
             </div>
           </div>
@@ -198,12 +202,12 @@ export default async function JournalPostPage({ params }: JournalPostPageProps) 
                     key={i}
                     className="rounded-xl border border-white/10 bg-ink-2/60 p-5"
                   >
-                    <dt className="font-serif text-lg font-medium text-bone">
+                    <h3 className="font-serif text-lg font-medium text-bone">
                       {f.question}
-                    </dt>
-                    <dd className="mt-2 text-sm leading-relaxed text-mute">
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-mute">
                       {f.answer}
-                    </dd>
+                    </p>
                   </div>
                 ))}
               </dl>
@@ -235,9 +239,11 @@ export default async function JournalPostPage({ params }: JournalPostPageProps) 
                         <Image
                           src={rel.cover_image_url}
                           alt={rel.title}
-                          fill
+                          width={1200}
+                          height={750}
+                          loading="lazy"
                           sizes="(max-width: 768px) 100vw, 33vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
                     ) : null}
