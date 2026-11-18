@@ -42,7 +42,7 @@ export function ProductGallery({
   return (
     <div className="flex flex-col gap-4">
       {/* Main Image Frame (4:5 aspect, rounded, soft accent glow behind, no cutout) */}
-      <div className="relative aspect-[4/5] w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-white/10 bg-ink-2">
+      <div className="ratio-4-5-fallback relative aspect-[4/5] w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-white/10 bg-ink-2">
         {/* Soft accent glow behind image */}
         <div
           aria-hidden="true"
@@ -117,7 +117,7 @@ export function ProductGallery({
                 key={src + i}
                 type="button"
                 onClick={() => setActiveIndex(i)}
-                className={`relative aspect-[4/5] w-20 overflow-hidden rounded-xl border transition-all ${
+                className={`ratio-4-5-fallback relative aspect-[4/5] w-20 overflow-hidden rounded-xl border transition-all ${
                   isCurrent
                     ? "border-gold ring-1 ring-gold"
                     : "border-white/10 opacity-70 hover:opacity-100"

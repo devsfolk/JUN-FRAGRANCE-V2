@@ -208,7 +208,7 @@ export function CartDrawer({
         aria-modal="true"
         aria-label="Your Fragrance Cart"
         tabIndex={-1}
-        className="relative z-10 flex h-full w-full flex-col border-white/10 bg-ink-2 shadow-2xl transition-transform duration-300 ease-out outline-none motion-reduce:transition-none max-md:max-h-[85svh] max-md:mt-auto max-md:rounded-t-3xl max-md:border-t md:w-[420px] md:border-l"
+        className="cart-drawer-height relative z-10 flex h-full w-full flex-col border-white/10 bg-ink-2 shadow-2xl transition-transform duration-300 ease-out outline-none motion-reduce:transition-none max-md:max-h-[85svh] max-md:mt-auto max-md:rounded-t-3xl max-md:border-t md:w-[420px] md:border-l"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 sm:px-6">

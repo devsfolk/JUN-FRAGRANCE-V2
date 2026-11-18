@@ -382,7 +382,7 @@ export function BundlePicker({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search perfumes by name..."
-                className="w-full rounded-full border border-white/15 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder-mute outline-none transition focus:border-gold/60 focus:bg-white/10"
+                className="min-h-11 w-full rounded-full border border-white/15 bg-white/5 py-2.5 pl-10 pr-4 text-sm text-white placeholder-mute outline-none transition focus:border-gold/60 focus:bg-white/10"
               />
               {searchQuery ? (
                 <button
@@ -415,7 +415,7 @@ export function BundlePicker({
                     type="button"
                     onClick={() => setGenderFilter(chip.id)}
                     aria-pressed={active}
-                    className={`min-h-[40px] rounded-full px-4 text-xs font-semibold tracking-wide transition-all motion-reduce:transition-none ${
+                    className={`min-h-11 min-w-11 rounded-full px-4 text-xs font-semibold tracking-wide transition-all motion-reduce:transition-none ${
                       active
                         ? "bg-gold text-ink shadow-md"
                         : "border border-white/15 bg-white/5 text-mute hover:border-gold/40 hover:text-white"
@@ -431,7 +431,7 @@ export function BundlePicker({
                 type="button"
                 onClick={handleSurpriseMe}
                 disabled={isComplete}
-                className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3.5 text-xs font-semibold text-gold transition-colors hover:bg-gold/20 disabled:cursor-not-allowed disabled:opacity-40 motion-reduce:transition-none"
+                className="inline-flex min-h-11 min-w-11 items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3.5 text-xs font-semibold text-gold transition-colors hover:bg-gold/20 disabled:cursor-not-allowed disabled:opacity-40 motion-reduce:transition-none"
                 aria-label="Surprise me: fill remaining slots with random perfumes"
               >
                 <svg aria-hidden="true" className="h-3.5 w-3.5 fill-current" viewBox="0 0 20 20">
@@ -494,7 +494,7 @@ export function BundlePicker({
                   >
                     <div>
                       {/* Photo 4:5 */}
-                      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-ink/60">
+                      <div className="ratio-4-5-fallback relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-ink/60">
                         {product.image ? (
                           <Image
                             src={product.image}
@@ -656,13 +656,13 @@ export function BundlePicker({
                     ref={(el) => {
                       desktopSlotRefs.current[slotIdx] = el;
                     }}
-                    className={`relative aspect-[140/300] w-full [container-type:inline-size] rounded-[35px] [border-radius:25cqw] transition-transform duration-400 ease-out motion-reduce:transition-none ${
+                    className={`ratio-140-300-fallback relative aspect-[140/300] w-full [container-type:inline-size] rounded-[35px] [border-radius:25cqw] transition-transform duration-400 ease-out motion-reduce:transition-none ${
                       isComplete ? "-translate-y-1" : "translate-y-0"
                     }`}
                   >
                     {prod ? (
                       <div
-                        className="relative h-full w-full overflow-hidden rounded-[35px] [border-radius:25cqw] border border-[#75552D]"
+                        className="bottle-cqw-radius relative h-full w-full overflow-hidden rounded-[35px] [border-radius:25cqw] border border-[#75552D]"
                         style={{
                           boxShadow: `0 0 16px ${
                             prod.accent_color ? prod.accent_color + "66" : "rgba(201,165,107,0.4)"
@@ -803,13 +803,13 @@ export function BundlePicker({
                     ref={(el) => {
                       mobileSlotRefs.current[slotIdx] = el;
                     }}
-                    className={`relative aspect-[140/200] w-14 sm:w-16 max-w-[84px] shrink-0 [container-type:inline-size] rounded-[21px] [border-radius:25cqw] transition-transform duration-400 ease-out motion-reduce:transition-none ${
+                    className={`ratio-140-200-fallback relative aspect-[140/200] w-14 sm:w-16 max-w-[84px] shrink-0 [container-type:inline-size] rounded-[21px] [border-radius:25cqw] transition-transform duration-400 ease-out motion-reduce:transition-none ${
                       isComplete ? "-translate-y-1" : "translate-y-0"
                     }`}
                   >
                     {prod ? (
                       <div
-                        className="relative h-full w-full overflow-hidden rounded-[21px] [border-radius:25cqw] border border-[#75552D]"
+                        className="bottle-cqw-radius relative h-full w-full overflow-hidden rounded-[21px] [border-radius:25cqw] border border-[#75552D]"
                         style={{
                           boxShadow: `0 0 12px ${
                             prod.accent_color ? prod.accent_color + "66" : "rgba(201,165,107,0.4)"

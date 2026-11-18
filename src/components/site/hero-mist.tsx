@@ -317,10 +317,12 @@ export default function HeroMist({ onFirstFrame, onContextLost, accentColor }: H
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
 
-    const observer = new IntersectionObserver(([entry]) => {
-      isIntersecting = entry.isIntersecting;
-    });
-    observer.observe(targetEl);
+    const observer = typeof IntersectionObserver !== "undefined"
+      ? new IntersectionObserver(([entry]) => {
+          isIntersecting = entry.isIntersecting;
+        })
+      : null;
+    observer?.observe(targetEl);
 
     const loop = (currentTime: number) => {
       animationFrameId = requestAnimationFrame(loop);
@@ -374,7 +376,7 @@ export default function HeroMist({ onFirstFrame, onContextLost, accentColor }: H
     return () => {
       cancelAnimationFrame(animationFrameId);
       document.removeEventListener("visibilitychange", onVisibilityChange);
-      observer.disconnect();
+      observer?.disconnect();
       window.removeEventListener("resize", resize);
       canvas.removeEventListener("webglcontextlost", handleContextLost);
       targetEl.removeEventListener("pointermove", onPointerMove as EventListener);

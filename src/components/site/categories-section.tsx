@@ -36,7 +36,7 @@ export async function CategoriesSection() {
               <Link
                 key={category.slug}
                 href={`/category/${category.slug}`}
-                className="group relative flex aspect-[3/4] w-full flex-col justify-end overflow-hidden rounded-xl border border-white/10 p-2 pb-3 transition-colors hover:border-gold/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold md:rounded-2xl md:p-5"
+                className="ratio-3-4-fallback group relative flex aspect-[3/4] w-full flex-col justify-end overflow-hidden rounded-xl border border-white/10 p-2 pb-3 transition-colors hover:border-gold/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold md:rounded-2xl md:p-5"
               >
                 {/* Background Image with slight hover scale, or subtle gold radial fallback */}
                 {category.image_url ? (

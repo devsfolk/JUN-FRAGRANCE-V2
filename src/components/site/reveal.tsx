@@ -20,6 +20,10 @@ export function Reveal({ children, delayMs = 0, className = "" }: RevealProps) {
   useEffect(() => {
     const el = elementRef.current;
     if (!el || revealed) return;
+    if (typeof IntersectionObserver === "undefined") {
+      const frame = window.requestAnimationFrame(() => setRevealed(true));
+      return () => window.cancelAnimationFrame(frame);
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {

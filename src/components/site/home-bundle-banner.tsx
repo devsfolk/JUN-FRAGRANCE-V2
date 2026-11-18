@@ -110,7 +110,7 @@ export async function HomeBundleBanner() {
                   return (
                     <div
                       key={product.id || idx}
-                      className="relative aspect-[140/300] w-24 sm:w-28 md:w-32 flex-1 max-w-[140px] [container-type:inline-size] rounded-[35px] [border-radius:25cqw] transition-transform motion-reduce:!animate-none motion-reduce:!transform-none"
+                      className="ratio-140-300-fallback relative aspect-[140/300] w-24 sm:w-28 md:w-32 flex-1 max-w-[140px] [container-type:inline-size] rounded-[35px] [border-radius:25cqw] transition-transform motion-reduce:!animate-none motion-reduce:!transform-none"
                       style={animationStyle}
                     >
                       <div

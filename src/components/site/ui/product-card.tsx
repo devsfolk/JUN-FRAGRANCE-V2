@@ -87,7 +87,7 @@ export function ProductCard({
         className="flex flex-col rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
       >
         {/* Photo Frame in 4:5 aspect */}
-        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-black/40">
+        <div className="ratio-4-5-fallback relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-black/40">
           {thumb ? (
             <Image
               src={thumb}

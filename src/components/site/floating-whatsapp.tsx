@@ -14,6 +14,7 @@ export function FloatingWhatsApp({ whatsappNumber }: { whatsappNumber: string | 
   useEffect(() => {
     const footer = document.querySelector("footer");
     if (!footer) return;
+    if (typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(([entry]) => setShow(!entry.isIntersecting), { threshold: 0.1 });
     observer.observe(footer);
     return () => observer.disconnect();

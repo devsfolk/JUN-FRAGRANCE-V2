@@ -205,7 +205,7 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
     let idleId: number | undefined;
 
     if (typeof window !== "undefined") {
-      if ("requestIdleCallback" in window) {
+      if (typeof (window as Window & { requestIdleCallback?: unknown }).requestIdleCallback === "function") {
         idleId = (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback(
           () => setCanLoadMist(true),
           { timeout: 1200 }
@@ -216,7 +216,7 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
     }
 
     return () => {
-      if (idleId && "cancelIdleCallback" in window) {
+      if (idleId !== undefined && typeof (window as Window & { cancelIdleCallback?: unknown }).cancelIdleCallback === "function") {
         (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
       }
       clearTimeout(timeoutId);
@@ -280,12 +280,14 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
 
-    const observer = new IntersectionObserver(([entry]) => {
-      isIntersecting = entry.isIntersecting;
-      isHeroOffScreenRef.current = !entry.isIntersecting;
-      syncAutoplayState();
-    });
-    observer.observe(container);
+    const observer = typeof IntersectionObserver !== "undefined"
+      ? new IntersectionObserver(([entry]) => {
+          isIntersecting = entry.isIntersecting;
+          isHeroOffScreenRef.current = !entry.isIntersecting;
+          syncAutoplayState();
+        })
+      : null;
+    observer?.observe(container);
 
     let rafScrollId: number;
     const updateScrollProgress = () => {
@@ -339,7 +341,7 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
       cancelAnimationFrame(rafScrollId);
       window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("visibilitychange", onVisibilityChange);
-      observer.disconnect();
+      observer?.disconnect();
       targetEl.removeEventListener("pointermove", onPointerMove as EventListener);
       targetEl.removeEventListener("touchmove", onTouchMove as EventListener);
     };
@@ -407,13 +409,13 @@ export function HeroSpotlight({ scenes, products, whatsappNumber }: HeroSpotligh
           "--p": "0",
         } as React.CSSProperties
       }
-      className="relative h-[160svh] w-full"
+      className="hero-scroll-region relative h-[160svh] w-full"
     >
       {/* Sticky Stage (height: 100svh) */}
       <div
         ref={stageRef}
         style={{ contain: "layout paint" }}
-        className="sticky top-0 flex h-[100svh] w-full items-center justify-center overflow-hidden bg-ink"
+        className="hero-scroll-stage sticky top-0 flex h-[100svh] w-full items-center justify-center overflow-hidden bg-ink"
       >
         {/* Layer 1: Scene Background Photos (crossfading) or gradient fallback */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">

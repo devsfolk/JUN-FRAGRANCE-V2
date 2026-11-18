@@ -35,8 +35,8 @@ function BottlePreview({ styles, oldStyles, previewKey }: { styles: string[]; ol
   const current = gradient(styles);
   const previous = gradient(oldStyles);
   return <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-ink-2/70 p-3 lg:block lg:border-0 lg:bg-transparent lg:p-0">
-    <div aria-hidden="true" className="relative aspect-[140/200] w-[70px] shrink-0 [container-type:inline-size] lg:aspect-[140/300] lg:w-32">
-      <div className={`absolute inset-0 overflow-hidden border ${styles.length ? "border-[#C9A66B]/40" : "border-dashed border-[#C9A66B]"}`} style={{ borderRadius: "25cqw" }}>
+      <div aria-hidden="true" className="ratio-140-200-fallback ratio-140-200-lg-300-fallback relative aspect-[140/200] w-[70px] shrink-0 [container-type:inline-size] lg:aspect-[140/300] lg:w-32">
+      <div className={`bottle-cqw-radius absolute inset-0 overflow-hidden border ${styles.length ? "border-[#C9A66B]/40" : "border-dashed border-[#C9A66B]"}`} style={{ borderRadius: "25cqw" }}>
         {current ? <div className="absolute inset-0 animate-[customBottleIn_.28s_ease-out_both] motion-reduce:animate-none" key={`current-${previewKey}`} style={{ background: current }} /> : <span className="absolute inset-0 grid place-items-center px-1 text-center text-[10px] text-gold">Your scent</span>}
         {previous ? <div className="absolute inset-0 animate-[customBottleOut_.28s_ease-out_both] motion-reduce:animate-none" key={`previous-${previewKey}`} style={{ background: previous }} /> : null}
       </div>
