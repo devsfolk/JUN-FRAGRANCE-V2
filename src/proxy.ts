@@ -15,7 +15,7 @@ export async function proxy(request: NextRequest) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    return response;
+    return redirectToLogin(request, response);
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
