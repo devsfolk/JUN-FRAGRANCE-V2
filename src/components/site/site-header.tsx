@@ -54,7 +54,7 @@ export function SiteHeader({
   return <>
     <header className={`fixed inset-x-0 top-0 z-40 border-b transition-colors duration-300 ${solid || open ? "border-white/10 bg-ink/95 backdrop-blur-md" : "border-transparent bg-ink/20"}`}>
       <div className="container-site flex h-16 items-center justify-between gap-4">
-        <Link aria-label="Jun.fragrance home" className="flex items-center gap-2.5 min-w-0" href="/">
+        <Link aria-label="Jun.fragrance home" className="flex min-h-11 min-w-11 items-center gap-2.5 min-w-0" href="/">
           {siteLogo?.url ? (
             <>
               <Image
@@ -81,7 +81,7 @@ export function SiteHeader({
           <nav aria-label="Main navigation" className="hidden items-center gap-8 mr-4 md:flex">
             {navLinks.map((link) => (
               <Link
-                className={`min-h-11 py-3 text-xs uppercase tracking-[.16em] transition-colors ${
+                className={`flex min-h-11 min-w-11 items-center justify-center px-1 py-3 text-xs uppercase tracking-[.16em] transition-colors ${
                   link.isSpecial
                     ? "font-semibold text-gold hover:text-white"
                     : "font-medium text-bone/75 hover:text-gold"

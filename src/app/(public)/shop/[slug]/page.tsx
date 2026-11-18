@@ -255,7 +255,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             <p className="mt-2 text-xs leading-relaxed text-mute">
               {product.title} perfume price in Pakistan: Rs. {new Intl.NumberFormat("en-PK", { maximumFractionDigits: 0 }).format(product.price)} for {product.size_ml} ml. Delivery: free in Karachi, Rs. 200 to 250 to other cities, usually 3 to 5 days.{" "}
-              <Link href="/delivery" className="text-gold underline underline-offset-4 hover:text-white">Delivery details</Link>
+              <Link href="/delivery" className="inline-flex min-h-11 items-center text-gold underline underline-offset-4 hover:text-white">Delivery details</Link>
             </p>
 
             {/* Product Order Controls: Quantity Stepper, Order now (green), and Add to cart (outlined) */}

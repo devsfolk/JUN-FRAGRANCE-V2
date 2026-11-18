@@ -111,7 +111,7 @@ export default async function FaqPage() {
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-mute sm:text-base">
           Can&apos;t find your answer here? Message us on{" "}
-          <Link href="/contact" className="text-gold underline underline-offset-4 hover:text-gold/80">
+          <Link href="/contact" className="inline-flex min-h-11 items-center text-gold underline underline-offset-4 hover:text-gold/80">
             WhatsApp
           </Link>
           .

@@ -44,7 +44,7 @@ export function SiteFooter({
   return <footer className="border-t border-white/10 bg-ink-2 pb-[max(2rem,env(safe-area-inset-bottom))] pt-14 md:pt-20">
     <Container><div className="grid gap-10 md:grid-cols-[1.3fr_1fr_1fr] md:gap-12">
       <div>
-        <Link className="inline-flex items-center gap-3" href="/">
+        <Link className="inline-flex min-h-11 min-w-11 items-center gap-3" href="/">
           {siteLogo?.url ? (
             <>
               <Image
@@ -76,7 +76,7 @@ export function SiteFooter({
           {links.map((link) => (
             <li key={link.href}>
               <Link
-                className={`inline-flex min-h-11 items-center text-sm ${
+                className={`inline-flex min-h-11 min-w-11 items-center text-sm ${
                   link.isSpecial
                     ? "font-semibold text-gold hover:text-white"
                     : "text-bone/75 hover:text-gold"

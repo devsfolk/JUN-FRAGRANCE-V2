@@ -164,7 +164,7 @@ export default async function JournalPostPage({ params }: JournalPostPageProps) 
         {/* Cover Image */}
         {post.cover_image_url ? (
           <div className="mx-auto mt-10 max-w-4xl overflow-hidden rounded-2xl border border-white/10 bg-black/40">
-            <div className="relative aspect-[16/9] w-full">
+            <div className="ratio-16-9-fallback relative aspect-[16/9] w-full">
               <Image
                 src={post.cover_image_url}
                 alt={post.title}
@@ -235,7 +235,7 @@ export default async function JournalPostPage({ params }: JournalPostPageProps) 
                 >
                   <Link href={`/journal/${rel.slug}`} className="flex flex-col">
                     {rel.cover_image_url ? (
-                      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-black/40">
+                      <div className="ratio-16-10-fallback relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-black/40">
                         <Image
                           src={rel.cover_image_url}
                           alt={rel.title}

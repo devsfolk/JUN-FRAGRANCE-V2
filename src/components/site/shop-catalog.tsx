@@ -67,7 +67,7 @@ export function ShopCatalog({
           value={query}
           onChange={(e) => updateQuery(e.target.value)}
           placeholder="Search by perfume name or inspiration..."
-          className="w-full rounded-xl border border-white/10 bg-ink-2 py-2.5 pl-10 pr-4 text-sm text-bone placeholder-mute/70 transition-colors focus:border-gold/60 focus:outline-none focus:ring-1 focus:ring-gold"
+          className="min-h-11 w-full rounded-xl border border-white/10 bg-ink-2 py-2.5 pl-10 pr-4 text-sm text-bone placeholder-mute/70 transition-colors focus:border-gold/60 focus:outline-none focus:ring-1 focus:ring-gold"
         />
         {query ? (
           <button

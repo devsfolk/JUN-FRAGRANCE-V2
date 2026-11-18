@@ -43,12 +43,12 @@ export default async function GiftsPage() {
     <section className="bg-ink pb-14 pt-28 text-bone md:pb-20"><Container>
       <h1 className="max-w-3xl font-serif text-4xl leading-tight md:text-6xl">Send perfume as a gift</h1>
       <p className="mt-5 max-w-2xl text-sm leading-7 text-bone/70">Choose a Jun.fragrance perfume or bundle, then send the order and recipient details on WhatsApp.</p>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{images.map((file) => <div className="relative aspect-[4/3] overflow-hidden rounded-xl" key={file}><Image src={`/gifts/${file}`} alt="Jun.fragrance gifting" fill sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw" className="object-cover" /></div>)}</div>
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{images.map((file) => <div className="ratio-4-3-fallback relative aspect-[4/3] overflow-hidden rounded-xl" key={file}><Image src={`/gifts/${file}`} alt="Jun.fragrance gifting" fill sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw" className="object-cover" /></div>)}</div>
     </Container></section>
     <section className="bg-bone py-14 text-ink md:py-20"><Container>
       <h2 className="font-serif text-3xl">Sending a gift to family in Pakistan?</h2>
       <ol className="mt-5 grid gap-4 sm:grid-cols-2">
-        <li className="rounded-xl border border-ink/10 p-5"><span className="text-xs text-gold">01</span><p className="mt-2 text-sm">Choose a perfume from the <Link className="underline underline-offset-4" href="/shop">shop</Link> or a three-perfume <Link className="underline underline-offset-4" href="/bundle">bundle</Link>.</p></li>
+        <li className="rounded-xl border border-ink/10 p-5"><span className="text-xs text-gold">01</span><p className="mt-2 text-sm">Choose a perfume from the <Link className="inline-flex min-h-11 min-w-11 items-center justify-center underline underline-offset-4" href="/shop">shop</Link> or a three-perfume <Link className="inline-flex min-h-11 min-w-11 items-center justify-center underline underline-offset-4" href="/bundle">bundle</Link>.</p></li>
         <li className="rounded-xl border border-ink/10 p-5"><span className="text-xs text-gold">02</span><p className="mt-2 text-sm">Switch on “This is a gift” before placing the order.</p></li>
         <li className="rounded-xl border border-ink/10 p-5"><span className="text-xs text-gold">03</span><p className="mt-2 text-sm">Send the order on WhatsApp with the recipient’s name and address in Pakistan.</p></li>
         <li className="rounded-xl border border-ink/10 p-5"><span className="text-xs text-gold">04</span><p className="mt-2 text-sm">We dispatch the parcel without prices shown on it.</p></li>

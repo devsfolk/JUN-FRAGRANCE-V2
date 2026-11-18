@@ -91,7 +91,7 @@ export default async function JournalPage() {
                   className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-ink-2/60 transition-colors hover:border-gold/40"
                 >
                   <Link href={`/journal/${post.slug}`} className="flex flex-col">
-                    <div className="relative aspect-[16/10] w-full overflow-hidden bg-black/40">
+                    <div className="ratio-16-10-fallback relative aspect-[16/10] w-full overflow-hidden bg-black/40">
                       {post.cover_image_url ? (
                         <Image
                           src={post.cover_image_url}

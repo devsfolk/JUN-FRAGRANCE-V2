@@ -32,7 +32,7 @@ export default function NotFound() {
 
       <Link
         href="/"
-        className="mt-4 text-xs text-mute underline underline-offset-4 transition-colors hover:text-bone"
+        className="mt-4 inline-flex min-h-11 items-center text-xs text-mute underline underline-offset-4 transition-colors hover:text-bone"
       >
         Back to home
       </Link>

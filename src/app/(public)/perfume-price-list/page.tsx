@@ -105,7 +105,7 @@ export default async function PerfumePriceListPage() {
         <section className="mt-10">
           <h2 className="font-serif text-xl">Delivery</h2>
           <p className="mt-2 text-sm leading-7 text-bone/80">
-            Delivery is across Pakistan in 3 to 5 days, between 12 PM and 9 PM. It is free in Karachi and costs Rs. 200 to 250 elsewhere. See <Link className="text-gold underline underline-offset-4" href="/delivery">delivery details</Link>.
+            Delivery is across Pakistan in 3 to 5 days, between 12 PM and 9 PM. It is free in Karachi and costs Rs. 200 to 250 elsewhere. See <Link className="inline-flex min-h-11 items-center text-gold underline underline-offset-4" href="/delivery">delivery details</Link>.
           </p>
         </section>
 

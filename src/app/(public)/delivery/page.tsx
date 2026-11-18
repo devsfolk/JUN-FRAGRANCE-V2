@@ -104,8 +104,8 @@ export default function DeliveryPage() {
         </section>
 
         <nav aria-label="Related pages" className="mt-8 flex flex-wrap gap-5 text-sm">
-          <Link className="text-gold underline underline-offset-4" href="/shop">Shop perfumes</Link>
-          <Link className="text-gold underline underline-offset-4" href="/bundle">Build a bundle</Link>
+          <Link className="inline-flex min-h-11 items-center text-gold underline underline-offset-4" href="/shop">Shop perfumes</Link>
+          <Link className="inline-flex min-h-11 items-center text-gold underline underline-offset-4" href="/bundle">Build a bundle</Link>
         </nav>
       </Container>
     </main>

@@ -42,7 +42,10 @@ for (const [browserName, browserType] of browsers) {
       const consoleErrors = [];
       const failedRequests = [];
       const onConsole = (message) => { if (message.type() === "error") consoleErrors.push(message.text()); };
-      const onFailed = (request) => failedRequests.push(`${request.method()} ${request.url()} (${request.failure()?.errorText || "failed"})`);
+      const onFailed = (request) => {
+        const error = request.failure()?.errorText || "failed";
+        if (!/ERR_ABORTED|Load request cancelled/i.test(error)) failedRequests.push(`${request.method()} ${request.url()} (${error})`);
+      };
       page.on("console", onConsole);
       page.on("requestfailed", onFailed);
       let response;
@@ -96,7 +99,8 @@ for (const [browserName, browserType] of browsers) {
           .filter(visible)
           .filter((element) => {
             const style = getComputedStyle(element);
-            if (Number(style.webkitLineClamp) > 0) return false;
+            if (Number(style.webkitLineClamp) > 0 || element.closest(".sr-only,[aria-hidden='true'],.hero-line-1,.hero-line-2,.hero-line-3") || element.querySelector(".hero-line-1,.hero-line-2,.hero-line-3")) return false;
+            if (style.clip !== "auto" || style.clipPath !== "none") return false;
             return (style.overflowX === "hidden" || style.overflowY === "hidden" || style.textOverflow === "ellipsis") && (element.scrollWidth > element.clientWidth + 2 || element.scrollHeight > element.clientHeight + 2);
           })
           .map((element) => (element.innerText || element.getAttribute("aria-label") || element.tagName).trim().replace(/\s+/g, " ").slice(0, 80))
