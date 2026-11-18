@@ -8,6 +8,7 @@ import {
   customStyleOptions, customSweatOptions, customWearOptions, customWeatherOptions,
   sanitizeCustomAnswers, sanitizeCustomText, type CustomAnswers,
 } from "@/lib/site/custom-request";
+import { useWizardBackState } from "@/lib/site/browser-history";
 
 const storageKey = "jf_custom_v1";
 const styleColors: Record<(typeof customStyleOptions)[number], string> = {
@@ -50,6 +51,7 @@ type FormSettings = { notes: string[]; bottleNameEnabled: boolean; lowAlcoholEna
 export function CustomFragranceForm({ whatsappNumber, settings }: { whatsappNumber: string | null; settings: FormSettings }) {
   const [answers, setAnswers] = useState<CustomAnswers>(blankCustomAnswers);
   const [step, setStep] = useState(0);
+  const backStep = useWizardBackState(step, setStep, "__jfCustomStep");
   const [hydrated, setHydrated] = useState(false);
   const [oldStyles, setOldStyles] = useState<string[]>([]);
   const [previewKey, setPreviewKey] = useState(0);
@@ -104,7 +106,7 @@ export function CustomFragranceForm({ whatsappNumber, settings }: { whatsappNumb
           ["Reference and details", [`Should smell like: ${answers.reference || "not specified"}`, `Bottle name: ${settings.bottleNameEnabled ? answers.bottleName || "none" : "not requested"}`, `Sensitivities: ${answers.sensitivities || "none"}`, `Notes: ${answers.notes || "none"}`]],
         ].map(([title, items], index) => <section className="rounded-lg border border-white/10 p-3" key={title as string}><div className="flex items-center justify-between gap-3"><h3 className="font-medium text-bone">{title as string}</h3><button className="min-h-11 px-3 text-sm text-gold underline underline-offset-4" onClick={() => changeStep(index)} type="button">Edit</button></div><ul className="space-y-1 text-sm text-bone/70">{(items as string[]).map((item) => <li key={item}>{item}</li>)}</ul></section>)}</div>{href ? <a className="flex min-h-14 items-center justify-center rounded-xl bg-[#155D3A] px-5 text-center text-base font-semibold text-white hover:bg-[#155D3A]/90" href={href} onClick={() => { try { localStorage.removeItem(storageKey); } catch { /* Ignore unavailable browser storage. */ } }} rel="noreferrer" target="_blank">Send request on WhatsApp</a> : <p className="rounded-lg border border-white/10 p-4 text-sm text-bone/75">WhatsApp is not set up yet</p>}<p className="text-sm text-bone/70">We will reply on WhatsApp to confirm the blend, price and time.</p><p className="text-xs text-mute">Message length: {message.length} / 1,800</p></div> : null}
       </div>
-      {step < 4 ? <div className="fixed inset-x-0 bottom-0 z-40 flex justify-between border-t border-white/10 bg-ink/95 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:static lg:mt-8 lg:border-0 lg:bg-transparent lg:p-0"><button className="min-h-11 rounded border border-white/20 px-5 text-sm text-bone disabled:opacity-40" disabled={step === 0 || !hydrated} onClick={() => changeStep(step - 1)} type="button">Back</button><button className="min-h-11 rounded bg-gold px-6 text-sm font-semibold text-ink disabled:opacity-50" disabled={!hydrated} onClick={() => changeStep(step + 1)} type="button">Next</button></div> : null}
+      {step < 4 ? <div className="fixed inset-x-0 bottom-0 z-40 flex justify-between border-t border-white/10 bg-ink/95 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:static lg:mt-8 lg:border-0 lg:bg-transparent lg:p-0"><button className="min-h-11 rounded border border-white/20 px-5 text-sm text-bone disabled:opacity-40" disabled={step === 0 || !hydrated} onClick={backStep} type="button">Back</button><button className="min-h-11 rounded bg-gold px-6 text-sm font-semibold text-ink disabled:opacity-50" disabled={!hydrated} onClick={() => changeStep(step + 1)} type="button">Next</button></div> : null}
     </div>
     <aside className="sticky top-24 hidden h-fit lg:block">{preview}</aside>
     <style>{`@keyframes customStepIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@media(prefers-reduced-motion:reduce){.animate-\\[customStepIn_\\.24s_ease-out_both\\]{animation:none!important}}`}</style>

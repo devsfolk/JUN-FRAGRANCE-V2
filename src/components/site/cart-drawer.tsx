@@ -16,6 +16,7 @@ import { useIntlStore } from "./intl-provider";
 import { createInternationalOrderMessage } from "@/lib/site/intl-order-message";
 import { GiftOption } from "./gift-option";
 import { EMPTY_GIFT, useGift } from "@/lib/site/gift-store";
+import { useBackDismissOverlay } from "@/lib/site/browser-history";
 
 interface CartDrawerProps {
   whatsappNumber: string | null;
@@ -39,6 +40,7 @@ export function CartDrawer({
   giftIncludesBag = false,
 }: CartDrawerProps) {
   const { isOpen, close } = useCartDrawer();
+  useBackDismissOverlay(isOpen, close, "cart");
   const cart = useCart();
   const storedGift = useGift();
   const gift = giftEnabled ? storedGift : EMPTY_GIFT;

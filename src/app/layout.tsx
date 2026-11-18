@@ -97,6 +97,7 @@ export default function RootLayout({
     <html
       className={`${cormorant.variable} ${manrope.variable} ${pinyon.variable}`}
       lang="en-PK"
+      data-scroll-behavior="smooth"
     >
       <body>{children}</body>
     </html>

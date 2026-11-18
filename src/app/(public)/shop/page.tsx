@@ -40,7 +40,13 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function ShopPage() {
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const search = await searchParams;
+  const initialQuery = typeof search.q === "string" ? search.q.slice(0, 100) : "";
   const [products, categories, rawSettings] = await Promise.all([
     getAllShopProducts(),
     getActiveCategories(),
@@ -98,6 +104,7 @@ export default async function ShopPage() {
           products={products}
           whatsappNumber={number}
           siteUrl={siteUrl}
+          initialQuery={initialQuery}
         />
       </Container>
       <JournalPlacement placement="shop" title="Perfume guides" />

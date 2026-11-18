@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { formatMoney } from "@/lib/site/intl-pricing";
 import { createInternationalOrderMessage } from "@/lib/site/intl-order-message";
 import { whatsappLink } from "@/lib/site/whatsapp";
+import { useBackDismissOverlay } from "@/lib/site/browser-history";
 
 export type IntlCountry = { code: string; name: string; currency: string; enabled: boolean; shipping_pkr: number | null; delivery_days_text: string; note: string };
 type IntlContextValue = { enabled: boolean; country: IntlCountry; countries: IntlCountry[]; selectCountry: (code: string) => void; quote: (amount: number) => Promise<number | null>; quoteMany: (amounts: number[]) => Promise<number[] | null>; money: (amount: number) => string };
@@ -77,6 +78,7 @@ export function useIntlProductHref(input: { title: string; sizeMl: number; slug:
 export function CountrySelector() {
   const { enabled, country, countries, selectCountry } = useIntlStore();
   const [open, setOpen] = useState(false);
+  useBackDismissOverlay(open, () => setOpen(false), "country-sheet");
   if (!enabled) return null;
   return <>
     <button className="min-h-11 rounded-full px-2 text-[10px] font-semibold tracking-wide text-bone hover:text-gold" type="button" onClick={() => setOpen(true)} aria-label="Choose delivery country">{country.code} · {country.currency}</button>

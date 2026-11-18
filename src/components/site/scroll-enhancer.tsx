@@ -4,7 +4,8 @@ import { useEffect } from "react";
 
 export function ScrollEnhancer() {
   useEffect(() => {
-    if (window.matchMedia("(pointer: fine)").matches === false || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const hasTouch = navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches;
+    if (hasTouch || !window.matchMedia("(pointer: fine)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let destroy: (() => void) | undefined;
     let cancelled = false;
     void import("lenis").then(({ default: Lenis }) => {

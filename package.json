@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "eslint",
     "qa:mobile": "node scripts/qa/mobile-audit.mjs",
+    "qa:back": "node scripts/qa/back-navigation.mjs",
     "import:seo-content": "node scripts/import-seo-content.mjs",
     "import:seo-content:dry": "node scripts/import-seo-content.mjs --dry-run"
   },
